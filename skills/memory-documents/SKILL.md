@@ -2,7 +2,8 @@
 name: memory-documents
 description: >
   Read, create, edit, and delete Markdown documents in the company's shared
-  Memory knowledge base, and organize them into folders. Trigger when asked to
+  Memory knowledge base, and organize them into folders. Trigger before starting
+  work on a task (to consult what the team already knows), and when asked to
   look something up in Memory, record durable knowledge for the team, write
   documentation that outlives a task, or reorganize the knowledge base. Memory
   documents are created only via POST /api/companies/{companyId}/memory-documents —
@@ -50,6 +51,92 @@ Memory page under Work. You read and write the same documents they see.
 sessions, that is the file-based `para-memory-files` skill and lives in
 `$AGENT_HOME`. Memory is curated, company-visible, and another agent or a human
 may edit the same document. Write here only what the team should keep.
+
+## Working rules
+
+These rules apply to every document you create or edit. The calls they use are
+documented in the sections below.
+
+### 1. Consult before you work
+
+At the start of a task, before planning or writing anything:
+
+1. `GET $MEM` — the list has titles and folders only, so it is cheap.
+2. If the task belongs to a project, open the documents in that project's
+   folder (see rule 4), starting with its overview.
+3. Open any other document whose title is plainly related to the task.
+4. Follow a `[[wikilink]]` inside those documents only when it is relevant to
+   what you are about to do.
+
+Open what is relevant, not everything: about five documents is usually enough.
+Use what you read — decisions already recorded there are the team's, so do not
+silently contradict them; if the task requires changing one, say so in your
+report and update the document.
+
+### 2. Titles: objective and in the task's language
+
+A title must tell a human or another agent what the document is without
+opening it.
+
+- Write it in the **same language as the task**. A task written in Portuguese
+  gets "Decisões de banco de dados"; one in English gets "Database decisions".
+- Name the subject, not the activity: "Checkout payment gateway", not
+  "Research I did about payments".
+- Keep it short — about 60 characters at most.
+- Never put in the title: dates (they go in the header, rule 3), version
+  markers ("v2", "final", "new"), agent names, or task identifiers.
+
+**Before creating, check the title is not taken.** Call
+`GET $MEM/resolve?target=<title>` and scan the list from rule 1. If a document
+already covers the subject, **update it** instead of creating a near-duplicate.
+Several loose documents on one subject are worse than one maintained document.
+
+### 3. Date and time header — mandatory
+
+Every document starts with its title heading followed by this line:
+
+```markdown
+# Database decisions
+
+> Criado em: 21/10/2026 14:32 · Atualizado em: 21/10/2026 14:32
+```
+
+- Format `DD/MM/AAAA HH:mm`, Brasília time (`America/Sao_Paulo`).
+- On create, both values are the current time.
+- On every edit, keep `Criado em` as it is and set `Atualizado em` to the
+  current time. If an existing document has no header, add one: use its
+  `createdAt` from the API for `Criado em`.
+
+Get the current time this way — `node` is always available on the agent host,
+while `date` with a time zone is not reliable on Windows:
+
+```bash
+NOW=$(node -e 'const p=Object.fromEntries(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));console.log(`${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`)')
+```
+
+### 4. One folder per project
+
+Documentation about a project lives in a Memory folder named exactly after the
+project.
+
+- Before writing project documentation, list the folders (`?kind=memory`) and
+  look for one with the project's name.
+- If there is none, create it, then create an overview document in it
+  ("<Project> — Overview", in the task's language) describing the project's
+  goal and linking the documents that follow.
+- Put every document about that project in its folder.
+- Knowledge that belongs to no single project goes in a folder named
+  "General" (or its equivalent in the task's language).
+
+### 5. Link related information
+
+Use `[[wikilinks]]` to connect a document to others that hold **related
+information** — the decision it depends on, the guide that applies it, the
+project overview it belongs to. Link by the exact title.
+
+Do not split a document into several pages just to have links; one complete
+document on a subject is the goal. Link only where another document genuinely
+adds context.
 
 ## Access
 
@@ -131,8 +218,11 @@ the full document.
 
 ```bash
 mem_curl -X POST -H "Content-Type: application/json" "$MEM" \
-  -d '{"title":"Database Decisions","folderId":null,"markdown":"# Database Decisions\n\nWe use Postgres because…"}'
+  -d '{"title":"Database decisions","folderId":"'"$FOLDER_ID"'","markdown":"# Database decisions\n\n> Criado em: '"$NOW"' · Atualizado em: '"$NOW"'\n\nWe use Postgres because…"}'
 ```
+
+The body follows the working rules above: title heading, then the date header
+(rule 3), and the document goes into its project folder (rule 4).
 
 Omitting `slug` derives it from the title, folding accents (`Decisões` →
 `decisoes`) — that is the normal case, so pass `slug` only when you need a
@@ -163,6 +253,7 @@ mem_curl -X PATCH -H "Content-Type: application/json" \
 
 `markdown` **replaces the whole body** — there is no append or patch-by-section.
 To add to a document, `GET` it first, build the new full body, then `PATCH`.
+Update the `Atualizado em` value in the header on every edit (rule 3).
 Because humans edit these too, re-read immediately before writing if any time
 has passed, or you will silently overwrite their edits.
 
@@ -215,7 +306,8 @@ See [[Database Decisions]] for the reasoning, and [[Runbook: Deploy]] for steps.
 ```
 
 A wikilink whose target does not exist renders as plain text, so it is safe to
-reference a document you intend to write next. Link by the exact title.
+reference a document you intend to write next. Link by the exact title, and
+only to related information (rule 5).
 
 ## Response shapes
 

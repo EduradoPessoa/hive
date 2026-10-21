@@ -996,7 +996,7 @@ describe.sequential("agent skill routes", () => {
       expect.objectContaining({
         adapterConfig: expect.objectContaining({
           paperclipSkillSync: expect.objectContaining({
-            desiredSkills: ["paperclipai/paperclip/paperclip"],
+            desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           }),
         }),
       }),
@@ -1258,12 +1258,13 @@ describe.sequential("agent skill routes", () => {
     expect(input.adapterConfig.paperclipSkillSync.desiredSkills).toHaveLength(7);
   });
 
-  it.each(["agents", "agent-hires"])("leaves ordinary general agents' defaults unchanged via %s", async (route) => {
+  it.each(["agents", "agent-hires"])("gives ordinary general agents only read-only Memory via %s", async (route) => {
     const res = await request(await createApp())
       .post(`/api/companies/company-1/${route}`)
       .send({ name: "Biff", role: "general", adapterType: "codex_local" });
     expect(res.status, JSON.stringify(res.body)).toBe(201);
-    expect(mockAgentService.create.mock.calls[0][1].adapterConfig.paperclipSkillSync).toBeUndefined();
+    expect(mockAgentService.create.mock.calls[0][1].adapterConfig.paperclipSkillSync.desiredSkills)
+      .toEqual(["paperclipai/paperclip/memory-documents-read"]);
   });
 
   it.each(["agents", "agent-hires"])("does not assign first-task to ordinary CEOs via %s", async (route) => {
@@ -1284,7 +1285,8 @@ describe.sequential("agent skill routes", () => {
       .post("/api/companies/company-1/agent-hires")
       .send({ name: "Biff", role: "general", adapterType: "claude_local", onboardingFirstAgent: true });
     expect(res.status, JSON.stringify(res.body)).toBe(201);
-    expect(mockAgentService.create.mock.calls[0][1].adapterConfig.paperclipSkillSync).toBeUndefined();
+    expect(mockAgentService.create.mock.calls[0][1].adapterConfig.paperclipSkillSync.desiredSkills)
+      .toEqual(["paperclipai/paperclip/memory-documents-read"]);
     await vi.waitFor(() => expect(mockAgentInstructionsService.materializeManagedBundle).toHaveBeenCalled());
     expect(mockAgentInstructionsService.materializeManagedBundle.mock.calls[0][1]["AGENTS.md"])
       .not.toContain("chief of staff");
@@ -1328,9 +1330,9 @@ describe.sequential("agent skill routes", () => {
       "company-1",
       expect.objectContaining({
         payload: expect.objectContaining({
-          desiredSkills: ["paperclipai/paperclip/paperclip"],
+          desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           requestedConfigurationSnapshot: expect.objectContaining({
-            desiredSkills: ["paperclipai/paperclip/paperclip"],
+            desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           }),
         }),
       }),
@@ -1415,7 +1417,7 @@ describe.sequential("agent skill routes", () => {
     expect(desired).toContain("paperclipai/paperclip/paperclip");
   });
 
-  it("does not add default skills to non-CEO hires", async () => {
+  it("adds only read-only Memory to non-CEO hires", async () => {
     const res = await request(await createApp(createDb(true)))
       .post("/api/companies/company-1/agent-hires")
       .send({
@@ -1429,7 +1431,9 @@ describe.sequential("agent skill routes", () => {
     const createInput = mockAgentService.create.mock.calls[0]?.[1] as {
       adapterConfig: Record<string, unknown>;
     };
-    expect(createInput.adapterConfig.paperclipSkillSync).toBeUndefined();
+    expect(createInput.adapterConfig.paperclipSkillSync).toEqual(
+      expect.objectContaining({ desiredSkills: ["paperclipai/paperclip/memory-documents-read"] }),
+    );
   });
 
   it("rejects version pins in agent hires while beta skills are disabled", async () => {
@@ -1475,7 +1479,7 @@ describe.sequential("agent skill routes", () => {
         icon: "crown",
         adapterConfig: expect.objectContaining({
           paperclipSkillSync: expect.objectContaining({
-            desiredSkills: ["paperclipai/paperclip/paperclip"],
+            desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           }),
         }),
       }),
@@ -1493,9 +1497,9 @@ describe.sequential("agent skill routes", () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           icon: "crown",
-          desiredSkills: ["paperclipai/paperclip/paperclip"],
+          desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           requestedConfigurationSnapshot: expect.objectContaining({
-            desiredSkills: ["paperclipai/paperclip/paperclip"],
+            desiredSkills: ["paperclipai/paperclip/paperclip", "paperclipai/paperclip/memory-documents-read"],
           }),
         }),
       }),

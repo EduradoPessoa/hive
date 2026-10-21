@@ -29,6 +29,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import { MarkdownBody } from "../MarkdownBody";
 import { applyMarkdownFormat, type MarkdownFormat } from "./markdown-format";
+import { formatMemoryTimestamp } from "./memory-dates";
 
 const TOOLBAR: Array<
   { format: MarkdownFormat; label: string; icon: typeof Bold; shortcut?: string } | "separator"
@@ -126,6 +127,9 @@ export function MemoryDocumentView({
     setMode("view");
   }
 
+  const createdAt = formatMemoryTimestamp(document.createdAt);
+  const updatedAt = formatMemoryTimestamp(document.updatedAt);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="flex h-(--sz-60px) shrink-0 items-center gap-3 border-b border-border px-6">
@@ -146,6 +150,17 @@ export function MemoryDocumentView({
           </>
         )}
       </header>
+
+      {/* Read from the database rather than the body, so every document shows
+          its dates — including ones written by people or before agents
+          started adding the header line. */}
+      {createdAt || updatedAt ? (
+        <p className="shrink-0 border-b border-border px-6 py-2 text-xs text-muted-foreground">
+          {createdAt ? <>Created {createdAt}</> : null}
+          {createdAt && updatedAt ? " · " : null}
+          {updatedAt ? <>Updated {updatedAt}</> : null}
+        </p>
+      ) : null}
 
       <div
         className={cn(

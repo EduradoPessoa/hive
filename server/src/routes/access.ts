@@ -3299,6 +3299,10 @@ export function accessRoutes(
           path: "/api/skills/memory-documents"
         },
         {
+          name: "memory-documents-read",
+          path: "/api/skills/memory-documents-read"
+        },
+        {
           name: "paperclip-create-agent",
           path: "/api/skills/paperclip-create-agent"
         },

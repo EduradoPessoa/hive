@@ -81,7 +81,11 @@ import {
   workspaceOperationService,
 } from "../services/index.js";
 import { badRequest, conflict, forbidden, HttpError, notFound, unprocessable } from "../errors.js";
-import { ONBOARDING_FIRST_TASK_SKILL_KEY, PAPERCLIP_CORE_SKILL_KEYS } from "../services/company-skills.js";
+import {
+  DEFAULT_AGENT_SKILL_KEYS,
+  ONBOARDING_FIRST_TASK_SKILL_KEY,
+  PAPERCLIP_CORE_SKILL_KEYS,
+} from "../services/company-skills.js";
 import { createRunSecretRedactionRegistry } from "../services/run-secret-redaction.js";
 import { assertAuthenticated, assertBoard, assertCompanyAccess, assertInstanceAdmin, buildActorSecretContext, getAccessibleResource, getActorInfo, hasCompanyAccess } from "./authz.js";
 import { runAdapterLoginStartSpine } from "./adapter-login-route-spine.js";
@@ -2933,12 +2937,15 @@ export function agentRoutes(
     adapterType: string,
     boardOnboardingFirstAgent = false,
   ): AgentDesiredSkillEntry[] | undefined {
-    if (role !== "ceo" && !boardOnboardingFirstAgent) return undefined;
     const adapter = findActiveServerAdapter(adapterType);
     if (!adapter?.listSkills && !adapter?.syncSkills) return undefined;
-    const keys = boardOnboardingFirstAgent
+    // Lead agents get the core set (which writes Memory); everyone else gets
+    // read-only Memory access so they can consult it before working.
+    const keys: readonly string[] = boardOnboardingFirstAgent
       ? [...PAPERCLIP_CORE_SKILL_KEYS, ONBOARDING_FIRST_TASK_SKILL_KEY]
-      : PAPERCLIP_CORE_SKILL_KEYS;
+      : role === "ceo"
+        ? PAPERCLIP_CORE_SKILL_KEYS
+        : DEFAULT_AGENT_SKILL_KEYS;
     return keys
       .filter((key) => adapterType !== "paperclip_runner" || key !== PAPERCLIP_OPERATIONAL_SKILL_KEY)
       .map((key) => ({ key, versionId: null }));

@@ -641,6 +641,16 @@ export const PAPERCLIP_CORE_SKILL_KEYS = [
   "paperclipai/paperclip/para-memory-files",
   "paperclipai/paperclip/memory-documents",
 ] as const;
+
+/**
+ * Skills every other agent starts with. Ordinary agents consult the shared
+ * Memory before working but do not write to it — they report durable findings
+ * to the lead, whose core set above carries the full memory-documents skill.
+ * Like the core set, these are only defaults and stay removable per agent.
+ */
+export const DEFAULT_AGENT_SKILL_KEYS = [
+  "paperclipai/paperclip/memory-documents-read",
+] as const;
 export const ONBOARDING_FIRST_TASK_SKILL_KEY = "paperclipai/paperclip/first-task";
 
 function deriveCanonicalSkillKey(
