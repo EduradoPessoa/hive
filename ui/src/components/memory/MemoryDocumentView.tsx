@@ -49,6 +49,24 @@ const TOOLBAR: Array<
   { format: "link", label: "Link", icon: Link2, shortcut: "Ctrl+K" },
 ];
 
+/** What the reader is doing with a document, kept by the page across remounts. */
+export interface MemoryDocumentEditState {
+  documentId: string;
+  mode: "view" | "edit";
+  draft: string;
+}
+
+/** The document id a wikilink in the rendered body points at, if any. */
+export function memoryDocumentIdFromHref(href: string | null): string | null {
+  if (!href) return null;
+  try {
+    const url = new URL(href, "http://memory.local");
+    return url.searchParams.get("doc");
+  } catch {
+    return null;
+  }
+}
+
 export interface MemoryDocumentViewProps {
   document: MemoryDocument;
   saving: boolean;
@@ -58,6 +76,15 @@ export interface MemoryDocumentViewProps {
   pendingNavigation: (() => void) | null;
   onResolvePendingNavigation: (discard: boolean) => void;
   onDirtyChange: (dirty: boolean) => void;
+  /**
+   * Opens another document in this same panel. When set, wikilinks in the body
+   * call it instead of navigating, so the page's unsaved-changes guard and its
+   * current layout (tree or graph) both stay in charge.
+   */
+  onOpenDocument?: (documentId: string) => void;
+  /** Restores an in-progress edit after the view is remounted (e.g. a layout switch). */
+  initialEditState?: MemoryDocumentEditState | null;
+  onEditStateChange?: (state: MemoryDocumentEditState) => void;
 }
 
 export function MemoryDocumentView({
@@ -68,9 +95,13 @@ export function MemoryDocumentView({
   pendingNavigation,
   onResolvePendingNavigation,
   onDirtyChange,
+  onOpenDocument,
+  initialEditState,
+  onEditStateChange,
 }: MemoryDocumentViewProps) {
-  const [mode, setMode] = useState<"view" | "edit">("view");
-  const [draft, setDraft] = useState(document.markdown);
+  const restored = initialEditState?.documentId === document.id ? initialEditState : null;
+  const [mode, setMode] = useState<"view" | "edit">(restored?.mode ?? "view");
+  const [draft, setDraft] = useState(restored?.draft ?? document.markdown);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -93,10 +124,20 @@ export function MemoryDocumentView({
   }
 
   // Opening a different document always starts read-only on its own content.
+  // Compared against the last seen values rather than run on mount, so a
+  // remount that restored an in-progress edit does not throw it away.
+  const shownDocument = useRef({ id: document.id, markdown: document.markdown });
   useEffect(() => {
+    const previous = shownDocument.current;
+    if (previous.id === document.id && previous.markdown === document.markdown) return;
+    shownDocument.current = { id: document.id, markdown: document.markdown };
     setMode("view");
     setDraft(document.markdown);
   }, [document.id, document.markdown]);
+
+  useEffect(() => {
+    onEditStateChange?.({ documentId: document.id, mode, draft });
+  }, [document.id, mode, draft, onEditStateChange]);
 
   const dirty = mode === "edit" && draft !== document.markdown;
 
@@ -169,6 +210,17 @@ export function MemoryDocumentView({
           // the textarea own the scroll instead.
           mode === "view" ? "overflow-y-auto scrollbar-auto-hide" : "overflow-hidden",
         )}
+        onClickCapture={(event) => {
+          if (!onOpenDocument) return;
+          const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+            "a[data-paperclip-wiki-link]",
+          );
+          const documentId = memoryDocumentIdFromHref(anchor?.getAttribute("href") ?? null);
+          if (!documentId) return;
+          // Prevented in the capture phase, so the router link never navigates.
+          event.preventDefault();
+          onOpenDocument(documentId);
+        }}
       >
         {mode === "view" ? (
           document.markdown.trim().length > 0 ? (

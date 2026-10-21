@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import type { FolderListItem, MemoryDocumentListItem } from "@paperclipai/shared";
+import { Loader2, Network } from "lucide-react";
+import {
+  createMemoryWikiLinkResolver,
+  type FolderListItem,
+  type MemoryDocumentListItem,
+} from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +17,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { MemoryDocumentView } from "@/components/memory/MemoryDocumentView";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable-panels";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { MemoryGraph } from "@/components/memory/MemoryGraph";
+import {
+  MemoryDocumentView,
+  type MemoryDocumentEditState,
+} from "@/components/memory/MemoryDocumentView";
+import {
+  DOCUMENT_PANEL_ID,
+  GRAPH_PANEL_ID,
+  readGraphSplit,
+  readGraphViewPreference,
+  writeGraphSplit,
+  writeGraphViewPreference,
+} from "@/components/memory/memory-view-preferences";
 import { MemoryTree } from "@/components/memory/MemoryTree";
 import { buildMemoryTree } from "@/components/memory/memory-tree";
 import { foldersApi } from "../api/folders";
@@ -23,6 +45,20 @@ import { useCompany } from "../context/CompanyContext";
 import { queryKeys } from "../lib/queryKeys";
 
 const RAIL_STORAGE_KEY = "paperclip.memory.folderRail.width";
+/** Below this width the graph and the document stack instead of sitting side by side. */
+const STACKED_LAYOUT_BREAKPOINT = 768;
+
+function useIsNarrow() {
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < STACKED_LAYOUT_BREAKPOINT,
+  );
+  useEffect(() => {
+    const onResize = () => setNarrow(window.innerWidth < STACKED_LAYOUT_BREAKPOINT);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return narrow;
+}
 const DEFAULT_RAIL_WIDTH = 288;
 const MIN_RAIL_WIDTH = 224;
 const MAX_RAIL_WIDTH = 400;
@@ -84,6 +120,22 @@ export function Memory() {
   const [draftDirty, setDraftDirty] = useState(false);
   const [pendingDocumentId, setPendingDocumentId] = useState<string | null>(null);
   const resizeStart = useRef<{ x: number; width: number } | null>(null);
+  const [graphView, setGraphView] = useState(readGraphViewPreference);
+  const graphSplit = useRef(readGraphSplit());
+  const isNarrow = useIsNarrow();
+  // The document panel is a different element in each layout, so switching
+  // remounts it. Its in-progress edit is kept here and handed back.
+  const editState = useRef<MemoryDocumentEditState | null>(null);
+  const rememberEditState = useCallback((state: MemoryDocumentEditState) => {
+    editState.current = state;
+  }, []);
+
+  function toggleGraphView() {
+    setGraphView((current) => {
+      writeGraphViewPreference(!current);
+      return !current;
+    });
+  }
 
   useEffect(() => {
     setBreadcrumbs([{ label: "Memory" }]);
@@ -103,6 +155,12 @@ export function Memory() {
     queryKey: queryKeys.memoryDocuments.detail(selectedCompanyId!, selectedDocumentId!),
     queryFn: () => memoryDocumentsApi.get(selectedCompanyId!, selectedDocumentId!),
     enabled: !!selectedCompanyId && !!selectedDocumentId,
+  });
+
+  const graphQuery = useQuery({
+    queryKey: queryKeys.memoryDocuments.graph(selectedCompanyId!),
+    queryFn: () => memoryDocumentsApi.graph(selectedCompanyId!),
+    enabled: !!selectedCompanyId && graphView,
   });
 
   const model = useMemo(
@@ -131,6 +189,21 @@ export function Memory() {
       { replace: true },
     );
   }
+
+  // Selection, pending navigation and any kept draft belong to one company.
+  // Switching companies starts clean rather than pointing at a document the
+  // new company cannot see.
+  const previousCompanyId = useRef(selectedCompanyId);
+  useEffect(() => {
+    if (previousCompanyId.current === selectedCompanyId) return;
+    previousCompanyId.current = selectedCompanyId;
+    editState.current = null;
+    setPendingDocumentId(null);
+    setDraftDirty(false);
+    selectDocument(null);
+    // selectDocument only writes the URL; the company id is what matters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompanyId]);
 
   const createFolder = useMutation({
     mutationFn: ({ parentId, name }: { parentId: string | null; name: string }) =>
@@ -193,17 +266,21 @@ export function Memory() {
     },
   });
 
-  /** Wikilinks resolve against the already-loaded list, so no round-trip is needed. */
+  /**
+   * Wikilinks resolve against the already-loaded list, so no round-trip is
+   * needed — with the same resolver the server uses to build the graph, so a
+   * link in the text and an edge in the graph always agree.
+   */
+  const resolveWikiLinkTarget = useMemo(
+    () => createMemoryWikiLinkResolver(documentsQuery.data?.documents ?? []),
+    [documentsQuery.data],
+  );
   const resolveWikiLinkHref = useCallback(
     (target: string) => {
-      const normalized = target.trim().toLowerCase();
-      const match = (documentsQuery.data?.documents ?? []).find(
-        (document) =>
-          document.title.toLowerCase() === normalized || document.slug === normalized,
-      );
-      return match ? `/memory?doc=${encodeURIComponent(match.id)}` : null;
+      const documentId = resolveWikiLinkTarget(target);
+      return documentId ? `/memory?doc=${encodeURIComponent(documentId)}` : null;
     },
-    [documentsQuery.data],
+    [resolveWikiLinkTarget],
   );
 
   function requestDocument(documentId: string) {
@@ -289,8 +366,121 @@ export function Memory() {
         }
       : null;
 
+  const documentPanel = (
+    <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+      {!selectedDocumentId ? (
+        <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            {graphView
+              ? "Select a node in the graph, or create a document to start."
+              : "Select a document from the rail, or create one to start."}
+          </p>
+          <Button size="sm" onClick={() => openPrompt({ kind: "create-document", folderId: null })}>
+            New document
+          </Button>
+        </div>
+      ) : documentQuery.isError ? (
+        <div className="flex flex-col items-start gap-2 px-6 py-5">
+          <p className="text-sm text-destructive">This document could not be loaded.</p>
+          <Button size="sm" variant="outline" onClick={() => void documentQuery.refetch()}>
+            Retry
+          </Button>
+        </div>
+      ) : documentQuery.isLoading || !documentQuery.data ? (
+        <p className="flex items-center gap-2 px-6 py-5 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Loading document…
+        </p>
+      ) : (
+        <MemoryDocumentView
+          document={documentQuery.data}
+          saving={saveDocument.isPending}
+          onSave={async (markdown) => {
+            await saveDocument.mutateAsync({ documentId: documentQuery.data.id, markdown });
+          }}
+          resolveWikiLinkHref={resolveWikiLinkHref}
+          pendingNavigation={pendingDocumentId ? () => selectDocument(pendingDocumentId) : null}
+          onResolvePendingNavigation={resolvePendingNavigation}
+          onDirtyChange={setDraftDirty}
+          onOpenDocument={requestDocument}
+          initialEditState={editState.current}
+          onEditStateChange={rememberEditState}
+        />
+      )}
+    </section>
+  );
+
+  const graphPanel = graphQuery.isError ? (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+      <p className="text-sm text-destructive">The graph could not be loaded.</p>
+      <Button size="sm" variant="outline" onClick={() => void graphQuery.refetch()}>
+        Retry
+      </Button>
+    </div>
+  ) : graphQuery.isLoading || !graphQuery.data ? (
+    <p className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+      <Loader2 className="size-4 animate-spin" /> Loading graph…
+    </p>
+  ) : graphQuery.data.nodes.length === 0 ? (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+      <p className="text-sm text-muted-foreground">
+        No documents yet. Documents appear here as nodes, connected by their [[wikilinks]].
+      </p>
+      <Button size="sm" onClick={() => openPrompt({ kind: "create-document", folderId: null })}>
+        New document
+      </Button>
+    </div>
+  ) : (
+    <MemoryGraph
+      // A new company starts from a fresh layout instead of reusing positions.
+      key={selectedCompanyId}
+      graph={graphQuery.data}
+      selectedDocumentId={selectedDocumentId}
+      onSelectDocument={requestDocument}
+    />
+  );
+
   return (
-    <div className="flex h-(--tc-thread-max-h) min-h-0 flex-col">
+    <div className="flex h-(--tc-thread-max-h) min-h-0 flex-col gap-2">
+      <div className="flex shrink-0 items-center justify-end">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon-sm"
+              variant={graphView ? "secondary" : "ghost"}
+              aria-pressed={graphView}
+              aria-label="Graph view"
+              onClick={toggleGraphView}
+            >
+              <Network />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Graph view</TooltipContent>
+        </Tooltip>
+      </div>
+
+      {graphView ? (
+        <div className="flex min-h-0 flex-1 overflow-hidden rounded-lg border border-border">
+          <ResizablePanelGroup
+            // Remount on orientation change so the stored split applies to the
+            // new axis instead of fighting the previous one.
+            key={isNarrow ? "stacked" : "side-by-side"}
+            orientation={isNarrow ? "vertical" : "horizontal"}
+            defaultLayout={graphSplit.current}
+            onLayoutChanged={(layout) => {
+              writeGraphSplit(layout);
+              graphSplit.current = readGraphSplit();
+            }}
+          >
+            <ResizablePanel id={GRAPH_PANEL_ID} minSize="20%">
+              {graphPanel}
+            </ResizablePanel>
+            <ResizableHandle orientation={isNarrow ? "vertical" : "horizontal"} />
+            <ResizablePanel id={DOCUMENT_PANEL_ID} minSize="20%">
+              {documentPanel}
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
+      ) : (
       <div className="flex min-h-0 flex-1 overflow-hidden rounded-lg border border-border">
       <aside
         className="flex min-h-0 shrink-0 flex-col border-r border-border py-2"
@@ -331,35 +521,9 @@ export function Memory() {
         }}
       />
 
-      <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-        {!selectedDocumentId ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Select a document from the rail, or create one to start.
-            </p>
-            <Button size="sm" onClick={() => openPrompt({ kind: "create-document", folderId: null })}>
-              New document
-            </Button>
-          </div>
-        ) : documentQuery.isLoading || !documentQuery.data ? (
-          <p className="flex items-center gap-2 px-6 py-5 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> Loading document…
-          </p>
-        ) : (
-          <MemoryDocumentView
-            document={documentQuery.data}
-            saving={saveDocument.isPending}
-            onSave={async (markdown) => {
-              await saveDocument.mutateAsync({ documentId: documentQuery.data.id, markdown });
-            }}
-            resolveWikiLinkHref={resolveWikiLinkHref}
-            pendingNavigation={pendingDocumentId ? () => selectDocument(pendingDocumentId) : null}
-            onResolvePendingNavigation={resolvePendingNavigation}
-            onDirtyChange={setDraftDirty}
-          />
-        )}
-        </section>
+      {documentPanel}
       </div>
+      )}
 
       <Dialog
         open={namePrompt !== null}

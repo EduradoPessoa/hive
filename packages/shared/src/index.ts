@@ -2616,7 +2616,20 @@ export type {
   CreateMemoryDocumentRequest,
   UpdateMemoryDocumentRequest,
   MoveMemoryDocumentRequest,
+  MemoryDocumentGraph,
+  MemoryDocumentGraphNode,
+  MemoryDocumentGraphLink,
 } from "./types/memory-document.js";
+export {
+  WIKI_LINK_PATTERN,
+  WIKI_LINK_SKIP_PARENT_TYPES,
+  parseWikiLinkBody,
+  wikiLinkTargetsInText,
+  normalizeMemorySlug,
+  createMemoryWikiLinkResolver,
+  type ParsedWikiLink,
+  type MemoryWikiLinkCandidate,
+} from "./memory-wikilinks.js";
 
 export {
   adapterRegistryEntrySchema,

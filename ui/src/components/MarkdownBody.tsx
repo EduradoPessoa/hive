@@ -43,6 +43,12 @@ import type {
   ExternalObjectLivenessState,
   ExternalObjectStatusCategory,
 } from "@paperclipai/shared";
+import {
+  WIKI_LINK_PATTERN,
+  WIKI_LINK_SKIP_PARENT_TYPES,
+  parseWikiLinkBody,
+  type ParsedWikiLink,
+} from "@paperclipai/shared";
 
 /**
  * Host-resolved external-object metadata for inline markdown decoration.
@@ -337,31 +343,8 @@ type MarkdownAstNode = {
   };
 };
 
-type ParsedWikiLink = {
-  target: string;
-  label: string;
-};
-
-const WIKI_LINK_PATTERN = /\[\[([^\]\r\n]+)\]\]/g;
-const WIKI_LINK_SKIP_PARENT_TYPES = new Set([
-  "definition",
-  "image",
-  "imageReference",
-  "link",
-  "linkReference",
-]);
-
-function parseWikiLinkBody(body: string): ParsedWikiLink | null {
-  const [rawTarget, ...rawLabelParts] = body.split("|");
-  const target = rawTarget?.trim() ?? "";
-  const label = rawLabelParts.length > 0 ? rawLabelParts.join("|").trim() : target;
-  if (!target || target.includes("[") || target.includes("]")) return null;
-  return {
-    target,
-    label: label || target,
-  };
-}
-
+// Parsing rules are shared with the Memory graph, which derives its
+// connections from the same `[[target]]` / `[[target|label]]` syntax.
 function encodeWikiLinkTarget(target: string): string | null {
   const trimmed = target.trim();
   if (!trimmed || /^[a-z][a-z\d+.-]*:/i.test(trimmed) || trimmed.startsWith("//")) return null;

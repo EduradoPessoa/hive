@@ -450,6 +450,9 @@ export const queryKeys = {
     list: (companyId: string) => ["memory-documents", companyId] as const,
     detail: (companyId: string, documentId: string) =>
       ["memory-documents", companyId, documentId] as const,
+    // Nested under `list` so every invalidation of a company's documents —
+    // create, edit, rename, move, delete, and folder changes — refreshes it too.
+    graph: (companyId: string) => ["memory-documents", companyId, "graph"] as const,
   },
   pipelines: {
     list: (companyId: string) => ["pipelines", companyId] as const,

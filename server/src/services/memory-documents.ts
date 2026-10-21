@@ -1,15 +1,19 @@
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import { folders, memoryDocuments } from "@paperclipai/db";
+import { createMemoryWikiLinkResolver } from "@paperclipai/shared";
 import type {
   CreateMemoryDocument,
   MemoryDocument,
+  MemoryDocumentGraph,
+  MemoryDocumentGraphLink,
   MemoryDocumentListResult,
   MoveMemoryDocument,
   UpdateMemoryDocument,
 } from "@paperclipai/shared";
 import { conflict, notFound, unprocessable } from "../errors.js";
 import { normalizeFolderSlug } from "./folders.js";
+import { extractWikiLinkTargets } from "./memory-document-links.js";
 
 type MemoryDocumentRow = typeof memoryDocuments.$inferSelect;
 
@@ -91,24 +95,55 @@ export function memoryDocumentService(db: Db) {
     return toDocument(row);
   }
 
-  /** Resolves a `[[wikilink]]` target: exact slug first, then case-insensitive title. */
+  /**
+   * Resolves a `[[wikilink]]` target with the same rules the reader and the
+   * graph use (see `createMemoryWikiLinkResolver`): normalized slug first,
+   * then case-insensitive title, and nothing when a title is ambiguous.
+   */
   async function resolveByTitle(companyId: string, target: string): Promise<MemoryDocument | null> {
-    const slug = normalizeFolderSlug(target);
-    const bySlug = await db
-      .select()
+    const candidates = await db
+      .select({ id: memoryDocuments.id, title: memoryDocuments.title, slug: memoryDocuments.slug })
       .from(memoryDocuments)
-      .where(and(eq(memoryDocuments.companyId, companyId), eq(memoryDocuments.slug, slug)))
-      .then((rows) => rows[0] ?? null);
-    if (bySlug) return toDocument(bySlug);
-    const byTitle = await db
-      .select()
+      .where(eq(memoryDocuments.companyId, companyId));
+    const documentId = createMemoryWikiLinkResolver(candidates)(target);
+    return documentId ? get(companyId, documentId) : null;
+  }
+
+  /**
+   * Every document as a node and every resolvable `[[wikilink]]` between two
+   * of them as a link. One query loads the company's documents; connections
+   * are derived from the Markdown in memory, and no body leaves the server.
+   * Unresolved targets and self-links are dropped; repeats collapse to one.
+   */
+  async function graph(companyId: string): Promise<MemoryDocumentGraph> {
+    const rows = await db
+      .select({
+        id: memoryDocuments.id,
+        title: memoryDocuments.title,
+        slug: memoryDocuments.slug,
+        folderId: memoryDocuments.folderId,
+        markdown: memoryDocuments.markdown,
+      })
       .from(memoryDocuments)
-      .where(and(
-        eq(memoryDocuments.companyId, companyId),
-        sql`lower(${memoryDocuments.title}) = lower(${target})`,
-      ))
-      .then((rows) => rows[0] ?? null);
-    return byTitle ? toDocument(byTitle) : null;
+      .where(eq(memoryDocuments.companyId, companyId))
+      .orderBy(asc(memoryDocuments.title));
+    const resolve = createMemoryWikiLinkResolver(rows);
+    const seen = new Set<string>();
+    const links: MemoryDocumentGraphLink[] = [];
+    for (const row of rows) {
+      for (const target of extractWikiLinkTargets(row.markdown)) {
+        const targetId = resolve(target);
+        if (!targetId || targetId === row.id) continue;
+        const key = `${row.id}->${targetId}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        links.push({ source: row.id, target: targetId });
+      }
+    }
+    return {
+      nodes: rows.map((row) => ({ id: row.id, title: row.title, folderId: row.folderId ?? null })),
+      links,
+    };
   }
 
   async function create(companyId: string, input: CreateMemoryDocument): Promise<MemoryDocument> {
@@ -174,5 +209,5 @@ export function memoryDocumentService(db: Db) {
     return toDocument(row);
   }
 
-  return { list, get, resolveByTitle, create, update, move, delete: remove };
+  return { list, get, resolveByTitle, graph, create, update, move, delete: remove };
 }

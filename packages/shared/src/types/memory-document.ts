@@ -33,3 +33,21 @@ export interface UpdateMemoryDocumentRequest {
 export interface MoveMemoryDocumentRequest {
   folderId?: string | null;
 }
+
+/** A graph node: just enough to label and place a document, never its body. */
+export interface MemoryDocumentGraphNode {
+  id: string;
+  title: string;
+  folderId: string | null;
+}
+
+/** A resolved `[[wikilink]]` from one document to another, by document id. */
+export interface MemoryDocumentGraphLink {
+  source: string;
+  target: string;
+}
+
+export interface MemoryDocumentGraph {
+  nodes: MemoryDocumentGraphNode[];
+  links: MemoryDocumentGraphLink[];
+}

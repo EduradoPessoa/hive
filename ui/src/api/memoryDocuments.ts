@@ -1,6 +1,7 @@
 import type {
   CreateMemoryDocumentRequest,
   MemoryDocument,
+  MemoryDocumentGraph,
   MemoryDocumentListResult,
   MoveMemoryDocumentRequest,
   UpdateMemoryDocumentRequest,
@@ -12,6 +13,7 @@ const base = (companyId: string) =>
 
 export const memoryDocumentsApi = {
   list: (companyId: string) => api.get<MemoryDocumentListResult>(base(companyId)),
+  graph: (companyId: string) => api.get<MemoryDocumentGraph>(`${base(companyId)}/graph`),
   get: (companyId: string, documentId: string) =>
     api.get<MemoryDocument>(`${base(companyId)}/${encodeURIComponent(documentId)}`),
   resolve: (companyId: string, target: string) =>

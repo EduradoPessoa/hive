@@ -30,6 +30,13 @@ export function memoryDocumentRoutes(db: Db) {
     res.json({ document: await svc.resolveByTitle(companyId, target) });
   });
 
+  // Registered before `/:documentId`, which would otherwise read "graph" as an id.
+  router.get("/companies/:companyId/memory-documents/graph", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    res.json(await svc.graph(companyId));
+  });
+
   router.get("/companies/:companyId/memory-documents/:documentId", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
