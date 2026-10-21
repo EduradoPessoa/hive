@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { constants as fsConstants, promises as fs, type Dirent } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import { CONNECTION_INTENT_AGENT_GUIDANCE } from "@paperclipai/shared";
 import { sanitizeRemoteExecutionEnv } from "./remote-execution-env.js";
 import {
@@ -4739,11 +4740,24 @@ export async function runChildProcess(
               }, opts.timeoutSec * 1000)
             : null;
 
+        // Pipes deliver arbitrary byte slices, so a multi-byte UTF-8 character
+        // (every accented letter) can straddle two chunks. Decoding each chunk
+        // alone turns both halves into U+FFFD; a decoder holds the partial
+        // bytes until the rest arrives.
+        const stdoutDecoder = new StringDecoder("utf8");
+        const stderrDecoder = new StringDecoder("utf8");
+        const decodeChunk = (decoder: StringDecoder, chunk: unknown) =>
+          typeof chunk === "string"
+            ? chunk
+            : Buffer.isBuffer(chunk)
+              ? decoder.write(chunk)
+              : String(chunk);
+
         child.stdout?.on("data", (chunk: unknown) => {
           const readable = child.stdout;
           if (!readable) return;
           readable.pause();
-          const text = String(chunk);
+          const text = decodeChunk(stdoutDecoder, chunk);
           stdout = appendWithCap(stdout, text);
           maybeArmTerminalResultCleanup();
           logChain = logChain
@@ -4761,7 +4775,7 @@ export async function runChildProcess(
           const readable = child.stderr;
           if (!readable) return;
           readable.pause();
-          const text = String(chunk);
+          const text = decodeChunk(stderrDecoder, chunk);
           stderr = appendWithCap(stderr, text);
           maybeArmTerminalResultCleanup();
           logChain = logChain

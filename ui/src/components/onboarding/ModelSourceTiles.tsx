@@ -1,7 +1,16 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { ChevronDown, Ellipsis } from "lucide-react";
 
 import { cn } from "../../lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   SOURCE_EXIT_FADE,
   SOURCE_COLLAPSE_MOVE,
@@ -27,6 +36,24 @@ export type ModelSource = {
   label: string;
   /** The brand mark, rendered into a 30px square. */
   icon: ReactNode;
+};
+
+/** A source offered from the "more" picker, which has room to say what it is. */
+export type MoreModelSource = ModelSource & {
+  description?: string;
+};
+
+/**
+ * The sources that do not earn a tile of their own.
+ *
+ * They sit behind one extra tile so the row stays a two-way question for the
+ * customer who already knows the answer, while everyone else can still reach
+ * the long tail without leaving the step.
+ */
+export type MoreModelSources = {
+  /** The idle tile's name, e.g. "More tools". */
+  label: string;
+  sources: MoreModelSource[];
 };
 
 const CREDENTIAL_TAG_LABEL: Record<CredentialMode, string> = {
@@ -61,6 +88,18 @@ export function CredentialTag({ mode }: { mode: CredentialMode }) {
   );
 }
 
+function tileClassName(selected: boolean, settling: boolean): string {
+  return cn(
+    "flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-1.5 self-stretch rounded-md border p-3",
+    "transition-(--tp-border-color-background-color) ease-(--motion-ease-standard)",
+    settling ? "duration-(--motion-duration-slow)" : "duration-(--motion-duration-fast)",
+    "outline-none focus-visible:ring-ring/50 focus-visible:ring-(length:--rad-3)",
+    selected
+      ? "border-foreground/40 bg-accent"
+      : "border-border bg-card hover:bg-accent/40",
+  );
+}
+
 function ModelSourceTile({
   source,
   mode,
@@ -83,32 +122,7 @@ function ModelSourceTile({
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
-      className={cn(
-        "flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-1.5 self-stretch rounded-md border p-3",
-        // Longer while the row is settling back to its default. Dropping the
-        // selection is the last thing that happens on the way out, and at the
-        // interaction duration it landed as a colour swap after everything else
-        // had stopped — a cut rather than a release. Across the tile's travel
-        // it reads as the choice being let go.
-        "transition-(--tp-border-color-background-color) ease-(--motion-ease-standard)",
-        settling ? "duration-(--motion-duration-slow)" : "duration-(--motion-duration-fast)",
-        // Focus is a ring, never a border. The stroke has exactly one job here
-        // and lending it to focus as well would mean tabbing across the row
-        // looked like picking every tile in turn.
-        "outline-none focus-visible:ring-ring/50 focus-visible:ring-(length:--rad-3)",
-        // Selection is a lighter surface *and* a brighter edge. An earlier pass
-        // here used the fill alone, reasoning that a bright stroke on one tile
-        // made the row read as one outlined object beside a plain one. The
-        // design does both, and it is right: at these sizes one step of fill is
-        // too quiet to answer "which did I pick?" from across the screen, and
-        // the stroke is what carries it.
-        //
-        // Hover stops short of the selected fill, so pointing at a tile says
-        // "this one is live" rather than "this one is chosen".
-        selected
-          ? "border-foreground/40 bg-accent"
-          : "border-border bg-card hover:bg-accent/40",
-      )}
+      className={tileClassName(selected, settling)}
     >
       <span className="flex size-(--sz-30px) shrink-0 items-center justify-center">
         {source.icon}
@@ -128,16 +142,114 @@ function ModelSourceTile({
   );
 }
 
+/**
+ * The tile that opens the rest of the sources.
+ *
+ * Idle, it is a neutral "more" tile. Once one of its sources is picked it
+ * becomes that source's tile — same mark, same name, same credential tag as the
+ * featured two — with a chevron to say it can still be changed. The list is a
+ * searchable popover with its own width, because one tile is too narrow to
+ * hold a name and a description side by side.
+ */
+function MoreSourcesTile({
+  more,
+  mode,
+  selected,
+  onSelect,
+  settling,
+}: {
+  more: MoreModelSources;
+  mode: CredentialMode;
+  selected: MoreModelSource | null;
+  onSelect: (id: string) => void;
+  settling: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = selected?.label ?? more.label;
+  const trigger = (
+    <PopoverTrigger asChild>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={selected !== null}
+        aria-haspopup="listbox"
+        aria-label={selected ? `${label}, change tool` : more.label}
+        className={tileClassName(selected !== null, settling)}
+      >
+        <span className="flex size-(--sz-30px) shrink-0 items-center justify-center">
+          {selected ? selected.icon : <Ellipsis className="size-full text-muted-foreground" />}
+        </span>
+        <span className="flex items-center gap-1 text-(length:--text-compact) font-medium text-foreground">
+          {label}
+          <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
+        </span>
+        {selected ? (
+          <CredentialTag mode={mode} />
+        ) : (
+          <span className="flex h-4 w-full items-center justify-center text-(length:--text-micro) text-muted-foreground">
+            {more.sources.length} more
+          </span>
+        )}
+      </button>
+    </PopoverTrigger>
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      {trigger}
+      <PopoverContent
+        align="end"
+        className="w-(--sz-source-popover) p-0"
+      >
+        <Command>
+          <CommandInput placeholder="Search tools..." />
+          <CommandList>
+            <CommandEmpty>No tool found.</CommandEmpty>
+            {more.sources.map((source) => (
+              <CommandItem
+                key={source.id}
+                value={`${source.label} ${source.description ?? ""}`}
+                onSelect={() => {
+                  setOpen(false);
+                  onSelect(source.id);
+                }}
+                className="gap-3 py-2"
+              >
+                <span className="flex size-5 shrink-0 items-center justify-center">
+                  {source.icon}
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-(length:--text-compact) font-medium text-foreground">
+                    {source.label}
+                  </span>
+                  {source.description && (
+                    <span className="truncate text-(length:--text-micro) text-muted-foreground">
+                      {source.description}
+                    </span>
+                  )}
+                </span>
+              </CommandItem>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function ModelSourceTiles({
   sources,
   mode,
   selectedId,
   onSelect,
   label,
+  more,
   collapsed = false,
   settling = false,
 }: {
   sources: ModelSource[];
+  /** Further sources, offered through one extra tile after the featured ones. */
+  more?: MoreModelSources;
   mode: CredentialMode;
   /** `null` before anything has been picked — the step opens this way. */
   selectedId: string | null;
@@ -178,7 +290,13 @@ export function ModelSourceTiles({
     tiles.current.get(target.id)?.focus();
   };
 
-  const shown = collapsed ? sources.filter((source) => source.id === selectedId) : sources;
+  const moreSelected = more?.sources.find((source) => source.id === selectedId) ?? null;
+  // Collapsed, the chosen source is just a statement — whichever list it came
+  // from — so it is drawn as an ordinary tile, not as the picker.
+  const shown = collapsed
+    ? [...sources, ...(moreSelected ? [moreSelected] : [])].filter((source) => source.id === selectedId)
+    : sources;
+  const showMore = !collapsed && more !== undefined && more.sources.length > 0;
 
   return (
     <div
@@ -231,6 +349,23 @@ export function ModelSourceTiles({
             />
           </motion.div>
         ))}
+        {showMore && (
+          <motion.div
+            key="__more__"
+            layout
+            transition={SOURCE_COLLAPSE_MOVE}
+            exit={{ opacity: 0, transition: SOURCE_EXIT_FADE }}
+            className="flex min-w-0 flex-1"
+          >
+            <MoreSourcesTile
+              more={more}
+              mode={mode}
+              selected={moreSelected}
+              onSelect={onSelect}
+              settling={settling}
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

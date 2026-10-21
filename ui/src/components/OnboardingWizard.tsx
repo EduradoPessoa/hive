@@ -5,8 +5,15 @@ import { aiConnectionsApi } from "@/api/ai-connections";
 import { aiProviderForAdapter } from "./ai-connections/AiConnectionField";
 import type { AiConnectionBinding } from "@paperclipai/shared";
 import { storeProviderApiKey } from "../lib/provider-credential";
-import { SavedProviderKeySelect, useSavedProviderKeys } from "./onboarding/SavedProviderKeySelect";
-import { randomAgentAppearance, resolveAgentAppearance, agentAppearanceSchema } from "@paperclipai/shared";
+import {
+  SavedProviderKeySelect,
+  useSavedProviderKeys,
+} from "./onboarding/SavedProviderKeySelect";
+import {
+  randomAgentAppearance,
+  resolveAgentAppearance,
+  agentAppearanceSchema,
+} from "@paperclipai/shared";
 import { OnboardingCharacter } from "./onboarding/OnboardingCharacter";
 import { useEffect, useState, useMemo, useRef } from "react";
 import type { ComponentType, CSSProperties } from "react";
@@ -19,7 +26,11 @@ import type {
   Environment,
   InstanceSettings,
 } from "@paperclipai/shared";
-import { AGENT_ROLES, AGENT_ROLE_LABELS, ADAPTER_AUTH_MISSING_CHECK_CODE } from "@paperclipai/shared";
+import {
+  AGENT_ROLES,
+  AGENT_ROLE_LABELS,
+  ADAPTER_AUTH_MISSING_CHECK_CODE,
+} from "@paperclipai/shared";
 import { AdapterLoginPanel } from "./AgentConfigForm";
 import {
   CONNECT_SOURCE_NAMES,
@@ -56,7 +67,13 @@ type ConnectPhase =
 import { secretsApi } from "../api/secrets";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
@@ -80,18 +97,21 @@ import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "../lib/utils";
 import {
   extractModelName,
-  extractProviderIdWithFallback
+  extractProviderIdWithFallback,
 } from "../lib/model-utils";
 import { getUIAdapter } from "../adapters";
 import { listUIAdapters } from "../adapters";
 import { isVisualAdapterChoice } from "../adapters/metadata";
-import { useDisabledAdaptersSync, useAdapterRegistryLoaded } from "../adapters/use-disabled-adapters";
+import {
+  useDisabledAdaptersSync,
+  useAdapterRegistryLoaded,
+} from "../adapters/use-disabled-adapters";
 import { useAdapterCapabilities } from "../adapters/use-adapter-capabilities";
 import { getAdapterDisplay } from "../adapters/adapter-display-registry";
 import { buildFixedClaudeOAuthBinding } from "./environment-variables-editor/model";
@@ -108,7 +128,10 @@ import { DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX } from "@paperclipai/a
 import { DEFAULT_CURSOR_LOCAL_MODEL } from "@paperclipai/adapter-cursor-local";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "@paperclipai/adapter-gemini-local";
 import { DEFAULT_KIMI_LOCAL_MODEL } from "@paperclipai/adapter-kimi-local";
-import { DEFAULT_OPENCODE_LOCAL_MODEL, isValidOpenCodeModelId } from "@paperclipai/adapter-opencode-local";
+import {
+  DEFAULT_OPENCODE_LOCAL_MODEL,
+  isValidOpenCodeModelId,
+} from "@paperclipai/adapter-opencode-local";
 import {
   canGoBackFromOnboardingStep,
   canJumpToOnboardingStep,
@@ -127,12 +150,25 @@ import {
   onboardingStepPositionFor,
 } from "./onboarding/Stepper";
 import { AgentPreview } from "./onboarding/AgentPreview";
-import { ModelSourceTiles, type CredentialMode } from "./onboarding/ModelSourceTiles";
+import {
+  ModelSourceTiles,
+  type CredentialMode,
+} from "./onboarding/ModelSourceTiles";
+import { sourceSupportsCredentialMode } from "./onboarding/source-credential-modes";
 import { CredentialModeLink } from "./onboarding/CredentialModeLink";
 import { FooterNav, type FooterPrimaryIcon } from "./onboarding/FooterNav";
 import { OnboardingHeading } from "./onboarding/OnboardingPrimitives";
 import { DEFAULT_AGENT_ROLE } from "../lib/onboarding-agent-role";
-import { capsuleHeroMotion, capsuleRoomEnter, capsuleRoomExit, heroRoomArrival, heroRoomMotion, ledeMotion, stepContentMotion, titleSwapMotion } from "./onboarding/onboarding-motion";
+import {
+  capsuleHeroMotion,
+  capsuleRoomEnter,
+  capsuleRoomExit,
+  heroRoomArrival,
+  heroRoomMotion,
+  ledeMotion,
+  stepContentMotion,
+  titleSwapMotion,
+} from "./onboarding/onboarding-motion";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
@@ -157,7 +193,8 @@ const ONBOARDING_EXCLUDED_ADAPTER_TYPES = new Set([
 ]);
 
 function restoreOnboardingAdapterType(savedAdapterType: unknown): AdapterType {
-  return typeof savedAdapterType === "string" && savedAdapterType !== "paperclip_runner"
+  return typeof savedAdapterType === "string" &&
+    savedAdapterType !== "paperclip_runner"
     ? savedAdapterType
     : "claude_local";
 }
@@ -172,7 +209,9 @@ function restoreOnboardingAdapterType(savedAdapterType: unknown): AdapterType {
  */
 function blocksAgentCreate(result: AdapterEnvironmentTestResult): boolean {
   if (result.status === "fail") return true;
-  return result.checks.some((check) => check.code === ADAPTER_AUTH_MISSING_CHECK_CODE);
+  return result.checks.some(
+    (check) => check.code === ADAPTER_AUTH_MISSING_CHECK_CODE,
+  );
 }
 
 /** True when `value` is a plain object, so callers can spread it as env config. */
@@ -189,7 +228,9 @@ const ANTHROPIC_API_KEY_ENV_KEY = "ANTHROPIC_API_KEY";
  * This checks the built configuration first, so onboarding never sends a
  * hire the server would reject.
  */
-function adapterConfigHasAnthropicApiKey(config: Record<string, unknown>): boolean {
+function adapterConfigHasAnthropicApiKey(
+  config: Record<string, unknown>,
+): boolean {
   if (!isEnvRecord(config.env)) return false;
   const binding = config.env[ANTHROPIC_API_KEY_ENV_KEY];
   if (typeof binding === "string") return binding.trim().length > 0;
@@ -216,7 +257,6 @@ const MODEL_SOURCE_BRAND_MARKS: Record<string, string> = {
   claude_local: "/brands/claude-color.svg",
 };
 
-
 /**
  * OpenAI's blossom, inline rather than served from `/brands`.
  *
@@ -236,7 +276,10 @@ function OpenAiBlossom({ className }: { className?: string }) {
   );
 }
 
-const MODEL_SOURCE_INLINE_MARKS: Record<string, ComponentType<{ className?: string }>> = {
+const MODEL_SOURCE_INLINE_MARKS: Record<
+  string,
+  ComponentType<{ className?: string }>
+> = {
   codex_local: OpenAiBlossom,
 };
 
@@ -251,7 +294,20 @@ const MODEL_SOURCE_INLINE_MARKS: Record<string, ComponentType<{ className?: stri
 const API_KEY_ENV_KEYS: Record<string, string> = {
   claude_local: ANTHROPIC_API_KEY_ENV_KEY,
   codex_local: "OPENAI_API_KEY",
+  gemini_local: "GEMINI_API_KEY",
+  kimi_local: "KIMI_API_KEY",
+  grok_local: "XAI_API_KEY",
+  opencode_local: "OPENROUTER_API_KEY",
+  cursor: "CURSOR_API_KEY",
+  cursor_cloud: "CURSOR_API_KEY",
 };
+
+/** A source's display name: the provider mapping first, then the adapter's own label. */
+function sourceNameFor(adapterType: string): string {
+  return (
+    CONNECT_SOURCE_NAMES[adapterType] ?? getAdapterDisplay(adapterType).label
+  );
+}
 
 function apiKeyEnvKeyFor(adapterType: string): string {
   return API_KEY_ENV_KEYS[adapterType] ?? "API_KEY";
@@ -353,9 +409,8 @@ export function OnboardingWizard() {
   // A failed validation must remain retryable. A later successful fetch needs
   // to remount the wizard with the now-authorized draft, rather than keeping
   // the defaults it showed while ownership was unknown.
-  const [initialDraftValidationComplete, setInitialDraftValidationComplete] = useState(
-    rawBlob === undefined || rawBlob === null,
-  );
+  const [initialDraftValidationComplete, setInitialDraftValidationComplete] =
+    useState(rawBlob === undefined || rawBlob === null);
 
   // Whether this account owns the company the draft names is an authorization
   // question, and the answer has to be about the account asking now.
@@ -408,7 +463,8 @@ export function OnboardingWizard() {
     !companiesQuery.data.unauthorized;
 
   const { saved, staleStateDetected } = useMemo(() => {
-    if (rawBlob === undefined) return { saved: null, staleStateDetected: false };
+    if (rawBlob === undefined)
+      return { saved: null, staleStateDetected: false };
     // Unreadable, so junk regardless of who owns what. Judged before the
     // ownership check rather than after it, so clearing it does not wait on a
     // company request that cannot change the answer.
@@ -417,7 +473,10 @@ export function OnboardingWizard() {
     // delete nothing. A draft withheld is recoverable on the next load; a
     // draft deleted, or one handed to the wrong account, is not.
     if (!ownershipDecidable) return { saved: null, staleStateDetected: false };
-    const restored = restoreOnboardingState(rawBlob, companiesQuery.data!.companies);
+    const restored = restoreOnboardingState(
+      rawBlob,
+      companiesQuery.data!.companies,
+    );
     return { saved: restored, staleStateDetected: restored === null };
   }, [rawBlob, ownershipDecidable, companiesQuery.data]);
 
@@ -450,7 +509,9 @@ export function OnboardingWizard() {
   // wizard writes nothing. If the wizard is open the customer is onboarding
   // right now, which supersedes the draft anyway.
   const waitForInitialDraftValidation =
-    !initialDraftValidationComplete && rawBlob !== undefined && companiesQuery.isFetching;
+    !initialDraftValidationComplete &&
+    rawBlob !== undefined &&
+    companiesQuery.isFetching;
 
   useEffect(() => {
     if (
@@ -460,7 +521,11 @@ export function OnboardingWizard() {
     ) {
       setInitialDraftValidationComplete(true);
     }
-  }, [initialDraftValidationComplete, ownershipDecidable, companiesQuery.isFetching]);
+  }, [
+    initialDraftValidationComplete,
+    ownershipDecidable,
+    companiesQuery.isFetching,
+  ]);
 
   if (waitForInitialDraftValidation) {
     return null;
@@ -481,11 +546,17 @@ function OnboardingWizardInner({
     onboardingRouteDismissed: routeDismissed,
     setOnboardingRouteDismissed: setRouteDismissed,
   } = useDialog();
-  const { companies, setSelectedCompanyId, loading: companiesLoading } = useCompany();
+  const {
+    companies,
+    setSelectedCompanyId,
+    loading: companiesLoading,
+  } = useCompany();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const { companyPrefix: matchedCompanyPrefix } = useParams<{ companyPrefix?: string }>();
+  const { companyPrefix: matchedCompanyPrefix } = useParams<{
+    companyPrefix?: string;
+  }>();
   // This component renders beside `<Routes>`, not inside it (`App.tsx`), so it
   // has no route match and `useParams()` gives nothing. Read the prefix from
   // the pathname, which `useLocation()` supplies without a match. The param is
@@ -502,9 +573,10 @@ function OnboardingWizardInner({
   // has something to ask about. Same match the resolver makes.
   const routeMatchedCompanyId =
     companyPrefix && !companiesLoading
-      ? companies.find(
-          (company) => company.issuePrefix.toUpperCase() === companyPrefix.toUpperCase(),
-        )?.id ?? null
+      ? (companies.find(
+          (company) =>
+            company.issuePrefix.toUpperCase() === companyPrefix.toUpperCase(),
+        )?.id ?? null)
       : null;
   // The mission lookup used to gate this: the step was applied once and not
   // revised, so opening before the answer arrived left the customer on the
@@ -524,13 +596,17 @@ function OnboardingWizardInner({
     onboardingOpen || (routeOnboardingOptions !== null && !routeDismissed);
   const effectiveOnboardingOptions = onboardingOpen
     ? onboardingOptions
-    : routeOnboardingOptions ?? {};
+    : (routeOnboardingOptions ?? {});
 
   // Sync disabled adapter types only when the wizard is visible. The wizard is
   // mounted globally, including on /auth, where protected adapter routes are
   // expected to reject signed-out browsers.
-  const disabledTypes = useDisabledAdaptersSync({ enabled: effectiveOnboardingOpen });
-  const adapterRegistryLoaded = useAdapterRegistryLoaded({ enabled: effectiveOnboardingOpen });
+  const disabledTypes = useDisabledAdaptersSync({
+    enabled: effectiveOnboardingOpen,
+  });
+  const adapterRegistryLoaded = useAdapterRegistryLoaded({
+    enabled: effectiveOnboardingOpen,
+  });
 
   // A fresh run opens on step 1 — "Name your organization". The Build / Grow
   // front door and its own step 0 are gone: there is one path now, so the
@@ -544,7 +620,9 @@ function OnboardingWizardInner({
   // is: it derives from queries, so a live read would move the floor under a
   // customer mid-flow — and here that would quietly re-open the "create a
   // company" step to a run that already holds one.
-  const [entryStep, setEntryStep] = useState<number>((saved?.step as Step) ?? initialStep);
+  const [entryStep, setEntryStep] = useState<number>(
+    (saved?.step as Step) ?? initialStep,
+  );
   /**
    * A page that opens straight onto the agent step — a cloud-managed
    * workspace arriving from Cloud's naming screen, or a reload — plays the
@@ -564,21 +642,31 @@ function OnboardingWizardInner({
   // where the capsule came from; updated after paint, so during the render
   // in which the step just changed it still names the departed step.
   const lastStep = useRef(step);
-  useEffect(() => { lastStep.current = step; }, [step]);
+  useEffect(() => {
+    lastStep.current = step;
+  }, [step]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState("");
 
   // Step 1
-  const [companyName, setCompanyName] = useState((saved?.companyName as string) ?? "");
+  const [companyName, setCompanyName] = useState(
+    (saved?.companyName as string) ?? "",
+  );
 
   // Step 2
   // The name is not defaulted: a pre-filled "Chief of staff" is a choice made
   // on the customer's behalf that they then have to notice and undo. It is the
   // step's only question, and its CTA gates on it.
-  const [agentName, setAgentName] = useState((saved?.agentName as string) ?? "");
-  const [agentAppearance, setAgentAppearance] = useState(() => agentAppearanceSchema.safeParse(saved?.agentAppearance).data ?? randomAgentAppearance());
+  const [agentName, setAgentName] = useState(
+    (saved?.agentName as string) ?? "",
+  );
+  const [agentAppearance, setAgentAppearance] = useState(
+    () =>
+      agentAppearanceSchema.safeParse(saved?.agentAppearance).data ??
+      randomAgentAppearance(),
+  );
   // Defaults to `general` rather than empty. The arc stopped asking for a role
   // — a customer naming their first agent is describing what it does, not
   // filing it — but the hire still needs one, and the guard below returns
@@ -625,16 +713,16 @@ function OnboardingWizardInner({
   // for the legacy adapter selected above. Keep the portable working
   // directory, but clear runner-specific execution fields while restoring.
   const [model, setModel] = useState(
-    savedNativeRunnerDraft ? "" : (saved?.model as string) ?? "",
+    savedNativeRunnerDraft ? "" : ((saved?.model as string) ?? ""),
   );
   const [command, setCommand] = useState(
-    savedNativeRunnerDraft ? "" : (saved?.command as string) ?? "",
+    savedNativeRunnerDraft ? "" : ((saved?.command as string) ?? ""),
   );
   const [args, setArgs] = useState(
-    savedNativeRunnerDraft ? "" : (saved?.args as string) ?? "",
+    savedNativeRunnerDraft ? "" : ((saved?.args as string) ?? ""),
   );
   const [url, setUrl] = useState(
-    savedNativeRunnerDraft ? "" : (saved?.url as string) ?? "",
+    savedNativeRunnerDraft ? "" : ((saved?.url as string) ?? ""),
   );
   const [adapterEnvResult, setAdapterEnvResult] =
     useState<AdapterEnvironmentTestResult | null>(null);
@@ -651,11 +739,12 @@ function OnboardingWizardInner({
    * picked keys, left, and came back should not be handed a sign-in panel they
    * already said no to.
    */
-  const [credentialModeChoice, setCredentialMode] = useState<CredentialMode | null>(
-    (saved?.credentialModeChoice !== undefined
-      ? saved.credentialModeChoice as CredentialMode | null
-      : saved?.credentialMode as CredentialMode | undefined) ?? null,
-  );
+  const [credentialModeChoice, setCredentialMode] =
+    useState<CredentialMode | null>(
+      (saved?.credentialModeChoice !== undefined
+        ? (saved.credentialModeChoice as CredentialMode | null)
+        : (saved?.credentialMode as CredentialMode | undefined)) ?? null,
+    );
   /**
    * Where the connect step's sign-in sequence is.
    *
@@ -692,7 +781,7 @@ function OnboardingWizardInner({
 
   // Created entity IDs — pre-populate from existing company when skipping step 1
   const [createdCompanyId, setCreatedCompanyId] = useState<string | null>(
-    existingCompanyId ?? (saved?.createdCompanyId as string) ?? null
+    existingCompanyId ?? (saved?.createdCompanyId as string) ?? null,
   );
   const savedKeys = useSavedProviderKeys(
     createdCompanyId,
@@ -701,29 +790,48 @@ function OnboardingWizardInner({
   );
   // The chooser is absent in onboarding. Prefer the user's explicit default;
   // otherwise only reuse an unambiguous account, regardless of list ordering.
-  const savedSubscription = savedKeys.subscriptions.find((option) => option.aiConnection?.mode === "responsible_user")
-    ?? (savedKeys.subscriptions.length === 1 ? savedKeys.subscriptions[0] : undefined);
-  const [selectedSavedKey, setSelectedSavedKey] = useState<{ companyId: string; envKey: string; id: string } | null>(null);
-  const selectedApiKeyId = selectedSavedKey?.companyId === createdCompanyId && selectedSavedKey?.envKey === apiKeyEnvKeyFor(adapterType)
-    ? selectedSavedKey.id
-    : savedKeys.options[0]?.id;
-  const selectedApiKey = savedKeys.options.find((option) => option.id === selectedApiKeyId);
-  const credentialMode = credentialModeChoice ?? (
-    (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
-      ? "subscription" : savedKeys.options.length || adapterType === "opencode_local" ? "api" : "subscription"
+  const savedSubscription =
+    savedKeys.subscriptions.find(
+      (option) => option.aiConnection?.mode === "responsible_user",
+    ) ??
+    (savedKeys.subscriptions.length === 1
+      ? savedKeys.subscriptions[0]
+      : undefined);
+  const [selectedSavedKey, setSelectedSavedKey] = useState<{
+    companyId: string;
+    envKey: string;
+    id: string;
+  } | null>(null);
+  const selectedApiKeyId =
+    selectedSavedKey?.companyId === createdCompanyId &&
+    selectedSavedKey?.envKey === apiKeyEnvKeyFor(adapterType)
+      ? selectedSavedKey.id
+      : savedKeys.options[0]?.id;
+  const selectedApiKey = savedKeys.options.find(
+    (option) => option.id === selectedApiKeyId,
   );
+  const credentialMode =
+    credentialModeChoice ??
+    (savedKeys.subscriptions.length > 0 ||
+    (adapterType === "claude_local" && savedKeys.storedLogin.data)
+      ? "subscription"
+      : savedKeys.options.length || adapterType === "opencode_local"
+        ? "api"
+        : "subscription");
   const [createdCompanyPrefix, setCreatedCompanyPrefix] = useState<
     string | null
   >((saved?.createdCompanyPrefix as string) ?? null);
-  const [createdAgentId, setCreatedAgentId] = useState<string | null>((saved?.createdAgentId as string) ?? null);
-  const [createdCompanyGoalId, setCreatedCompanyGoalId] = useState<string | null>(
-    (saved?.createdCompanyGoalId as string) ?? null
+  const [createdAgentId, setCreatedAgentId] = useState<string | null>(
+    (saved?.createdAgentId as string) ?? null,
   );
+  const [createdCompanyGoalId, setCreatedCompanyGoalId] = useState<
+    string | null
+  >((saved?.createdCompanyGoalId as string) ?? null);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(
-    (saved?.createdProjectId as string) ?? null
+    (saved?.createdProjectId as string) ?? null,
   );
   const [createdIssueRef, setCreatedIssueRef] = useState<string | null>(
-    (saved?.createdIssueRef as string) ?? null
+    (saved?.createdIssueRef as string) ?? null,
   );
 
   // The company the *route* last supplied, so a navigation that stops naming
@@ -759,14 +867,35 @@ function OnboardingWizardInner({
    * customer on the step to try again — and without this each press would store
    * another copy of the same credential.
    */
-  const apiKeySecretRef = useRef<{ key: string; companyId: string; envKey: string; binding?: Awaited<ReturnType<typeof storeProviderApiKey>>["binding"]; aiConnection?: AiConnectionBinding } | null>(null);
-  const managedSubscriptionRef = useRef<{ companyId: string; binding: AiConnectionBinding } | null>(null);
+  const apiKeySecretRef = useRef<{
+    key: string;
+    companyId: string;
+    envKey: string;
+    binding?: Awaited<ReturnType<typeof storeProviderApiKey>>["binding"];
+    aiConnection?: AiConnectionBinding;
+  } | null>(null);
+  const managedSubscriptionRef = useRef<{
+    companyId: string;
+    binding: AiConnectionBinding;
+  } | null>(null);
   const managedProvider = aiProviderForAdapter(adapterType);
   function managedBindingForStep(): AiConnectionBinding | undefined {
-    if (credentialMode === "api") return selectedApiKey?.aiConnection ?? (
-      !selectedApiKey && apiKeySecretRef.current?.companyId === createdCompanyId && apiKeySecretRef.current.envKey === apiKeyEnvKeyFor(adapterType)
-        ? apiKeySecretRef.current.aiConnection : undefined);
-    return savedSubscription?.aiConnection ?? (managedSubscriptionRef.current?.companyId === createdCompanyId && managedSubscriptionRef.current.binding.provider === managedProvider ? managedSubscriptionRef.current.binding : undefined);
+    if (credentialMode === "api")
+      return (
+        selectedApiKey?.aiConnection ??
+        (!selectedApiKey &&
+        apiKeySecretRef.current?.companyId === createdCompanyId &&
+        apiKeySecretRef.current.envKey === apiKeyEnvKeyFor(adapterType)
+          ? apiKeySecretRef.current.aiConnection
+          : undefined)
+      );
+    return (
+      savedSubscription?.aiConnection ??
+      (managedSubscriptionRef.current?.companyId === createdCompanyId &&
+      managedSubscriptionRef.current.binding.provider === managedProvider
+        ? managedSubscriptionRef.current.binding
+        : undefined)
+    );
   }
   createdCompanyIdRef.current = createdCompanyId;
 
@@ -878,10 +1007,16 @@ function OnboardingWizardInner({
 
   // Backfill issue prefix for an existing company once companies are loaded.
   useEffect(() => {
-    if (!effectiveOnboardingOpen || !createdCompanyId || createdCompanyPrefix) return;
+    if (!effectiveOnboardingOpen || !createdCompanyId || createdCompanyPrefix)
+      return;
     const company = companies.find((c) => c.id === createdCompanyId);
     if (company) setCreatedCompanyPrefix(company.issuePrefix);
-  }, [effectiveOnboardingOpen, createdCompanyId, createdCompanyPrefix, companies]);
+  }, [
+    effectiveOnboardingOpen,
+    createdCompanyId,
+    createdCompanyPrefix,
+    companies,
+  ]);
 
   // Backfill the name too, for the same company and the same reason.
   //
@@ -902,36 +1037,68 @@ function OnboardingWizardInner({
   useEffect(() => {
     if (!effectiveOnboardingOpen) return;
     const state = {
-      step, companyName,
-      agentName, agentAppearance, agentRole, adapterType, cwd, model, command, args, url,
+      step,
+      companyName,
+      agentName,
+      agentAppearance,
+      agentRole,
+      adapterType,
+      cwd,
+      model,
+      command,
+      args,
+      url,
       // The mode, never the key: this blob is localStorage.
-      credentialMode, credentialModeChoice,
-      createdCompanyId, createdCompanyPrefix, createdAgentId,
-      createdCompanyGoalId, createdProjectId, createdIssueRef,
+      credentialMode,
+      credentialModeChoice,
+      createdCompanyId,
+      createdCompanyPrefix,
+      createdAgentId,
+      createdCompanyGoalId,
+      createdProjectId,
+      createdIssueRef,
     };
     onboardingDraftStorage.write(JSON.stringify(state));
   }, [
-    effectiveOnboardingOpen, step, companyName,
-    agentName, agentAppearance, agentRole, adapterType, cwd, model, command, args, url,
-    credentialMode, credentialModeChoice,
-    createdCompanyId, createdCompanyPrefix, createdAgentId,
-    createdCompanyGoalId, createdProjectId, createdIssueRef,
+    effectiveOnboardingOpen,
+    step,
+    companyName,
+    agentName,
+    agentAppearance,
+    agentRole,
+    adapterType,
+    cwd,
+    model,
+    command,
+    args,
+    url,
+    credentialMode,
+    credentialModeChoice,
+    createdCompanyId,
+    createdCompanyPrefix,
+    createdAgentId,
+    createdCompanyGoalId,
+    createdProjectId,
+    createdIssueRef,
   ]);
 
   const {
     data: adapterModels,
     error: adapterModelsError,
     isLoading: adapterModelsLoading,
-    isFetching: adapterModelsFetching
+    isFetching: adapterModelsFetching,
   } = useQuery({
     // The wizard doesn't expose an environment selector, so models always
     // resolve against the local Paperclip host (environmentId = null).
     queryKey: createdCompanyId
       ? queryKeys.agents.adapterModels(createdCompanyId, adapterType, null)
       : ["agents", "none", "adapter-models", adapterType, null],
-    queryFn: () => agentsApi.adapterModels(createdCompanyId!, adapterType, { environmentId: null }),
+    queryFn: () =>
+      agentsApi.adapterModels(createdCompanyId!, adapterType, {
+        environmentId: null,
+      }),
     // Models are picked on step 4 (Connect a model).
-    enabled: Boolean(createdCompanyId) && effectiveOnboardingOpen && step === 4
+    enabled: Boolean(createdCompanyId) && effectiveOnboardingOpen && step === 4,
   });
   const getCapabilities = useAdapterCapabilities();
   const adapterCaps = getCapabilities(adapterType);
@@ -966,11 +1133,17 @@ function OnboardingWizardInner({
     try {
       return resolveAdapterTestEnvironmentId({
         agentDefaultEnvironmentId: null,
-        instanceDefaultEnvironmentId: instanceSettingsForLogin?.defaultEnvironmentId ?? null,
-        localDefaultEnvironmentId: resolveLocalDefaultEnvironmentId(loginEnvironmentList),
-        managedSandboxOnly: experimentalSettingsForLogin?.enableManagedSandboxOnly === true,
-        managedSandboxEnvironmentId: resolveManagedSandboxEnvironmentId(loginEnvironmentList),
-        visibleEnvironmentIds: loginEnvironmentList.map((environment) => environment.id),
+        instanceDefaultEnvironmentId:
+          instanceSettingsForLogin?.defaultEnvironmentId ?? null,
+        localDefaultEnvironmentId:
+          resolveLocalDefaultEnvironmentId(loginEnvironmentList),
+        managedSandboxOnly:
+          experimentalSettingsForLogin?.enableManagedSandboxOnly === true,
+        managedSandboxEnvironmentId:
+          resolveManagedSandboxEnvironmentId(loginEnvironmentList),
+        visibleEnvironmentIds: loginEnvironmentList.map(
+          (environment) => environment.id,
+        ),
       });
     } catch {
       return null;
@@ -982,8 +1155,9 @@ function OnboardingWizardInner({
   ]);
   const resolvedLoginEnvironment = useMemo(
     () =>
-      loginEnvironmentList.find((environment) => environment.id === resolvedLoginEnvironmentId) ??
-      null,
+      loginEnvironmentList.find(
+        (environment) => environment.id === resolvedLoginEnvironmentId,
+      ) ?? null,
     [loginEnvironmentList, resolvedLoginEnvironmentId],
   );
   // Sandbox provider capabilities for the login pseudo-terminal gate, loaded
@@ -1006,22 +1180,44 @@ function OnboardingWizardInner({
       : null;
   const loginProviderSupportsPty =
     loginEnvironmentProvider != null &&
-    loginEnvironmentCapabilities?.sandboxProviders?.[loginEnvironmentProvider]?.supportsLoginPty ===
-      true;
+    loginEnvironmentCapabilities?.sandboxProviders?.[loginEnvironmentProvider]
+      ?.supportsLoginPty === true;
   // The same capability gate the agent configuration form uses to show its
   // login panel (AgentConfigForm.tsx:1064), minus the form's fourth input — a
   // full adapter test result. The cheap auth signal below stands in for that
   // input here, so this gate alone only decides whether the login mechanism
   // could ever apply to the current adapter and environment.
-  const localLoginHealth = useQuery({ queryKey: queryKeys.health, queryFn: healthApi.get });
-  const canUseLocalLogin = resolvedLoginEnvironment?.driver === "local" && (localLoginHealth.data?.localAiLoginSupported ?? localLoginHealth.data?.deploymentMode === "local_trusted");
-  const localLogin = useLocalAiLogin(createdCompanyId, {
-    provider: managedProvider ?? "anthropic", method: "subscription",
-    name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} subscription`,
-    ownership: "personal", agentIds: [], allAgents: true,
-  }, effectiveOnboardingOpen && step === 4 && canUseLocalLogin && credentialMode !== "api" &&
-    Boolean(managedProvider) && !savedSubscription && !savedKeys.storedLogin.data && !managedBindingForStep(),
-  { allowHostClaude: localLoginHealth.data?.deploymentMode === "local_trusted" });
+  const localLoginHealth = useQuery({
+    queryKey: queryKeys.health,
+    queryFn: healthApi.get,
+  });
+  const canUseLocalLogin =
+    resolvedLoginEnvironment?.driver === "local" &&
+    (localLoginHealth.data?.localAiLoginSupported ??
+      localLoginHealth.data?.deploymentMode === "local_trusted");
+  const localLogin = useLocalAiLogin(
+    createdCompanyId,
+    {
+      provider: managedProvider ?? "anthropic",
+      method: "subscription",
+      name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} subscription`,
+      ownership: "personal",
+      agentIds: [],
+      allAgents: true,
+    },
+    effectiveOnboardingOpen &&
+      step === 4 &&
+      canUseLocalLogin &&
+      credentialMode !== "api" &&
+      Boolean(managedProvider) &&
+      !savedSubscription &&
+      !savedKeys.storedLogin.data &&
+      !managedBindingForStep(),
+    {
+      allowHostClaude:
+        localLoginHealth.data?.deploymentMode === "local_trusted",
+    },
+  );
   // A result from a previous selection must not hire or advance this wizard.
   // Environment query updates are not user navigation: the test resolves its
   // own environment, and those updates must not interrupt the pending attempt.
@@ -1032,15 +1228,23 @@ function OnboardingWizardInner({
       setLoading(false);
       setAdapterEnvLoading(false);
     }
-    return () => { connectAttemptRef.current++; };
-  }, [effectiveOnboardingOpen, createdCompanyId, adapterType, credentialMode, step]);
+    return () => {
+      connectAttemptRef.current++;
+    };
+  }, [
+    effectiveOnboardingOpen,
+    createdCompanyId,
+    adapterType,
+    credentialMode,
+    step,
+  ]);
 
   const canShowAdapterLogin = Boolean(
     adapterCaps.login != null &&
-      resolvedLoginEnvironment?.driver === "sandbox" &&
-      resolvedLoginEnvironmentId &&
-      createdCompanyId &&
-      loginProviderSupportsPty,
+    resolvedLoginEnvironment?.driver === "sandbox" &&
+    resolvedLoginEnvironmentId &&
+    createdCompanyId &&
+    loginProviderSupportsPty,
   );
   // The cheap signal, re-read whenever the adapter type or the resolved login
   // environment changes (both are part of the query key). It reports whether
@@ -1051,8 +1255,18 @@ function OnboardingWizardInner({
   // it did not strictly need, never the reverse.
   const authSignalQuery = useQuery({
     queryKey: createdCompanyId
-      ? queryKeys.agents.authSignal(createdCompanyId, adapterType, resolvedLoginEnvironmentId)
-      : ["agents", "none", "auth-signal", adapterType, resolvedLoginEnvironmentId],
+      ? queryKeys.agents.authSignal(
+          createdCompanyId,
+          adapterType,
+          resolvedLoginEnvironmentId,
+        )
+      : [
+          "agents",
+          "none",
+          "auth-signal",
+          adapterType,
+          resolvedLoginEnvironmentId,
+        ],
     queryFn: () =>
       agentsApi.getAdapterAuthSignal(
         createdCompanyId!,
@@ -1060,11 +1274,15 @@ function OnboardingWizardInner({
         resolvedLoginEnvironmentId ?? undefined,
       ),
     enabled:
-      Boolean(createdCompanyId) && effectiveOnboardingOpen && step === 4 && canShowAdapterLogin,
+      Boolean(createdCompanyId) &&
+      effectiveOnboardingOpen &&
+      step === 4 &&
+      canShowAdapterLogin,
   });
   const authSignalStatus = authSignalQuery.data?.status ?? null;
   const showAdapterLoginPanel =
-    canShowAdapterLogin && (authSignalStatus === "absent" || authSignalStatus === "unknown");
+    canShowAdapterLogin &&
+    (authSignalStatus === "absent" || authSignalStatus === "unknown");
   /**
    * Restores the connect sequence after a reload.
    *
@@ -1082,18 +1300,32 @@ function OnboardingWizardInner({
     queryFn: async () => {
       try {
         return adapterCaps.login?.panelMode === "submitted_browser_code"
-          ? await agentsApi.getActiveClaudeSetupTokenLoginSession(createdCompanyId!)
-          : await agentsApi.getActiveAdapterAuthLoginSession(createdCompanyId!, adapterType);
+          ? await agentsApi.getActiveClaudeSetupTokenLoginSession(
+              createdCompanyId!,
+            )
+          : await agentsApi.getActiveAdapterAuthLoginSession(
+              createdCompanyId!,
+              adapterType,
+            );
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) return null;
         throw error;
       }
     },
     enabled:
-      Boolean(createdCompanyId) && effectiveOnboardingOpen && step === 4 && canShowAdapterLogin,
+      Boolean(createdCompanyId) &&
+      effectiveOnboardingOpen &&
+      step === 4 &&
+      canShowAdapterLogin,
   });
   useEffect(() => {
-    if (!activeLoginSessionQuery.data || credentialMode === "api" || savedSubscription || savedKeys.storedLogin.data) return;
+    if (
+      !activeLoginSessionQuery.data ||
+      credentialMode === "api" ||
+      savedSubscription ||
+      savedKeys.storedLogin.data
+    )
+      return;
     // Re-derive the row's answer along with the sequence: a resumed session
     // implies a source was already picked, and the row stays a question
     // otherwise (see `sourcePicked` above).
@@ -1104,7 +1336,12 @@ function OnboardingWizardInner({
     // prompt through `onPromptReady`, below, which is what moves this beat
     // from `loading` to `ready`, exactly as a fresh press would.
     setConnectPhase((phase) => (phase === "idle" ? "loading" : phase));
-  }, [activeLoginSessionQuery.data, credentialMode, savedSubscription, savedKeys.storedLogin.data]);
+  }, [
+    activeLoginSessionQuery.data,
+    credentialMode,
+    savedSubscription,
+    savedKeys.storedLogin.data,
+  ]);
   /**
    * The signal is being fetched and has not answered yet.
    *
@@ -1135,10 +1372,11 @@ function OnboardingWizardInner({
   // server-disabled types are filtered out.
   const { recommendedAdapters, moreAdapters } = useMemo(() => {
     const all = listUIAdapters()
-      .filter((a) =>
-        !ONBOARDING_EXCLUDED_ADAPTER_TYPES.has(a.type) &&
-        !disabledTypes.has(a.type) &&
-        isVisualAdapterChoice(a.type)
+      .filter(
+        (a) =>
+          !ONBOARDING_EXCLUDED_ADAPTER_TYPES.has(a.type) &&
+          !disabledTypes.has(a.type) &&
+          isVisualAdapterChoice(a.type),
       )
       .map((a) => ({ ...getAdapterDisplay(a.type), type: a.type }));
 
@@ -1148,13 +1386,44 @@ function OnboardingWizardInner({
     };
   }, [disabledTypes]);
 
+  // What the row offers under the credential mode in force. A source that
+  // cannot be reached with this mode is not shown at all, rather than shown and
+  // then failing at the card. Coming-soon adapters are listed in the registry
+  // but are not a choice yet.
+  const featuredAdapters = useMemo(
+    () =>
+      recommendedAdapters.filter((a) =>
+        sourceSupportsCredentialMode(a.type, credentialMode),
+      ),
+    [recommendedAdapters, credentialMode],
+  );
+  const offeredMoreAdapters = useMemo(
+    () =>
+      moreAdapters.filter(
+        (a) =>
+          !a.comingSoon && sourceSupportsCredentialMode(a.type, credentialMode),
+      ),
+    [moreAdapters, credentialMode],
+  );
+
   /**
    * A source chosen from the visible row. Read off the row rather than off
    * `adapterType` alone, because a restored draft can name an adapter this step
    * no longer offers — a selection the customer cannot see.
    */
   const sourceSelected =
-    sourcePicked && recommendedAdapters.some((opt) => opt.type === adapterType);
+    sourcePicked &&
+    (featuredAdapters.some((opt) => opt.type === adapterType) ||
+      offeredMoreAdapters.some((opt) => opt.type === adapterType));
+
+  // Switching mode can leave the picked source without a way to connect (an
+  // API-only tool after "Use subscription instead"). The row has dropped it, so
+  // the question is open again rather than answered by a tile nobody can see.
+  useEffect(() => {
+    if (connectPhase !== "idle" || !sourcePicked) return;
+    if (!sourceSupportsCredentialMode(adapterType, credentialMode))
+      setSourcePicked(false);
+  }, [connectPhase, sourcePicked, adapterType, credentialMode]);
 
   /**
    * Whether the connect step may advance.
@@ -1173,7 +1442,8 @@ function OnboardingWizardInner({
    * Anything that gates this step belongs in here, so the next one is added
    * once rather than twice.
    */
-  const connectStepReady = sourceSelected && !adapterEnvLoading && !savedKeys.loading;
+  const connectStepReady =
+    sourceSelected && !adapterEnvLoading && !savedKeys.loading;
 
   /**
    * Whether this step has a sign-in to do before it can hire.
@@ -1185,17 +1455,16 @@ function OnboardingWizardInner({
    */
   const connectStepNeedsLogin = Boolean(
     credentialMode !== "api" &&
-      // Connection-list invalidation can arrive before the login's completion
-      // poll. Keep its controller mounted until it reports success; otherwise
-      // the saved account replaces the panel and "Connecting" never finishes.
-      (connectAuthUrl || (
-        showAdapterLoginPanel &&
+    // Connection-list invalidation can arrive before the login's completion
+    // poll. Keep its controller mounted until it reports success; otherwise
+    // the saved account replaces the panel and "Connecting" never finishes.
+    (connectAuthUrl ||
+      (showAdapterLoginPanel &&
         !savedSubscription &&
-        !(adapterType === "claude_local" && savedKeys.storedLogin.data)
-      )) &&
-      !savedKeys.loading &&
-      createdCompanyId &&
-      resolvedLoginEnvironmentId,
+        !(adapterType === "claude_local" && savedKeys.storedLogin.data))) &&
+    !savedKeys.loading &&
+    createdCompanyId &&
+    resolvedLoginEnvironmentId,
   );
 
   /**
@@ -1223,17 +1492,29 @@ function OnboardingWizardInner({
   */
   const connectCollapsed =
     connectPhase !== "idle" && connectPhase !== "unwindRow" && sourceSelected;
-  const connectProgress = adapterEnvLoading ? "Testing connection…" : loading ? "Connecting…" : null;
-  const hasSavedSubscription = Boolean(savedSubscription || savedKeys.storedLogin.data ||
-    (credentialMode !== "api" && managedBindingForStep()));
-  const connectHasCard = credentialMode === "api" || connectStepNeedsLogin || connectStepHasNoSandbox || Boolean(connectProgress);
+  const connectProgress = adapterEnvLoading
+    ? "Testing connection…"
+    : loading
+      ? "Connecting…"
+      : null;
+  const hasSavedSubscription = Boolean(
+    savedSubscription ||
+    savedKeys.storedLogin.data ||
+    (credentialMode !== "api" && managedBindingForStep()),
+  );
+  const connectHasCard =
+    credentialMode === "api" ||
+    connectStepNeedsLogin ||
+    connectStepHasNoSandbox ||
+    Boolean(connectProgress);
   const connectCardLive =
     connectHasCard &&
     (connectPhase === "loading" ||
-    connectPhase === "ready" ||
+      connectPhase === "ready" ||
       connectPhase === "waiting" ||
       connectPhase === "connecting");
-  const connectCardSpace = connectCardLive || (connectHasCard && connectPhase === "unwindCard");
+  const connectCardSpace =
+    connectCardLive || (connectHasCard && connectPhase === "unwindCard");
   /**
    * Whether the card's contents are rendered at all.
    *
@@ -1253,7 +1534,8 @@ function OnboardingWizardInner({
     connectPhase === "collapsing" ||
     connectPhase === "unwindRoom" ||
     connectPhase === "unwindRow";
-  const connectLinkVisible = connectPhase === "idle" || connectPhase === "unwindRow";
+  const connectLinkVisible =
+    connectPhase === "idle" || connectPhase === "unwindRow";
 
   /**
    * When "Connecting" started, and whether the login behind it has finished.
@@ -1272,22 +1554,43 @@ function OnboardingWizardInner({
 
   /** A sign-in is running and has not succeeded. */
   const connectStepLoggingIn =
-    connectStepNeedsLogin && connectPhase !== "idle" && connectPhase !== "connecting";
+    connectStepNeedsLogin &&
+    connectPhase !== "idle" &&
+    connectPhase !== "connecting";
 
   // Detecting a credential is enough to start verification once the user has
   // chosen Claude or Codex. A saved-list refresh during that work is not a new
   // attempt, and a failed attempt waits for an explicit Connect retry.
   useEffect(() => {
-    if (!effectiveOnboardingOpen || step !== 4 || connectPhase !== "ready" ||
-        !connectStepReady || connectStepNeedsLogin || connectCredentialStored ||
-        credentialMode !== "subscription" ||
-        (adapterType !== "claude_local" && adapterType !== "codex_local") ||
-        (!hasSavedSubscription && localLogin.status !== "ready") ||
-        loading || autoConnectStartedRef.current) return;
+    if (
+      !effectiveOnboardingOpen ||
+      step !== 4 ||
+      connectPhase !== "ready" ||
+      !connectStepReady ||
+      connectStepNeedsLogin ||
+      connectCredentialStored ||
+      credentialMode !== "subscription" ||
+      (adapterType !== "claude_local" && adapterType !== "codex_local") ||
+      (!hasSavedSubscription && localLogin.status !== "ready") ||
+      loading ||
+      autoConnectStartedRef.current
+    )
+      return;
     autoConnectStartedRef.current = true;
     void handleGiveHeartbeat();
-  }, [effectiveOnboardingOpen, step, connectPhase, connectStepReady, connectStepNeedsLogin,
-    connectCredentialStored, credentialMode, adapterType, hasSavedSubscription, localLogin.status, loading]);
+  }, [
+    effectiveOnboardingOpen,
+    step,
+    connectPhase,
+    connectStepReady,
+    connectStepNeedsLogin,
+    connectCredentialStored,
+    credentialMode,
+    adapterType,
+    hasSavedSubscription,
+    localLogin.status,
+    loading,
+  ]);
 
   /**
    * The beats, each waiting for the animation before it.
@@ -1306,7 +1609,9 @@ function OnboardingWizardInner({
         // opens.
         () =>
           setConnectPhase(
-            credentialMode === "api" || !connectStepNeedsLogin ? "ready" : "loading",
+            credentialMode === "api" || !connectStepNeedsLogin
+              ? "ready"
+              : "loading",
           ),
         beatDelay(SOURCE_COLLAPSE_MS),
       );
@@ -1329,7 +1634,9 @@ function OnboardingWizardInner({
       // has no notion of the phase and could not refuse it. Leaving the phase —
       // Back, the step changing, unmount — now cancels the hire with it.
       const shownFor =
-        connectingSinceRef.current === null ? 0 : Date.now() - connectingSinceRef.current;
+        connectingSinceRef.current === null
+          ? 0
+          : Date.now() - connectingSinceRef.current;
       const t = setTimeout(
         () => void handleGiveHeartbeat(),
         Math.max(0, CONNECTED_HOLD_MS - shownFor),
@@ -1337,11 +1644,17 @@ function OnboardingWizardInner({
       return () => clearTimeout(t);
     }
     if (connectPhase === "unwindCard") {
-      const t = setTimeout(() => setConnectPhase("unwindRoom"), beatDelay(CARD_EXIT_MS));
+      const t = setTimeout(
+        () => setConnectPhase("unwindRoom"),
+        beatDelay(CARD_EXIT_MS),
+      );
       return () => clearTimeout(t);
     }
     if (connectPhase === "unwindRoom") {
-      const t = setTimeout(() => setConnectPhase("unwindRow"), beatDelay(MAKE_ROOM_MS));
+      const t = setTimeout(
+        () => setConnectPhase("unwindRow"),
+        beatDelay(MAKE_ROOM_MS),
+      );
       return () => clearTimeout(t);
     }
     if (connectPhase === "unwindRow") {
@@ -1351,11 +1664,20 @@ function OnboardingWizardInner({
       // and settles into its default instead of snapping to it. The tiles take
       // the slower duration while `settling`, so the fade lasts the journey.
       setSourcePicked(false);
-      const t = setTimeout(() => setConnectPhase("idle"), beatDelay(SOURCE_COLLAPSE_MS));
+      const t = setTimeout(
+        () => setConnectPhase("idle"),
+        beatDelay(SOURCE_COLLAPSE_MS),
+      );
       return () => clearTimeout(t);
     }
     return;
-  }, [step, connectPhase, credentialMode, connectStepNeedsLogin, connectCredentialStored]);
+  }, [
+    step,
+    connectPhase,
+    credentialMode,
+    connectStepNeedsLogin,
+    connectCredentialStored,
+  ]);
 
   /**
    * The button's four faces, and which of them can be pressed.
@@ -1365,11 +1687,18 @@ function OnboardingWizardInner({
    * rather than offering — see `FooterNav`, where the label cross-fades over an
    * easing width so those changes read as one control rather than four.
    */
-  const connectSourceLabel = CONNECT_SOURCE_NAMES[adapterType] ?? adapterType;
-  const connectCta: { label: string; icon: FooterPrimaryIcon; disabled: boolean } =
-    connectProgress
-      ? { label: adapterEnvLoading ? "Testing…" : connectProgress, icon: "spinner", disabled: true }
-      : connectPhase === "waiting"
+  const connectSourceLabel = sourceNameFor(adapterType);
+  const connectCta: {
+    label: string;
+    icon: FooterPrimaryIcon;
+    disabled: boolean;
+  } = connectProgress
+    ? {
+        label: adapterEnvLoading ? "Testing…" : connectProgress,
+        icon: "spinner",
+        disabled: true,
+      }
+    : connectPhase === "waiting"
       ? { label: "Waiting for code", icon: "spinner", disabled: true }
       : connectPhase === "connecting"
         ? { label: "Connecting", icon: "spinner", disabled: true }
@@ -1384,7 +1713,10 @@ function OnboardingWizardInner({
                 label: "Connect",
                 icon: "arrow",
                 disabled:
-                  !connectStepReady || (credentialMode === "api" && !apiKey.trim() && !selectedApiKey),
+                  !connectStepReady ||
+                  (credentialMode === "api" &&
+                    !apiKey.trim() &&
+                    !selectedApiKey),
               }
           : // Nothing is chosen on arrival, and the row is what chooses. Until
             // it has been answered the button has nothing to do.
@@ -1430,7 +1762,8 @@ function OnboardingWizardInner({
   function handleConnectStepPrimary() {
     // Mid-sequence the button belongs to the sign-in, not to the step.
     if (connectPhase === "ready" && connectStepNeedsLogin) {
-      if (connectAuthUrl) window.open(connectAuthUrl, "_blank", "noreferrer,noopener");
+      if (connectAuthUrl)
+        window.open(connectAuthUrl, "_blank", "noreferrer,noopener");
       setConnectPhase("waiting");
       return;
     }
@@ -1496,7 +1829,6 @@ function OnboardingWizardInner({
     // preselection this step was changed to stop doing. The saved answer was
     // unofferable, so the question is open again.
     setSourcePicked(false);
-    if (next === "codex_local") return;
     if (next === "opencode_local") {
       setModel(DEFAULT_OPENCODE_LOCAL_MODEL);
       return;
@@ -1540,7 +1872,19 @@ function OnboardingWizardInner({
     setAdapterEnvResult(null);
     adapterEnvResultAppliedStoredLoginRef.current = false;
     setAdapterEnvError(null);
-  }, [step, adapterType, model, command, args, url, credentialMode, apiKey, selectedSavedKey, selectedApiKey?.id, savedSubscription?.id]);
+  }, [
+    step,
+    adapterType,
+    model,
+    command,
+    args,
+    url,
+    credentialMode,
+    apiKey,
+    selectedSavedKey,
+    selectedApiKey?.id,
+    savedSubscription?.id,
+  ]);
 
   /**
    * Leaving the step puts the row back to a question.
@@ -1571,7 +1915,7 @@ function OnboardingWizardInner({
   const hasAnthropicApiKeyOverrideCheck =
     adapterEnvResult?.checks.some(
       (check) =>
-        check.code === "claude_anthropic_api_key_overrides_subscription"
+        check.code === "claude_anthropic_api_key_overrides_subscription",
     ) ?? false;
   const shouldSuggestUnsetAnthropicApiKey =
     adapterType === "claude_local" &&
@@ -1594,8 +1938,8 @@ function OnboardingWizardInner({
       return [
         {
           provider: "models",
-          entries: [...filteredModels].sort((a, b) => a.id.localeCompare(b.id))
-        }
+          entries: [...filteredModels].sort((a, b) => a.id.localeCompare(b.id)),
+        },
       ];
     }
     const groups = new Map<string, Array<{ id: string; label: string }>>();
@@ -1609,7 +1953,7 @@ function OnboardingWizardInner({
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([provider, entries]) => ({
         provider,
-        entries: [...entries].sort((a, b) => a.id.localeCompare(b.id))
+        entries: [...entries].sort((a, b) => a.id.localeCompare(b.id)),
       }));
   }, [filteredModels, adapterType]);
 
@@ -1686,10 +2030,15 @@ function OnboardingWizardInner({
     returnedCompanyId: string,
   ) {
     const companyIdNow = createdCompanyIdRef.current;
-    if (companyIdNow === companyIdAtStart || companyIdNow === returnedCompanyId) {
+    if (
+      companyIdNow === companyIdAtStart ||
+      companyIdNow === returnedCompanyId
+    ) {
       return true;
     }
-    setError("Organization created, but onboarding switched to another organization.");
+    setError(
+      "Organization created, but onboarding switched to another organization.",
+    );
     return false;
   }
 
@@ -1705,26 +2054,29 @@ function OnboardingWizardInner({
       if (!goalId) {
         const goals = await goalsApi.list(createdCompanyId);
         goalId = selectDefaultCompanyGoalId(goals);
-        if (stillTheSameCompany(createdCompanyId)) setCreatedCompanyGoalId(goalId);
+        if (stillTheSameCompany(createdCompanyId))
+          setCreatedCompanyGoalId(goalId);
       }
 
       let projectId = createdProjectId;
       if (!projectId) {
         const projects = await projectsApi.list(createdCompanyId);
-        const existingOnboardingProject = selectReusableOnboardingProject(projects);
+        const existingOnboardingProject =
+          selectReusableOnboardingProject(projects);
         if (existingOnboardingProject) {
           projectId = existingOnboardingProject.id;
         } else {
           const project = await projectsApi.create(
             createdCompanyId,
-            buildOnboardingProjectPayload(goalId)
+            buildOnboardingProjectPayload(goalId),
           );
           projectId = project.id;
           queryClient.invalidateQueries({
-            queryKey: queryKeys.projects.list(createdCompanyId)
+            queryKey: queryKeys.projects.list(createdCompanyId),
           });
         }
-        if (stillTheSameCompany(createdCompanyId)) setCreatedProjectId(projectId);
+        if (stillTheSameCompany(createdCompanyId))
+          setCreatedProjectId(projectId);
       }
 
       let issueRef = createdIssueRef;
@@ -1735,13 +2087,13 @@ function OnboardingWizardInner({
             title: DEFAULT_TASK_TITLE,
             assigneeAgentId: createdAgentId,
             projectId,
-            goalId
-          })
+            goalId,
+          }),
         );
         issueRef = issue.identifier ?? issue.id;
         if (stillTheSameCompany(createdCompanyId)) setCreatedIssueRef(issueRef);
         queryClient.invalidateQueries({
-          queryKey: queryKeys.issues.list(createdCompanyId)
+          queryKey: queryKeys.issues.list(createdCompanyId),
         });
       }
 
@@ -1763,9 +2115,13 @@ function OnboardingWizardInner({
       closeOnboarding();
       // Drop the user straight into the first task's detail page (not the
       // dashboard) so they land on the conversation the agent will start in.
-      navigate(prefix ? `/${prefix}/issues/${issueRef}` : `/issues/${issueRef}`);
+      navigate(
+        prefix ? `/${prefix}/issues/${issueRef}` : `/issues/${issueRef}`,
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to launch first task");
+      setError(
+        err instanceof Error ? err.message : "Failed to launch first task",
+      );
     } finally {
       setLoading(false);
     }
@@ -1795,15 +2151,42 @@ function OnboardingWizardInner({
   async function storeApiKeyUserSecret(companyId: string): Promise<boolean> {
     const key = apiKey.trim();
     const envKey = apiKeyEnvKeyFor(adapterType);
-    if (apiKeySecretRef.current?.key === key && apiKeySecretRef.current.companyId === companyId && apiKeySecretRef.current.envKey === envKey) return true;
+    if (
+      apiKeySecretRef.current?.key === key &&
+      apiKeySecretRef.current.companyId === companyId &&
+      apiKeySecretRef.current.envKey === envKey
+    )
+      return true;
     try {
       if (managedProvider) {
-        await aiConnectionsApi.create(companyId, { provider: managedProvider, method: "api_key", name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} API`, ownership: "personal", apiKey: key, agentIds: [], allAgents: true });
-        apiKeySecretRef.current = { key, companyId, envKey, aiConnection: { provider: managedProvider, method: "api_key", mode: "responsible_user" } };
+        await aiConnectionsApi.create(companyId, {
+          provider: managedProvider,
+          method: "api_key",
+          name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} API`,
+          ownership: "personal",
+          apiKey: key,
+          agentIds: [],
+          allAgents: true,
+        });
+        apiKeySecretRef.current = {
+          key,
+          companyId,
+          envKey,
+          aiConnection: {
+            provider: managedProvider,
+            method: "api_key",
+            mode: "responsible_user",
+          },
+        };
         return true;
       }
       const stored = await storeProviderApiKey(companyId, envKey, key);
-      apiKeySecretRef.current = { key, companyId, envKey, binding: stored.binding };
+      apiKeySecretRef.current = {
+        key,
+        companyId,
+        envKey,
+        binding: stored.binding,
+      };
       return true;
     } catch (err) {
       setError(
@@ -1817,6 +2200,15 @@ function OnboardingWizardInner({
 
   function buildAdapterConfig(bindApiKey = false): Record<string, unknown> {
     const adapter = getUIAdapter(adapterType);
+    // A "provider/model" slug is OpenCode's format. Codex and Claude reject it
+    // ("openai/gpt-5.2-codex is not supported with a ChatGPT account"), and it
+    // can arrive here from a draft saved while another source was selected.
+    // Leaving the model empty lets each CLI use its own default.
+    const adapterModel =
+      (adapterType === "codex_local" || adapterType === "claude_local") &&
+      model.includes("/")
+        ? ""
+        : model;
     const config = adapter.buildAdapterConfig({
       ...defaultCreateValues,
       adapterType,
@@ -1825,11 +2217,11 @@ function OnboardingWizardInner({
           ? model || DEFAULT_GEMINI_LOCAL_MODEL
           : adapterType === "kimi_local"
             ? model || DEFAULT_KIMI_LOCAL_MODEL
-          : adapterType === "cursor"
-            ? model || DEFAULT_CURSOR_LOCAL_MODEL
-            : adapterType === "opencode_local"
-              ? model || DEFAULT_OPENCODE_LOCAL_MODEL
-              : model,
+            : adapterType === "cursor"
+              ? model || DEFAULT_CURSOR_LOCAL_MODEL
+              : adapterType === "opencode_local"
+                ? model || DEFAULT_OPENCODE_LOCAL_MODEL
+                : adapterModel,
       command,
       args,
       url,
@@ -1838,7 +2230,7 @@ function OnboardingWizardInner({
       dangerouslyBypassSandbox:
         adapterType === "codex_local"
           ? DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX
-          : defaultCreateValues.dangerouslyBypassSandbox
+          : defaultCreateValues.dangerouslyBypassSandbox,
     });
     if (adapterType === "claude_local" && forceUnsetAnthropicApiKey) {
       const env =
@@ -1867,16 +2259,26 @@ function OnboardingWizardInner({
     // present. If storing failed this stays false, and the right outcome is a
     // configuration with no credential — which the hire then blocks on — rather
     // than one that quietly falls back to embedding the value.
-    if (!managedBindingForStep() && credentialMode === "api" && (bindApiKey || selectedApiKey)) {
+    if (
+      !managedBindingForStep() &&
+      credentialMode === "api" &&
+      (bindApiKey || selectedApiKey)
+    ) {
       const env =
-        typeof config.env === "object" && config.env !== null && !Array.isArray(config.env)
+        typeof config.env === "object" &&
+        config.env !== null &&
+        !Array.isArray(config.env)
           ? { ...(config.env as Record<string, unknown>) }
           : {};
-      env[apiKeyEnvKeyFor(adapterType)] = selectedApiKey?.binding ?? apiKeySecretRef.current?.binding;
+      env[apiKeyEnvKeyFor(adapterType)] =
+        selectedApiKey?.binding ?? apiKeySecretRef.current?.binding;
       config.env = env;
     }
     if (credentialMode === "subscription" && savedSubscription?.binding) {
-      config.env = { ...((config.env as object) ?? {}), CODEX_HOME: savedSubscription.binding };
+      config.env = {
+        ...((config.env as object) ?? {}),
+        CODEX_HOME: savedSubscription.binding,
+      };
     }
     return config;
   }
@@ -1888,7 +2290,7 @@ function OnboardingWizardInner({
   ): Promise<AdapterEnvironmentTestResult | null> {
     if (!createdCompanyId) {
       setAdapterEnvError(
-        "Create or select an organization before testing adapter environment."
+        "Create or select an organization before testing adapter environment.",
       );
       return null;
     }
@@ -1904,23 +2306,26 @@ function OnboardingWizardInner({
       let settings: InstanceSettings;
       let managedSandboxOnly: boolean;
       try {
-        const [list, generalSettings, experimentalSettings] = await Promise.all([
-          queryClient.ensureQueryData({
-            queryKey: queryKeys.environments.list(createdCompanyId),
-            queryFn: () => environmentsApi.list(createdCompanyId),
-          }),
-          queryClient.ensureQueryData({
-            queryKey: queryKeys.instance.settings,
-            queryFn: () => instanceSettingsApi.get(),
-          }),
-          queryClient.ensureQueryData({
-            queryKey: queryKeys.instance.experimentalSettings,
-            queryFn: () => instanceSettingsApi.getExperimental(),
-          }),
-        ]);
+        const [list, generalSettings, experimentalSettings] = await Promise.all(
+          [
+            queryClient.ensureQueryData({
+              queryKey: queryKeys.environments.list(createdCompanyId),
+              queryFn: () => environmentsApi.list(createdCompanyId),
+            }),
+            queryClient.ensureQueryData({
+              queryKey: queryKeys.instance.settings,
+              queryFn: () => instanceSettingsApi.get(),
+            }),
+            queryClient.ensureQueryData({
+              queryKey: queryKeys.instance.experimentalSettings,
+              queryFn: () => instanceSettingsApi.getExperimental(),
+            }),
+          ],
+        );
         environmentList = list;
         settings = generalSettings;
-        managedSandboxOnly = experimentalSettings?.enableManagedSandboxOnly === true;
+        managedSandboxOnly =
+          experimentalSettings?.enableManagedSandboxOnly === true;
       } catch {
         if (!isCurrent()) return null;
         setAdapterEnvError(
@@ -1936,14 +2341,18 @@ function OnboardingWizardInner({
       const environmentId = resolveAdapterTestEnvironmentId({
         agentDefaultEnvironmentId: null,
         instanceDefaultEnvironmentId: settings?.defaultEnvironmentId ?? null,
-        localDefaultEnvironmentId: resolveLocalDefaultEnvironmentId(environmentList),
+        localDefaultEnvironmentId:
+          resolveLocalDefaultEnvironmentId(environmentList),
         managedSandboxOnly,
-        managedSandboxEnvironmentId: resolveManagedSandboxEnvironmentId(environmentList),
+        managedSandboxEnvironmentId:
+          resolveManagedSandboxEnvironmentId(environmentList),
         // The policy hides the local environment, so an instance default that
         // still points at the hidden local row names no visible environment.
         // Pass the visible ids so the resolver redirects that stale local
         // default to the managed sandbox instead of sending the hidden local id.
-        visibleEnvironmentIds: environmentList.map((environment) => environment.id),
+        visibleEnvironmentIds: environmentList.map(
+          (environment) => environment.id,
+        ),
       });
       if (!isCurrent()) return null;
       const result = await agentsApi.testEnvironment(
@@ -1951,18 +2360,21 @@ function OnboardingWizardInner({
         adapterType,
         {
           adapterConfig: adapterConfigOverride ?? buildAdapterConfig(),
-          ...(managedBindingForStep() ? { aiConnection: managedBindingForStep() } : {}),
+          ...(managedBindingForStep()
+            ? { aiConnection: managedBindingForStep() }
+            : {}),
           environmentId,
-        }
+        },
       );
       if (!isCurrent()) return null;
       setAdapterEnvResult(result);
-      adapterEnvResultAppliedStoredLoginRef.current = appliedStoredClaudeLoginBinding;
+      adapterEnvResultAppliedStoredLoginRef.current =
+        appliedStoredClaudeLoginBinding;
       return result;
     } catch (err) {
       if (!isCurrent()) return null;
       setAdapterEnvError(
-        err instanceof Error ? err.message : "Adapter environment test failed"
+        err instanceof Error ? err.message : "Adapter environment test failed",
       );
       return null;
     } finally {
@@ -2004,13 +2416,14 @@ function OnboardingWizardInner({
       setSelectedCompanyId(company.id);
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create organization");
+      setError(
+        err instanceof Error ? err.message : "Failed to create organization",
+      );
     } finally {
       creatingCompanyRef.current = false;
       setLoading(false);
     }
   }
-
 
   // Step 4 → 5 ("Give it a heartbeat"): hire the lead agent + seed its
   // instructions, then advance to Review. Guarded so revisiting step 4
@@ -2023,7 +2436,9 @@ function OnboardingWizardInner({
     if (adapterType === "paperclip_runner") {
       setAdapterType("claude_local");
       setModel("");
-      setError("Paperclip Runner is not available during onboarding. Choose a legacy adapter.");
+      setError(
+        "Paperclip Runner is not available during onboarding. Choose a legacy adapter.",
+      );
       return;
     }
     if (createdAgentId) {
@@ -2032,7 +2447,9 @@ function OnboardingWizardInner({
     }
     if (hiringAgentRef.current !== null) return;
     const attempt = ++connectAttemptRef.current;
-    const isCurrent = () => connectAttemptRef.current === attempt && stillTheSameCompany(createdCompanyId);
+    const isCurrent = () =>
+      connectAttemptRef.current === attempt &&
+      stillTheSameCompany(createdCompanyId);
     hiringAgentRef.current = attempt;
     autoConnectStartedRef.current = true;
     setLoading(true);
@@ -2042,7 +2459,7 @@ function OnboardingWizardInner({
         const selectedModelId = model.trim();
         if (!isValidOpenCodeModelId(selectedModelId)) {
           setError(
-            "OpenCode requires an explicit model in provider/model format."
+            "OpenCode requires an explicit model in provider/model format.",
           );
           return;
         }
@@ -2050,13 +2467,13 @@ function OnboardingWizardInner({
           setError(
             adapterModelsError instanceof Error
               ? adapterModelsError.message
-              : "Failed to load OpenCode models."
+              : "Failed to load OpenCode models.",
           );
           return;
         }
         if (adapterModelsLoading || adapterModelsFetching) {
           setError(
-            "OpenCode models are still loading. Please wait and try again."
+            "OpenCode models are still loading. Please wait and try again.",
           );
           return;
         }
@@ -2065,7 +2482,7 @@ function OnboardingWizardInner({
           setError(
             discoveredModels.length === 0
               ? "No OpenCode models discovered. Run `opencode models` and authenticate providers."
-              : `Configured OpenCode model is unavailable: ${selectedModelId}`
+              : `Configured OpenCode model is unavailable: ${selectedModelId}`,
           );
           return;
         }
@@ -2093,20 +2510,36 @@ function OnboardingWizardInner({
         apiKeyStored = await storeApiKeyUserSecret(createdCompanyId);
         if (!apiKeyStored || !isCurrent()) return;
       }
-      if (credentialMode !== "api" && canUseLocalLogin && managedProvider && !managedBindingForStep() && !savedSubscription && !savedKeys.storedLogin.data) {
+      if (
+        credentialMode !== "api" &&
+        canUseLocalLogin &&
+        managedProvider &&
+        !managedBindingForStep() &&
+        !savedSubscription &&
+        !savedKeys.storedLogin.data
+      ) {
         await localLogin.connect();
         if (!isCurrent()) return;
-        managedSubscriptionRef.current = { companyId: createdCompanyId, binding: { provider: managedProvider, method: "subscription", mode: "responsible_user" } };
+        managedSubscriptionRef.current = {
+          companyId: createdCompanyId,
+          binding: {
+            provider: managedProvider,
+            method: "subscription",
+            mode: "responsible_user",
+          },
+        };
       }
       const managedBinding = managedBindingForStep();
       const baseAdapterConfig = buildAdapterConfig(apiKeyStored);
       let storedClaudeLogin: ClaudeOAuthTokenStatusResponse | null = null;
       if (
-        !managedBinding && adapterType === "claude_local" &&
+        !managedBinding &&
+        adapterType === "claude_local" &&
         !adapterConfigHasAnthropicApiKey(baseAdapterConfig)
       ) {
         try {
-          storedClaudeLogin = await agentsApi.getClaudeOAuthTokenStatus(createdCompanyId);
+          storedClaudeLogin =
+            await agentsApi.getClaudeOAuthTokenStatus(createdCompanyId);
         } catch (err) {
           // A fixed 404 means the owner has no stored value. It is not a
           // failure.
@@ -2121,7 +2554,9 @@ function OnboardingWizardInner({
         ? {
             ...baseAdapterConfig,
             env: {
-              ...(isEnvRecord(baseAdapterConfig.env) ? baseAdapterConfig.env : {}),
+              ...(isEnvRecord(baseAdapterConfig.env)
+                ? baseAdapterConfig.env
+                : {}),
               ...buildFixedClaudeOAuthBinding(),
             },
           }
@@ -2137,13 +2572,18 @@ function OnboardingWizardInner({
         // problem or signed in.
         const cachedUsable =
           adapterEnvResult &&
-          adapterEnvResultAppliedStoredLoginRef.current === shouldApplyStoredClaudeLogin &&
+          adapterEnvResultAppliedStoredLoginRef.current ===
+            shouldApplyStoredClaudeLogin &&
           !blocksAgentCreate(adapterEnvResult)
             ? adapterEnvResult
             : null;
         const result =
           cachedUsable ??
-          (await runAdapterEnvironmentTest(hireAdapterConfig, shouldApplyStoredClaudeLogin, isCurrent));
+          (await runAdapterEnvironmentTest(
+            hireAdapterConfig,
+            shouldApplyStoredClaudeLogin,
+            isCurrent,
+          ));
         if (!result || !isCurrent()) return;
         // Block the hire on a failed environment test. Also block it on a
         // pass or a warn result that reports missing authentication — the
@@ -2172,7 +2612,9 @@ function OnboardingWizardInner({
       // walks the step twice ends up with "Ada" and "Ada 2". An agent with the
       // same name on the same source is that agent: adopt it and move on to
       // Review, the way a run that remembers its hire does.
-      const existingAgents = await agentsApi.list(createdCompanyId).catch(() => null);
+      const existingAgents = await agentsApi
+        .list(createdCompanyId)
+        .catch(() => null);
       if (!isCurrent()) return;
       const existing = existingAgents?.find(
         (agent) =>
@@ -2182,9 +2624,11 @@ function OnboardingWizardInner({
       if (existing) {
         if (!isCurrent()) return;
         setCreatedAgentId(existing.id);
-        setAgentAppearance(resolveAgentAppearance(existing.appearance, existing.id));
+        setAgentAppearance(
+          resolveAgentAppearance(existing.appearance, existing.id),
+        );
         queryClient.invalidateQueries({
-          queryKey: queryKeys.agents.list(createdCompanyId)
+          queryKey: queryKeys.agents.list(createdCompanyId),
         });
         setStep(5);
         return;
@@ -2201,26 +2645,31 @@ function OnboardingWizardInner({
         role: agentRole,
         adapterType,
         adapterConfig: hireAdapterConfig,
-        ...(shouldApplyStoredClaudeLogin ? { applyStoredClaudeLogin: true } : {}),
+        ...(shouldApplyStoredClaudeLogin
+          ? { applyStoredClaudeLogin: true }
+          : {}),
         // The server owns what the first agent is told now: this marker seeds
         // the chief-of-staff persona over the agent's entry instruction file.
         // The wizard no longer composes or overwrites it.
         onboardingFirstAgent: true,
-        runtimeConfig: { ...buildNewAgentRuntimeConfig(), ...(managedBinding ? { aiConnection: managedBinding } : {}) }
+        runtimeConfig: {
+          ...buildNewAgentRuntimeConfig(),
+          ...(managedBinding ? { aiConnection: managedBinding } : {}),
+        },
       });
       if (!isCurrent()) return;
       if (hire.approval) {
         await approvalsApi.approve(
           hire.approval.id,
-          "Approved during onboarding first-agent setup."
+          "Approved during onboarding first-agent setup.",
         );
         queryClient.invalidateQueries({
-          queryKey: queryKeys.approvals.list(createdCompanyId)
+          queryKey: queryKeys.approvals.list(createdCompanyId),
         });
       }
       const agent = hire.agent;
       queryClient.invalidateQueries({
-        queryKey: queryKeys.agents.list(createdCompanyId)
+        queryKey: queryKeys.agents.list(createdCompanyId),
       });
       // The agent's instruction file is seeded server-side from the
       // `onboardingFirstAgent` marker above (the chief-of-staff persona). The
@@ -2242,7 +2691,7 @@ function OnboardingWizardInner({
       if (connectCredentialStored && isCurrent()) {
         connectingSinceRef.current = null;
         setConnectAuthUrl(null);
-        setConnectPhase((phase) => phase === "connecting" ? "ready" : phase);
+        setConnectPhase((phase) => (phase === "connecting" ? "ready" : phase));
       }
     }
   }
@@ -2272,24 +2721,24 @@ function OnboardingWizardInner({
         await agentsApi.update(
           createdAgentId,
           { adapterConfig: configWithUnset },
-          createdCompanyId
+          createdCompanyId,
         );
         queryClient.invalidateQueries({
-          queryKey: queryKeys.agents.list(createdCompanyId)
+          queryKey: queryKeys.agents.list(createdCompanyId),
         });
       }
 
       const result = await runAdapterEnvironmentTest(configWithUnset);
       if (result?.status === "fail") {
         setError(
-          "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing."
+          "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing.",
         );
       }
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to unset ANTHROPIC_API_KEY and retry."
+          : "Failed to unset ANTHROPIC_API_KEY and retry.",
       );
     } finally {
       setUnsetAnthropicLoading(false);
@@ -2361,10 +2810,13 @@ function OnboardingWizardInner({
    * no naming screen before it, so its walk really is three, and it keeps the
    * shorter strip.
    */
-  const enteredFromCloud = experimentalSettingsForLogin?.enableManagedSandboxOnly === true;
-  const showsAgentArcStepper = isAgentArcStep && entryStep >= 3 && !enteredFromCloud;
+  const enteredFromCloud =
+    experimentalSettingsForLogin?.enableManagedSandboxOnly === true;
+  const showsAgentArcStepper =
+    isAgentArcStep && entryStep >= 3 && !enteredFromCloud;
 
-  const launchStateIncomplete = step === 5 && (!createdCompanyId || !createdAgentId);
+  const launchStateIncomplete =
+    step === 5 && (!createdCompanyId || !createdAgentId);
   /**
    * Whether the step hand-off plays out. Under reduced motion — and where the
    * platform cannot be asked, which `beatDelay` reads the same way — the next
@@ -2372,9 +2824,21 @@ function OnboardingWizardInner({
    * holds the screen for a departure nobody sees is just a slower screen.
    */
   const stepHandoff = beatDelay(1) > 0;
-  const heroRoomTarget = step === 1 || !arrived ? heroRoomMotion.closed : arrival && lastStep.current === entryStep ? heroRoomArrival : heroRoomMotion.open;
-  const capsuleTarget = step === 1 || !arrived ? capsuleRoomExit : step === 3 && stepHandoff && lastStep.current === 1 ? capsuleRoomEnter : capsuleHeroMotion.animate;
-  const visibleError = error ?? (launchStateIncomplete ? INCOMPLETE_ONBOARDING_STATE_MESSAGE : null);
+  const heroRoomTarget =
+    step === 1 || !arrived
+      ? heroRoomMotion.closed
+      : arrival && lastStep.current === entryStep
+        ? heroRoomArrival
+        : heroRoomMotion.open;
+  const capsuleTarget =
+    step === 1 || !arrived
+      ? capsuleRoomExit
+      : step === 3 && stepHandoff && lastStep.current === 1
+        ? capsuleRoomEnter
+        : capsuleHeroMotion.animate;
+  const visibleError =
+    error ??
+    (launchStateIncomplete ? INCOMPLETE_ONBOARDING_STATE_MESSAGE : null);
 
   return (
     <Dialog
@@ -2486,7 +2950,9 @@ function OnboardingWizardInner({
                       entryStep,
                     })
                   }
-                  onJumpToStep={(target) => setStep(AGENT_ARC_WIZARD_STEPS[target - 1]! as Step)}
+                  onJumpToStep={(target) =>
+                    setStep(AGENT_ARC_WIZARD_STEPS[target - 1]! as Step)
+                  }
                 />
               )}
 
@@ -2522,22 +2988,26 @@ function OnboardingWizardInner({
                       animate={heroRoomTarget}
                       aria-hidden={step === 1 || undefined}
                     >
-                    <motion.div
-                      initial={capsuleHeroMotion.initial}
-                      animate={capsuleTarget}
-                      transition={capsuleHeroMotion.transition}
-                      className="flex flex-col items-center gap-2 pb-6"
-                    >
-                      {/* Dozing and gray until the agent is actually hired.
+                      <motion.div
+                        initial={capsuleHeroMotion.initial}
+                        animate={capsuleTarget}
+                        transition={capsuleHeroMotion.transition}
+                        className="flex flex-col items-center gap-2 pb-6"
+                      >
+                        {/* Dozing and gray until the agent is actually hired.
                           Review is the first step where one exists, so that is
                           where it wakes and takes its colour — the arc's
                           payoff, not a flourish along it. The sequence itself
                           is the studio's export; see OnboardingCharacter. */}
-                      <div className="relative size-(--sz-160px)">
-                        <OnboardingCharacter appearance={agentAppearance} awake={step === 5} className="size-full" />
-                      </div>
-                      <AgentPreview agentName={agentName} agentRole="" />
-                    </motion.div>
+                        <div className="relative size-(--sz-160px)">
+                          <OnboardingCharacter
+                            appearance={agentAppearance}
+                            awake={step === 5}
+                            className="size-full"
+                          />
+                        </div>
+                        <AgentPreview agentName={agentName} agentRole="" />
+                      </motion.div>
                     </motion.div>
 
                     <OnboardingHeading
@@ -2546,11 +3016,15 @@ function OnboardingWizardInner({
                       // ones stood. Entrance only: the h1 keeps its line the
                       // whole time, so nothing below it moves for the swap.
                       title={
-                        <motion.span key={step} {...titleSwapMotion} className="inline-block">
+                        <motion.span
+                          key={step}
+                          {...titleSwapMotion}
+                          className="inline-block"
+                        >
                           {step === 1
                             ? "What is the name of your organization?"
                             : step === 3
-                              ? "Create your first agent"
+                              ? "Create your first Hibee"
                               : step === 4
                                 ? "Connect a model"
                                 : "Let's get started..."}
@@ -2569,11 +3043,19 @@ function OnboardingWizardInner({
                     <motion.div
                       className="overflow-hidden text-center"
                       initial={false}
-                      animate={step === 1 || step === 3 ? ledeMotion.closed : ledeMotion.open}
+                      animate={
+                        step === 1 || step === 3
+                          ? ledeMotion.closed
+                          : ledeMotion.open
+                      }
                       aria-hidden={step === 1 || step === 3 || undefined}
                     >
                       <p className="pt-2 text-base leading-relaxed text-muted-foreground">
-                        <motion.span key={step} {...titleSwapMotion} className="inline-block">
+                        <motion.span
+                          key={step}
+                          {...titleSwapMotion}
+                          className="inline-block"
+                        >
                           {step === 4
                             ? "Paperclip works with your subscription or API keys."
                             : `${agentName.trim() || "Your first agent"} is ready to work!`}
@@ -2591,47 +3073,60 @@ function OnboardingWizardInner({
                   See stepContentMotion. */}
               {/* `initial` only for an arrival: the step's content opens its
                   room with the hero's instead of being there already. */}
-              <AnimatePresence mode={stepHandoff ? "wait" : "sync"} initial={arrival}>
-              {/* Step 1: name the organization — the wizard's first screen now
+              <AnimatePresence
+                mode={stepHandoff ? "wait" : "sync"}
+                initial={arrival}
+              >
+                {/* Step 1: name the organization — the wizard's first screen now
                   that the Build / Grow front door is gone. Its heading and
                   welcome sit in the shared block above, so the walk into the
                   agent step swaps words rather than screens. The field is the
                   agent step's field: same label, same filled surface, same
                   measure — the two questions the wizard asks present the same
                   target. */}
-              {step === 1 && (
-                <motion.div key="step-1" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="mx-auto flex w-full flex-col gap-9">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="onboarding-company-name">Name</Label>
-                    <Input
-                      id="onboarding-company-name"
-                      className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
-                      placeholder="e.g. Northwind Labs"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && companyName.trim()) {
-                          e.preventDefault();
-                          void handleCreateCompany();
-                        }
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                </motion.div>
-              )}
+                {step === 1 && (
+                  <motion.div
+                    key="step-1"
+                    {...stepContentMotion}
+                    exit={stepHandoff ? stepContentMotion.exit : undefined}
+                    className="mx-auto flex w-full flex-col gap-9"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="onboarding-company-name">Name</Label>
+                      <Input
+                        id="onboarding-company-name"
+                        className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
+                        placeholder="e.g. Northwind Labs"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && companyName.trim()) {
+                            e.preventDefault();
+                            void handleCreateCompany();
+                          }
+                        }}
+                        autoFocus
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
-              {/* Step 3: the name, and only the name. The role picker went with
+                {/* Step 3: the name, and only the name. The role picker went with
                   the question it was asking — a customer naming their first
                   agent is describing what it does, and the placeholder carries
                   the range of answers that fit. Hiring uses the neutral
                   `general` role; a specific one can be set later, where there
                   is context to choose it in. */}
-              {step === 3 && (
-                <motion.div key="step-3" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="mx-auto flex w-full flex-col gap-9">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="onboarding-agent-name">Agent name</Label>
-                    {/*
+                {step === 3 && (
+                  <motion.div
+                    key="step-3"
+                    {...stepContentMotion}
+                    exit={stepHandoff ? stepContentMotion.exit : undefined}
+                    className="mx-auto flex w-full flex-col gap-9"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="onboarding-agent-name">Agent name</Label>
+                      {/*
                       Filled, not outlined, and the column's full width — the
                       same field the naming step before the hand-off draws.
                       `bg-muted` is the design's field surface; the default
@@ -2640,29 +3135,38 @@ function OnboardingWizardInner({
                       to type. The border is kept but made transparent so the
                       focus ring, which colours the border, still has one.
                     */}
-                    <Input
-                      id="onboarding-agent-name"
-                      className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
-                      placeholder="e.g. Chief of staff"
-                      value={agentName}
-                      onChange={(e) => setAgentName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.nativeEvent.isComposing && agentName.trim()) {
-                          e.preventDefault();
-                          setStep(4);
-                        }
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                </motion.div>
-              )}
+                      <Input
+                        id="onboarding-agent-name"
+                        className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
+                        placeholder="e.g. Chief of staff"
+                        value={agentName}
+                        onChange={(e) => setAgentName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            !e.nativeEvent.isComposing &&
+                            agentName.trim()
+                          ) {
+                            e.preventDefault();
+                            setStep(4);
+                          }
+                        }}
+                        autoFocus
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
-              {/* Step 4: Connect a model — adapter + model + env check (capsule above) */}
-              {step === 4 && (
-                <motion.div key="step-4" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="space-y-8">
-                  <div>
-                    {/* Sources come from `recommendedAdapters`, not a list
+                {/* Step 4: Connect a model — adapter + model + env check (capsule above) */}
+                {step === 4 && (
+                  <motion.div
+                    key="step-4"
+                    {...stepContentMotion}
+                    exit={stepHandoff ? stepContentMotion.exit : undefined}
+                    className="space-y-8"
+                  >
+                    <div>
+                      {/* Sources come from `recommendedAdapters`, not a list
                         written here — that filter is `recommended` in the
                         display registry, so a third tile appears the day
                         someone marks one rather than the day someone
@@ -2670,64 +3174,102 @@ function OnboardingWizardInner({
 
                         Picking one starts the sign-in now. The row is the
                         question, and answering it is what opens the card. */}
-                    <ModelSourceTiles
-                      label="Model source"
-                      sources={recommendedAdapters.map((opt) => ({
-                        id: opt.type,
-                        label: CONNECT_SOURCE_NAMES[opt.type] ?? opt.label,
-                        icon: <ModelSourceMark type={opt.type} Fallback={opt.icon} />,
-                      }))}
-                      mode={credentialMode}
-                      selectedId={
-                        sourcePicked &&
-                        recommendedAdapters.some((opt) => opt.type === adapterType)
-                          ? adapterType
-                          : null
-                      }
-                      collapsed={connectCollapsed}
-                      settling={connectPhase === "unwindRow"}
-                      onSelect={(id) => {
-                        if (connectPhase !== "idle") return;
-                        autoConnectStartedRef.current = false;
-                        setSourcePicked(true);
-                        setAdapterType(id);
-                        if (id === "opencode_local") setModel(DEFAULT_OPENCODE_LOCAL_MODEL);
-                        else if (id !== "codex_local") setModel("");
-                        setConnectPhase("collapsing");
-                      }}
-                    />
+                      <ModelSourceTiles
+                        label="Model source"
+                        sources={featuredAdapters.map((opt) => ({
+                          id: opt.type,
+                          label: CONNECT_SOURCE_NAMES[opt.type] ?? opt.label,
+                          icon: (
+                            <ModelSourceMark
+                              type={opt.type}
+                              Fallback={opt.icon}
+                            />
+                          ),
+                        }))}
+                        more={
+                          offeredMoreAdapters.length > 0
+                            ? {
+                                label: "More tools",
+                                sources: offeredMoreAdapters.map((opt) => ({
+                                  id: opt.type,
+                                  label: sourceNameFor(opt.type),
+                                  description: opt.description,
+                                  icon: (
+                                    <ModelSourceMark
+                                      type={opt.type}
+                                      Fallback={opt.icon}
+                                    />
+                                  ),
+                                })),
+                              }
+                            : undefined
+                        }
+                        mode={credentialMode}
+                        selectedId={sourceSelected ? adapterType : null}
+                        collapsed={connectCollapsed}
+                        settling={connectPhase === "unwindRow"}
+                        onSelect={(id) => {
+                          if (connectPhase !== "idle") return;
+                          autoConnectStartedRef.current = false;
+                          setSourcePicked(true);
+                          setAdapterType(id);
+                          if (id === "opencode_local")
+                            setModel(DEFAULT_OPENCODE_LOCAL_MODEL);
+                          else setModel("");
+                          setConnectPhase("collapsing");
+                        }}
+                      />
 
-                    {/* Fades on the first beat but keeps its space until the
+                      {/* Fades on the first beat but keeps its space until the
                         second, so pressing a tile moves nothing vertically.
                         Once a sign-in is running there is no switching to keys
                         without abandoning it, so it goes rather than sitting
                         there inviting a press that cannot be honoured. */}
-                    <motion.div
-                      className="overflow-hidden"
-                      /*
+                      <motion.div
+                        className="overflow-hidden"
+                        /*
                         Inert once it has faded. It is clipped to nothing rather
                         than unmounted, so without this it stays clickable and
                         focusable — a control that has stopped applying, still
                         answering to a keyboard and still able to change the
                         credential mode out from under a running sign-in.
                       */
-                      inert={!connectLinkVisible}
-                      initial={false}
-                      animate={{
-                        opacity: connectLinkVisible ? 1 : 0,
-                        height: connectLinkSpace ? "auto" : 0,
-                      }}
-                      transition={{ opacity: SOURCE_LINK_EXIT, height: MAKE_ROOM }}
-                    >
-                      <div className="-ml-3 mt-1">
-                        <CredentialModeLink mode={credentialMode} onChange={setCredentialMode} />
-                        {savedKeys.options.length > 0 && <p className="px-3 text-sm text-muted-foreground">{savedKeys.options.length} saved API {savedKeys.options.length === 1 ? "key available" : "keys available"}.</p>}
-                        {credentialMode === "subscription" && authSignalStatus === "present" && <p className="px-3 text-sm text-muted-foreground">An existing provider connection is available.</p>}
-                      </div>
-                    </motion.div>
-                  </div>
+                        inert={!connectLinkVisible}
+                        initial={false}
+                        animate={{
+                          opacity: connectLinkVisible ? 1 : 0,
+                          height: connectLinkSpace ? "auto" : 0,
+                        }}
+                        transition={{
+                          opacity: SOURCE_LINK_EXIT,
+                          height: MAKE_ROOM,
+                        }}
+                      >
+                        <div className="-ml-3 mt-1">
+                          <CredentialModeLink
+                            mode={credentialMode}
+                            onChange={setCredentialMode}
+                          />
+                          {savedKeys.options.length > 0 && (
+                            <p className="px-3 text-sm text-muted-foreground">
+                              {savedKeys.options.length} saved API{" "}
+                              {savedKeys.options.length === 1
+                                ? "key available"
+                                : "keys available"}
+                              .
+                            </p>
+                          )}
+                          {credentialMode === "subscription" &&
+                            authSignalStatus === "present" && (
+                              <p className="px-3 text-sm text-muted-foreground">
+                                An existing provider connection is available.
+                              </p>
+                            )}
+                        </div>
+                      </motion.div>
+                    </div>
 
-                  {/*
+                    {/*
                     Room first, card second. `height` opens the space — which the
                     link's collapse shares, so the column slides once — and the
                     opacity only starts once that has finished. Reversed on the
@@ -2740,64 +3282,94 @@ function OnboardingWizardInner({
                     still announced, and the authorization field must not be
                     reachable inside a card nobody can see.
                   */}
-                  <motion.div
-                    className="overflow-hidden"
-                    inert={!connectCardLive}
-                    initial={false}
-                    animate={{
-                      height: connectCardSpace ? "auto" : 0,
-                      marginTop: connectCardSpace ? 20 : 0,
-                      opacity: connectCardLive ? 1 : 0,
-                    }}
-                    transition={{
-                      height: MAKE_ROOM,
-                      marginTop: MAKE_ROOM,
-                      opacity: connectCardLive
-                        ? { ...CARD_ENTER, delay: MAKE_ROOM.duration }
-                        : CARD_EXIT,
-                    }}
-                  >
-                    {/*
+                    <motion.div
+                      className="overflow-hidden"
+                      inert={!connectCardLive}
+                      initial={false}
+                      animate={{
+                        height: connectCardSpace ? "auto" : 0,
+                        marginTop: connectCardSpace ? 20 : 0,
+                        opacity: connectCardLive ? 1 : 0,
+                      }}
+                      transition={{
+                        height: MAKE_ROOM,
+                        marginTop: MAKE_ROOM,
+                        opacity: connectCardLive
+                          ? { ...CARD_ENTER, delay: MAKE_ROOM.duration }
+                          : CARD_EXIT,
+                      }}
+                    >
+                      {/*
                       The wrapper is always rendered — that is what lets its
                       height animate rather than jump — but its contents are
                       not, and they outlive the space by a beat. See
                       `connectCardMounted`.
                     */}
-                    {!connectCardMounted ? null : connectProgress ? (
-                      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="size-4 animate-spin" />
-                        {connectProgress}
-                      </p>
-                    ) : credentialMode === "api" ? (
-                      <OnboardingLoginCard
-                        instruction={savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
-                          CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
-                        } API key to connect`}
-                      >
-                        <SavedProviderKeySelect {...savedKeys} disabled={loading || adapterEnvLoading} value={selectedApiKey?.id ?? ""} onChange={(id) => {
-                          setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id } : null);
-                          setApiKey("");
-                        }} />
-                        {!selectedApiKey && <OnboardingCardField
-                          label="API key"
-                          placeholder="Enter API key here"
-                          masked
-                          // The card is the answer to the tile just pressed, so
-                          // the field is unambiguously the next thing. Carried
-                          // over from the key field this card replaced.
-                          autoFocus
-                          value={apiKey}
-                          onChange={(value) => {
-                            setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id: "" } : null);
-                            setApiKey(value);
-                          }}
-                          onSubmit={() => handleConnectStepPrimary()}
-                        />}
-                      </OnboardingLoginCard>
-                    ) : connectStepNeedsLogin &&
-                      createdCompanyId &&
-                      resolvedLoginEnvironmentId ? (
-                      /* The same panel the agent configuration form shows after
+                      {!connectCardMounted ? null : connectProgress ? (
+                        <p
+                          role="status"
+                          className="flex items-center gap-2 text-sm text-muted-foreground"
+                        >
+                          <Loader2 className="size-4 animate-spin" />
+                          {connectProgress}
+                        </p>
+                      ) : credentialMode === "api" ? (
+                        <OnboardingLoginCard
+                          instruction={
+                            savedKeys.options.length
+                              ? "Choose a saved API key or enter a new one"
+                              : `Provide your ${sourceNameFor(
+                                  adapterType,
+                                )} API key to connect`
+                          }
+                        >
+                          <SavedProviderKeySelect
+                            {...savedKeys}
+                            disabled={loading || adapterEnvLoading}
+                            value={selectedApiKey?.id ?? ""}
+                            onChange={(id) => {
+                              setSelectedSavedKey(
+                                createdCompanyId
+                                  ? {
+                                      companyId: createdCompanyId,
+                                      envKey: apiKeyEnvKeyFor(adapterType),
+                                      id,
+                                    }
+                                  : null,
+                              );
+                              setApiKey("");
+                            }}
+                          />
+                          {!selectedApiKey && (
+                            <OnboardingCardField
+                              label="API key"
+                              placeholder="Enter API key here"
+                              masked
+                              // The card is the answer to the tile just pressed, so
+                              // the field is unambiguously the next thing. Carried
+                              // over from the key field this card replaced.
+                              autoFocus
+                              value={apiKey}
+                              onChange={(value) => {
+                                setSelectedSavedKey(
+                                  createdCompanyId
+                                    ? {
+                                        companyId: createdCompanyId,
+                                        envKey: apiKeyEnvKeyFor(adapterType),
+                                        id: "",
+                                      }
+                                    : null,
+                                );
+                                setApiKey(value);
+                              }}
+                              onSubmit={() => handleConnectStepPrimary()}
+                            />
+                          )}
+                        </OnboardingLoginCard>
+                      ) : connectStepNeedsLogin &&
+                        createdCompanyId &&
+                        resolvedLoginEnvironmentId ? (
+                        /* The same panel the agent configuration form shows after
                          a test — see AdapterLoginPanel in AgentConfigForm.tsx —
                          in the connect step's chrome. It owns the session; the
                          step owns the sequence around it.
@@ -2809,101 +3381,143 @@ function OnboardingWizardInner({
 
                          No "Use saved login" control: the hire step already
                          applies a stored login on its own. */
-                      <AdapterLoginPanel
-                        key={`${adapterType}:${resolvedLoginEnvironmentId}`}
-                        companyId={createdCompanyId}
-                        adapterType={adapterType}
-                        environmentId={resolvedLoginEnvironmentId}
-                        chrome="onboarding"
-                        aiConnection={managedProvider ? { provider: managedProvider, method: "subscription", name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} subscription`, ownership: "personal", agentIds: [], allAgents: true } : undefined}
-                        autoStart
-                        onPromptReady={(url) => {
-                          setConnectAuthUrl(url);
-                          // The prompt arriving is what ends the waiting beat.
-                          if (url) setConnectPhase((p) => (p === "loading" ? "ready" : p));
-                        }}
-                        onCodeSubmitted={() => {
-                          // The button reacts to the paste, not to the server.
-                          // Waiting for the login to be stored left about a
-                          // second of a button still reading "Waiting for code"
-                          // after the code had already gone in.
-                          phaseBeforeSubmitRef.current = connectPhase;
-                          connectingSinceRef.current = Date.now();
-                          setConnectCredentialStored(false);
-                          setConnectPhase("connecting");
-                        }}
-                        onSubmitFailed={() => {
-                          // Only while the button still says "Connecting". The
-                          // panel stays mounted through Back's exit, so a failure
-                          // that landed after Back restored the button and
-                          // reopened the card the customer was leaving — without
-                          // the address Back had cleared, so its sign-in could
-                          // not even be pressed.
-                          if (connectPhase !== "connecting") return;
-                          // Refused, failed or timed out — the card says which.
-                          // The button goes back to what it was offering rather
-                          // than spinning on a login that is not coming.
-                          connectingSinceRef.current = null;
-                          setConnectCredentialStored(false);
-                          setConnectPhase(
-                            phaseBeforeSubmitRef.current === "ready" ? "ready" : "waiting",
-                          );
-                        }}
-                        onConnected={() => {
-                          if (managedProvider) managedSubscriptionRef.current = { companyId: createdCompanyId, binding: { provider: managedProvider, method: "subscription", mode: "responsible_user" } };
-                          setConnectAuthUrl(null);
-                          // Not into a card the customer has left. The panel is
-                          // still mounted through Back's exit, and a login that
-                          // finished there pulled the step back into "Connecting"
-                          // and on into a hire they had just backed away from.
-                          // The login is stored either way; what this refuses is
-                          // only the step moving forward after they chose to go.
-                          if (
-                            connectPhase !== "loading" &&
-                            connectPhase !== "ready" &&
-                            connectPhase !== "waiting" &&
-                            connectPhase !== "connecting"
-                          ) {
-                            return;
+                        <AdapterLoginPanel
+                          key={`${adapterType}:${resolvedLoginEnvironmentId}`}
+                          companyId={createdCompanyId}
+                          adapterType={adapterType}
+                          environmentId={resolvedLoginEnvironmentId}
+                          chrome="onboarding"
+                          aiConnection={
+                            managedProvider
+                              ? {
+                                  provider: managedProvider,
+                                  method: "subscription",
+                                  name: `My ${CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} subscription`,
+                                  ownership: "personal",
+                                  agentIds: [],
+                                  allAgents: true,
+                                }
+                              : undefined
                           }
-                          // The hold before the step advances is the phase's own
-                          // beat, above, so that backing out during it cancels
-                          // the hire. It counts from the paste when there was
-                          // one, and from here for a login that finished without
-                          // one — a resumed session, or a code handed out rather
-                          // than pasted back.
-                          if (connectingSinceRef.current === null) {
+                          autoStart
+                          onPromptReady={(url) => {
+                            setConnectAuthUrl(url);
+                            // The prompt arriving is what ends the waiting beat.
+                            if (url)
+                              setConnectPhase((p) =>
+                                p === "loading" ? "ready" : p,
+                              );
+                          }}
+                          onCodeSubmitted={() => {
+                            // The button reacts to the paste, not to the server.
+                            // Waiting for the login to be stored left about a
+                            // second of a button still reading "Waiting for code"
+                            // after the code had already gone in.
+                            phaseBeforeSubmitRef.current = connectPhase;
                             connectingSinceRef.current = Date.now();
-                          }
-                          setConnectCredentialStored(true);
-                          setConnectPhase("connecting");
-                        }}
-                        onStored={() => {
-                          queryClient.invalidateQueries({
-                            queryKey: queryKeys.agents.authSignal(
-                              createdCompanyId,
-                              adapterType,
-                              resolvedLoginEnvironmentId,
-                            ),
-                          });
-                        }}
-                      />
-                    ) : hasSavedSubscription || localLogin.status === "ready" ? null : connectStepHasNoSandbox ? (
-                      canUseLocalLogin && managedProvider ? (
-                        <LocalProviderLoginInstructions adapterType={adapterType} login={{ ...localLogin, retry: () => { autoConnectStartedRef.current = false; setError(null); localLogin.retry(); } }} />
-                      ) : <p className="text-xs text-muted-foreground">This environment does not support browser sign-in. Choose another sign-in environment or connect with an API key.</p>
-                    ) : null}
-                  </motion.div>
+                            setConnectCredentialStored(false);
+                            setConnectPhase("connecting");
+                          }}
+                          onSubmitFailed={() => {
+                            // Only while the button still says "Connecting". The
+                            // panel stays mounted through Back's exit, so a failure
+                            // that landed after Back restored the button and
+                            // reopened the card the customer was leaving — without
+                            // the address Back had cleared, so its sign-in could
+                            // not even be pressed.
+                            if (connectPhase !== "connecting") return;
+                            // Refused, failed or timed out — the card says which.
+                            // The button goes back to what it was offering rather
+                            // than spinning on a login that is not coming.
+                            connectingSinceRef.current = null;
+                            setConnectCredentialStored(false);
+                            setConnectPhase(
+                              phaseBeforeSubmitRef.current === "ready"
+                                ? "ready"
+                                : "waiting",
+                            );
+                          }}
+                          onConnected={() => {
+                            if (managedProvider)
+                              managedSubscriptionRef.current = {
+                                companyId: createdCompanyId,
+                                binding: {
+                                  provider: managedProvider,
+                                  method: "subscription",
+                                  mode: "responsible_user",
+                                },
+                              };
+                            setConnectAuthUrl(null);
+                            // Not into a card the customer has left. The panel is
+                            // still mounted through Back's exit, and a login that
+                            // finished there pulled the step back into "Connecting"
+                            // and on into a hire they had just backed away from.
+                            // The login is stored either way; what this refuses is
+                            // only the step moving forward after they chose to go.
+                            if (
+                              connectPhase !== "loading" &&
+                              connectPhase !== "ready" &&
+                              connectPhase !== "waiting" &&
+                              connectPhase !== "connecting"
+                            ) {
+                              return;
+                            }
+                            // The hold before the step advances is the phase's own
+                            // beat, above, so that backing out during it cancels
+                            // the hire. It counts from the paste when there was
+                            // one, and from here for a login that finished without
+                            // one — a resumed session, or a code handed out rather
+                            // than pasted back.
+                            if (connectingSinceRef.current === null) {
+                              connectingSinceRef.current = Date.now();
+                            }
+                            setConnectCredentialStored(true);
+                            setConnectPhase("connecting");
+                          }}
+                          onStored={() => {
+                            queryClient.invalidateQueries({
+                              queryKey: queryKeys.agents.authSignal(
+                                createdCompanyId,
+                                adapterType,
+                                resolvedLoginEnvironmentId,
+                              ),
+                            });
+                          }}
+                        />
+                      ) : hasSavedSubscription ||
+                        localLogin.status ===
+                          "ready" ? null : connectStepHasNoSandbox ? (
+                        canUseLocalLogin && managedProvider ? (
+                          <LocalProviderLoginInstructions
+                            adapterType={adapterType}
+                            login={{
+                              ...localLogin,
+                              retry: () => {
+                                autoConnectStartedRef.current = false;
+                                setError(null);
+                                localLogin.retry();
+                              },
+                            }}
+                          />
+                        ) : (
+                          <p className="text-xs text-muted-foreground">
+                            This environment does not support browser sign-in.
+                            Choose another sign-in environment or connect with
+                            an API key.
+                          </p>
+                        )
+                      ) : null}
+                    </motion.div>
 
-                  {/* Conditional adapter fields */}
-                  {/* No model picker. Every adapter this step offers resolves
+                    {/* Conditional adapter fields */}
+                    {/* No model picker. Every adapter this step offers resolves
                       its own default (see buildAdapterConfig), so the picker
                       asked the customer to choose a model before they had any
                       way to judge one — and the agent's model is changeable
                       later, where its work gives the choice meaning. */}
 
-                  {/* Progress is shown above; failed checks remain actionable here. */}
-                  {/* Not while the hire is in flight. The probe's result lands
+                    {/* Progress is shown above; failed checks remain actionable here. */}
+                    {/* Not while the hire is in flight. The probe's result lands
                       before the hire it gates has finished, so a warn that does
                       not block — the identity and target INFO checks, which
                       every run reports — rendered a block of diagnostics for the
@@ -2916,144 +3530,165 @@ function OnboardingWizardInner({
                       the hire, because `handleGiveHeartbeat` clears it in its
                       `finally` after the early return — so a genuine block still
                       shows its checks, which is the whole reason this is here. */}
-                  {isLocalAdapter && !loading && (adapterEnvError || (adapterEnvResult && adapterEnvResult.status !== "pass")) && (
-                    <div className="space-y-2 rounded-md border border-border p-3">
-                      {adapterEnvError && (
-                        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-(length:--text-micro) text-destructive">
-                          {adapterEnvError}
-                        </div>
-                      )}
+                    {isLocalAdapter &&
+                      !loading &&
+                      (adapterEnvError ||
+                        (adapterEnvResult &&
+                          adapterEnvResult.status !== "pass")) && (
+                        <div className="space-y-2 rounded-md border border-border p-3">
+                          {adapterEnvError && (
+                            <div className="rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-(length:--text-micro) text-destructive">
+                              {adapterEnvError}
+                            </div>
+                          )}
 
-                      {adapterEnvResult &&
-                      adapterEnvResult.status === "pass" ? (
-                        <div className="space-y-2 animate-in fade-in slide-in-from-bottom-1 duration-300">
-                          {/* Use the shared status-chip helper with the done
+                          {adapterEnvResult &&
+                          adapterEnvResult.status === "pass" ? (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                              {/* Use the shared status-chip helper with the done
                               status hue, so the pass banner derives its fill,
                               text, and border from the design tokens in both
                               modes instead of raw color values. */}
-                          <div
-                            className="status-chip flex items-center gap-2 rounded-md border px-2.5 py-2 text-(length:--text-micro)"
-                            style={{ "--sc": "var(--status-task-done)" } as CSSProperties}
-                          >
-                            <Check className="size-3.5 shrink-0" />
-                            <span className="font-medium">Passed</span>
-                          </div>
-                          {/* Show the checks on a pass too, so the target and the
+                              <div
+                                className="status-chip flex items-center gap-2 rounded-md border px-2.5 py-2 text-(length:--text-micro)"
+                                style={
+                                  {
+                                    "--sc": "var(--status-task-done)",
+                                  } as CSSProperties
+                                }
+                              >
+                                <Check className="size-3.5 shrink-0" />
+                                <span className="font-medium">Passed</span>
+                              </div>
+                              {/* Show the checks on a pass too, so the target and the
                               auth signals stay visible before the hire. */}
-                          <AdapterEnvironmentResult result={adapterEnvResult} />
-                        </div>
-                      ) : adapterEnvResult ? (
-                        <AdapterEnvironmentResult result={adapterEnvResult} />
-                      ) : null}
+                              <AdapterEnvironmentResult
+                                result={adapterEnvResult}
+                              />
+                            </div>
+                          ) : adapterEnvResult ? (
+                            <AdapterEnvironmentResult
+                              result={adapterEnvResult}
+                            />
+                          ) : null}
 
-                      {shouldSuggestUnsetAnthropicApiKey && (
-                        <div className="rounded-md border border-amber-300/60 bg-amber-50/40 px-2.5 py-2 space-y-2">
-                          <p className="text-(length:--text-micro) text-amber-900/90 leading-relaxed">
-                            Claude failed while{" "}
-                            <span className="font-mono">ANTHROPIC_API_KEY</span>{" "}
-                            is set. You can clear it in this adapter config
-                            and retry the probe.
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2.5 text-xs"
-                            disabled={
-                              adapterEnvLoading || unsetAnthropicLoading
-                            }
-                            onClick={() => void handleUnsetAnthropicApiKey()}
-                          >
-                            {unsetAnthropicLoading
-                              ? "Retrying..."
-                              : "Unset ANTHROPIC_API_KEY"}
-                          </Button>
-                        </div>
-                      )}
-
-                      {adapterEnvResult && adapterEnvResult.status === "fail" && (
-                        <div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2 text-(length:--text-micro) space-y-1.5">
-                          <p className="font-medium">Manual debug</p>
-                          <p className="text-muted-foreground font-mono break-all">
-                            {adapterType === "cursor"
-                              ? `${effectiveAdapterCommand} -p --mode ask --output-format json \"Respond with hello.\"`
-                              : adapterType === "codex_local"
-                              ? `${effectiveAdapterCommand} exec --json -`
-                              : adapterType === "gemini_local"
-                                ? `${effectiveAdapterCommand} --output-format json "Respond with hello."`
-                              : adapterType === "kimi_local"
-                                ? `${effectiveAdapterCommand} -p "Respond with hello." --output-format stream-json`
-                              : adapterType === "opencode_local"
-                                ? `${effectiveAdapterCommand} run --format json "Respond with hello."`
-                              : `${effectiveAdapterCommand} --print - --output-format stream-json --verbose`}
-                          </p>
-                          <p className="text-muted-foreground">
-                            Prompt:{" "}
-                            <span className="font-mono">Respond with hello.</span>
-                          </p>
-                          {adapterType === "cursor" ||
-                          adapterType === "codex_local" ||
-                          adapterType === "gemini_local" ||
-                          adapterType === "kimi_local" ||
-                          adapterType === "opencode_local" ? (
-                            <p className="text-muted-foreground">
-                              If auth fails, set{" "}
-                              <span className="font-mono">
-                                {adapterType === "cursor"
-                                  ? "CURSOR_API_KEY"
-                                  : adapterType === "gemini_local"
-                                    ? "GEMINI_API_KEY"
-                                    : adapterType === "kimi_local"
-                                      ? "KIMI_MODEL_NAME + KIMI_MODEL_API_KEY"
-                                    : "OPENAI_API_KEY"}
-                              </span>{" "}
-                              in env or run{" "}
-                              <span className="font-mono">
-                                {adapterType === "cursor"
-                                  ? "agent login"
-                                  : adapterType === "codex_local"
-                                    ? "codex login"
-                                    : adapterType === "gemini_local"
-                                      ? "gemini auth"
-                                      : adapterType === "kimi_local"
-                                        ? "kimi login"
-                                      : "opencode auth login"}
-                              </span>
-                              .
-                            </p>
-                          ) : (
-                            <p className="text-muted-foreground">
-                              If login is required, run{" "}
-                              <span className="font-mono">claude login</span>{" "}
-                              and retry.
-                            </p>
+                          {shouldSuggestUnsetAnthropicApiKey && (
+                            <div className="rounded-md border border-amber-300/60 bg-amber-50/40 px-2.5 py-2 space-y-2">
+                              <p className="text-(length:--text-micro) text-amber-900/90 leading-relaxed">
+                                Claude failed while{" "}
+                                <span className="font-mono">
+                                  ANTHROPIC_API_KEY
+                                </span>{" "}
+                                is set. You can clear it in this adapter config
+                                and retry the probe.
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2.5 text-xs"
+                                disabled={
+                                  adapterEnvLoading || unsetAnthropicLoading
+                                }
+                                onClick={() =>
+                                  void handleUnsetAnthropicApiKey()
+                                }
+                              >
+                                {unsetAnthropicLoading
+                                  ? "Retrying..."
+                                  : "Unset ANTHROPIC_API_KEY"}
+                              </Button>
+                            </div>
                           )}
+
+                          {adapterEnvResult &&
+                            adapterEnvResult.status === "fail" && (
+                              <div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2 text-(length:--text-micro) space-y-1.5">
+                                <p className="font-medium">Manual debug</p>
+                                <p className="text-muted-foreground font-mono break-all">
+                                  {adapterType === "cursor"
+                                    ? `${effectiveAdapterCommand} -p --mode ask --output-format json \"Respond with hello.\"`
+                                    : adapterType === "codex_local"
+                                      ? `${effectiveAdapterCommand} exec --json -`
+                                      : adapterType === "gemini_local"
+                                        ? `${effectiveAdapterCommand} --output-format json "Respond with hello."`
+                                        : adapterType === "kimi_local"
+                                          ? `${effectiveAdapterCommand} -p "Respond with hello." --output-format stream-json`
+                                          : adapterType === "opencode_local"
+                                            ? `${effectiveAdapterCommand} run --format json "Respond with hello."`
+                                            : `${effectiveAdapterCommand} --print - --output-format stream-json --verbose`}
+                                </p>
+                                <p className="text-muted-foreground">
+                                  Prompt:{" "}
+                                  <span className="font-mono">
+                                    Respond with hello.
+                                  </span>
+                                </p>
+                                {adapterType === "cursor" ||
+                                adapterType === "codex_local" ||
+                                adapterType === "gemini_local" ||
+                                adapterType === "kimi_local" ||
+                                adapterType === "opencode_local" ? (
+                                  <p className="text-muted-foreground">
+                                    If auth fails, set{" "}
+                                    <span className="font-mono">
+                                      {adapterType === "cursor"
+                                        ? "CURSOR_API_KEY"
+                                        : adapterType === "gemini_local"
+                                          ? "GEMINI_API_KEY"
+                                          : adapterType === "kimi_local"
+                                            ? "KIMI_MODEL_NAME + KIMI_MODEL_API_KEY"
+                                            : "OPENAI_API_KEY"}
+                                    </span>{" "}
+                                    in env or run{" "}
+                                    <span className="font-mono">
+                                      {adapterType === "cursor"
+                                        ? "agent login"
+                                        : adapterType === "codex_local"
+                                          ? "codex login"
+                                          : adapterType === "gemini_local"
+                                            ? "gemini auth"
+                                            : adapterType === "kimi_local"
+                                              ? "kimi login"
+                                              : "opencode auth login"}
+                                    </span>
+                                    .
+                                  </p>
+                                ) : (
+                                  <p className="text-muted-foreground">
+                                    If login is required, run{" "}
+                                    <span className="font-mono">
+                                      claude login
+                                    </span>{" "}
+                                    and retry.
+                                  </p>
+                                )}
+                              </div>
+                            )}
                         </div>
                       )}
-                    </div>
-                  )}
 
-                  {(adapterType === "http" ||
-                    adapterType === "openclaw_gateway") && (
-                    <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">
-                        {adapterType === "openclaw_gateway"
-                          ? "Gateway URL"
-                          : "Webhook URL"}
-                      </label>
-                      <input
-                        className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
-                        placeholder={
-                          adapterType === "openclaw_gateway"
-                            ? "ws://127.0.0.1:18789"
-                            : "https://..."
-                        }
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              )}
+                    {(adapterType === "http" ||
+                      adapterType === "openclaw_gateway") && (
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">
+                          {adapterType === "openclaw_gateway"
+                            ? "Gateway URL"
+                            : "Webhook URL"}
+                        </label>
+                        <input
+                          className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+                          placeholder={
+                            adapterType === "openclaw_gateway"
+                              ? "ws://127.0.0.1:18789"
+                              : "https://..."
+                          }
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Step 5: Review — lead is online (shared capsule above) */}
@@ -3080,7 +3715,10 @@ function OnboardingWizardInner({
                     // only means "the previous step" once nothing is running.
                     step === 4 && connectPhase !== "idle"
                       ? unwindConnectStep
-                      : canGoBackFromOnboardingStep({ currentStep: step, entryStep })
+                      : canGoBackFromOnboardingStep({
+                            currentStep: step,
+                            entryStep,
+                          })
                         ? () => setStep(backStepFrom(step))
                         : undefined
                   }
@@ -3142,7 +3780,7 @@ function OnboardingWizardInner({
 }
 
 function AdapterEnvironmentResult({
-  result
+  result,
 }: {
   result: AdapterEnvironmentTestResult;
 }) {
@@ -3150,17 +3788,19 @@ function AdapterEnvironmentResult({
     result.status === "pass"
       ? "Passed"
       : result.status === "warn"
-      ? "Warnings"
-      : "Failed";
+        ? "Warnings"
+        : "Failed";
   const statusClass =
     result.status === "pass"
       ? "text-green-700 dark:text-green-300 border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-green-500/10"
       : result.status === "warn"
-      ? "text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10"
-      : "text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10";
+        ? "text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10"
+        : "text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10";
 
   return (
-    <div className={`rounded-md border px-2.5 py-2 text-(length:--text-micro) ${statusClass}`}>
+    <div
+      className={`rounded-md border px-2.5 py-2 text-(length:--text-micro) ${statusClass}`}
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="font-medium">{statusLabel}</span>
         <span className="opacity-80">

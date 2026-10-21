@@ -6,7 +6,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { getRememberedInvitePath } from "../lib/invite-memory";
 import { Button } from "@/components/ui/button";
 import { AsciiArtAnimation } from "@/components/AsciiArtAnimation";
-import { PaperclipLoading } from "@/components/AnimatedPaperclipIcon";
+import { HiveLoading } from "@/components/AnimatedPaperclipIcon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PaperclipLockup } from "../components/PaperclipLockup";
 
@@ -75,7 +75,7 @@ export function AuthPage() {
   if (isSessionLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <PaperclipLoading className="min-h-0" />
+        <HiveLoading className="min-h-0" />
       </div>
     );
   }

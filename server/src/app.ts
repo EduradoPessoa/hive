@@ -22,6 +22,7 @@ import type { InspectDatabaseBackupHealthOptions } from "./services/database-bac
 import type { StorageService } from "./storage/types.js";
 import { httpLogger, errorHandler } from "./middleware/index.js";
 import { actorMiddleware } from "./middleware/auth.js";
+import { recoverLegacyEncodedJson, rejectNonUtf8JsonBody } from "./middleware/legacy-json-encoding.js";
 import { boardMutationGuard } from "./middleware/board-mutation-guard.js";
 import {
   privateHostnameGuard,
@@ -535,9 +536,13 @@ export async function createApp(
   app.use(
     express.json({
       limit: DEFAULT_JSON_BODY_LIMIT,
-      verify: captureRawBody,
+      verify: (req, res, buf) => {
+        captureRawBody(req as express.Request, res as express.Response, buf);
+        rejectNonUtf8JsonBody(buf);
+      },
     }),
   );
+  app.use(recoverLegacyEncodedJson);
   app.use("/api", apiCompression());
   app.use(httpLogger);
   const privateHostnameGateEnabled = shouldEnablePrivateHostnameGuard({

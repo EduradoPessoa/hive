@@ -10,8 +10,8 @@
   },
   "favicon": "/favicon.svg",
   "logo": {
-    "dark": "/images/logo-dark.svg",
-    "light": "/images/logo-light.svg"
+    "dark": "/images/logo-hive.svg",
+    "light": "/images/logo-hive.svg"
   },
   "topbarLinks": [
     {

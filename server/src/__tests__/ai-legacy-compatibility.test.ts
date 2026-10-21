@@ -69,7 +69,11 @@ it("isolates sign-in and refresh from the host, survives restart, and completes 
   const attempt = await login.start(companyId, owner, loginIntent());
   const directory = directoryFor(attempt.sessionId);
   expect(await localAiLoginService(db).start(companyId, owner, loginIntent())).toEqual(attempt);
-  expect(attempt.command).toContain(`(export CODEX_HOME='${directory}' && mkdir -p "$CODEX_HOME" && codex`);
+  expect(attempt.command).toContain(
+    process.platform === "win32"
+      ? `$env:CODEX_HOME='${directory}'; New-Item`
+      : `(export CODEX_HOME='${directory}' && mkdir -p "$CODEX_HOME" && codex`,
+  );
   expect(await readFile(path.join(directory, "config.toml"), "utf8")).toContain('cli_auth_credentials_store = "file"');
   expect(await login.check(companyId, owner, loginIntent(), attempt.sessionId)).toEqual({ status: "sign_in_required" });
   // Resuming a valid attempt also repairs a missing directory without changing its ID.

@@ -16,11 +16,24 @@ function loginHome(id: string) {
   return path.join(resolvePaperclipInstanceRoot(), "ai-local-logins", id);
 }
 const shellQuote = (value: string) => `'${value.replaceAll("'", "'\\''")}'`;
+const psQuote = (value: string) => `'${value.replaceAll("'", "''")}'`;
+// The POSIX one-liners below do not parse in Windows PowerShell, the default
+// terminal there. Codex needs no `-c` override on this path: prepareHome has
+// already written the file-store setting into the login home's config.toml, and
+// PowerShell 5.1 strips the embedded quotes from that argument anyway.
+function windowsCommand(directory: string, provider: string) {
+  const [variable, login] = provider === "openai"
+    ? ["CODEX_HOME", "codex login --device-auth"]
+    : provider === "anthropic"
+      ? ["CLAUDE_CONFIG_DIR", "claude auth login"]
+      : ["GROK_HOME", "grok login --device-auth"];
+  return `$env:${variable}=${psQuote(directory)}; New-Item -ItemType Directory -Force -Path $env:${variable} | Out-Null; ${login}; Remove-Item Env:${variable}`;
+}
 function presentAttempt(id: string, expiresAt: Date, provider: string): LocalAiLoginAttempt {
   const directory = loginHome(id);
   return {
     sessionId: id, expiresAt: expiresAt.toISOString(),
-    command: provider === "openai"
+    command: process.platform === "win32" ? windowsCommand(directory, provider) : provider === "openai"
       ? `(export CODEX_HOME=${shellQuote(directory)} && mkdir -p "$CODEX_HOME" && codex -c 'cli_auth_credentials_store="file"' login --device-auth)`
       : provider === "anthropic"
         ? `(export CLAUDE_CONFIG_DIR=${shellQuote(directory)} && mkdir -p "$CLAUDE_CONFIG_DIR" && claude auth login)`

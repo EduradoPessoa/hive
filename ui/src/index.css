@@ -2508,6 +2508,8 @@ span.paperclip-mention-chip[data-mention-kind="external-object"] {
      whole row would make the tile grow as it travelled, which reads as a
      different tile arriving rather than the one just pressed being kept. */
   --sz-source-tile-two-up: calc((100% - 0.75rem) / 2);
+  /* The "more tools" picker. Wide enough for a name over its description. */
+  --sz-source-popover: 20rem;
   /* The connect step's sign-in card, held at one height across its own states.
      It opens on a spinner and then fills with an instruction and a field, and
      the height is fixed so that arrival is the only movement — a card that grew

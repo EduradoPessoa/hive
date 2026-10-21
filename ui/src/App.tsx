@@ -22,7 +22,7 @@ import { Cases } from "./pages/Cases";
 import { CaseDetail } from "./pages/CaseDetail";
 import { OnboardingWizardVariant } from "./components/OnboardingWizardVariant";
 import { CloudAccessGate } from "./components/CloudAccessGate";
-import { PaperclipLoading } from "./components/AnimatedPaperclipIcon";
+import { HiveLoading } from "./components/AnimatedPaperclipIcon";
 import { Dashboard } from "./pages/Dashboard";
 import { DashboardLive } from "./pages/DashboardLive";
 import { Timeline } from "./pages/Timeline";
@@ -141,7 +141,7 @@ const ProductionOrgChart = lazy(() =>
 );
 
 function ProductionSurface({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<PaperclipLoading />}>{children}</Suspense>;
+  return <Suspense fallback={<HiveLoading />}>{children}</Suspense>;
 }
 
 function boardRoutes(streamlinedUiEnabled: boolean) {
@@ -175,7 +175,7 @@ function boardRoutes(streamlinedUiEnabled: boolean) {
         <Route
           path="company/export/*"
           element={(
-            <Suspense fallback={<PaperclipLoading />}>
+            <Suspense fallback={<HiveLoading />}>
               <CompanyExport />
             </Suspense>
           )}
@@ -488,7 +488,7 @@ function LegacySettingsRedirect() {
   const { hidden: hiddenSettings } = useHiddenSettings();
 
   if (loading) {
-    return <PaperclipLoading />;
+    return <HiveLoading />;
   }
 
   const targetCompany =
@@ -627,7 +627,7 @@ function CompanyRootRedirect() {
   const location = useLocation();
 
   if (loading) {
-    return <PaperclipLoading />;
+    return <HiveLoading />;
   }
 
   const targetCompany = selectedCompany ?? companies[0] ?? null;
@@ -672,7 +672,7 @@ function UnprefixedBoardRedirect() {
   const { companies, selectedCompany, loading } = useCompany();
 
   if (loading) {
-    return <PaperclipLoading />;
+    return <HiveLoading />;
   }
 
   const targetCompany = selectedCompany ?? companies[0] ?? null;
@@ -751,7 +751,7 @@ export function App() {
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />
-        <Route element={streamlinedUiLoaded ? <CloudAccessGate allowMembershipRequest /> : <PaperclipLoading />}>
+        <Route element={streamlinedUiLoaded ? <CloudAccessGate allowMembershipRequest /> : <HiveLoading />}>
           {/* The identity APIs enforce the chat rollout flag. Nonmembers cannot
               read experimental settings, but a private invitation may request membership. */}
           <Route path="chat-identity/confirm" element={<ChatIdentityConfirm />} />
@@ -761,7 +761,7 @@ export function App() {
         <Route path="ux-lab/responsible-user-denial" element={<ResponsibleUserDenialUxLab />} />
         <Route path="ux-lab/cross-issue-collaboration" element={<CrossIssueCollaborationUxLab />} />
 
-        <Route element={streamlinedUiLoaded ? <CloudAccessGate /> : <PaperclipLoading />}>
+        <Route element={streamlinedUiLoaded ? <CloudAccessGate /> : <HiveLoading />}>
           <Route index element={<CompanyRootRedirect />} />
           <Route path="onboarding" element={<OnboardingRoutePage />} />
           <Route path="instance" element={<LegacySettingsRedirect />} />
