@@ -80,7 +80,6 @@ function defaultExperimentalSettings(): InstanceExperimentalSettingsPayload {
     enableChatConnectors: false,
     enablePipelines: false,
     enableCases: false,
-    enableMemory: false,
     enableAgentChat: false,
     enableConferenceRoomChat: false,
     enableClassicTaskInterface: false,

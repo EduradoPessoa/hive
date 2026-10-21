@@ -49,7 +49,6 @@ describe("instance settings service", () => {
       enableSmokeLab: false,
       enablePipelines: false,
       enableCases: false,
-      enableMemory: false,
       enableIssuePlanDecompositions: true,
       enableExperimentalFileViewer: true,
       enableBuiltInAgents: true,

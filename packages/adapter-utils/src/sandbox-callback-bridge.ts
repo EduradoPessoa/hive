@@ -211,6 +211,17 @@ export const DEFAULT_SANDBOX_CALLBACK_BRIDGE_ROUTE_ALLOWLIST: readonly SandboxCa
   { method: "GET", path: /^\/api\/execution-workspaces\/[^/]+$/ },
   { method: "POST", path: /^\/api\/execution-workspaces\/[^/]+\/runtime-services\/(?:start|stop|restart)$/ },
 
+  // Memory knowledge base (memory-documents skill): documents and the folders
+  // that organize them.
+  { method: "GET", path: /^\/api\/companies\/[^/]+\/memory-documents(?:\/[^/]+)?$/ },
+  { method: "POST", path: /^\/api\/companies\/[^/]+\/memory-documents$/ },
+  { method: "PATCH", path: /^\/api\/companies\/[^/]+\/memory-documents\/[^/]+$/ },
+  { method: "POST", path: /^\/api\/companies\/[^/]+\/memory-documents\/[^/]+\/move$/ },
+  { method: "DELETE", path: /^\/api\/companies\/[^/]+\/memory-documents\/[^/]+$/ },
+  { method: "GET", path: /^\/api\/companies\/[^/]+\/folders$/ },
+  { method: "POST", path: /^\/api\/companies\/[^/]+\/folders$/ },
+  { method: "DELETE", path: /^\/api\/companies\/[^/]+\/folders\/[^/]+$/ },
+
   // Routines (agents manage their own routines and triggers)
   { method: "GET", path: /^\/api\/routines\/[^/]+$/ },
   { method: "GET", path: /^\/api\/routines\/[^/]+\/runs$/ },

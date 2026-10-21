@@ -73,7 +73,6 @@ export interface InstanceExperimentalSettings {
   enableChatConnectors: boolean;
   enablePipelines: boolean;
   enableCases: boolean;
-  enableMemory: boolean;
   enableAgentChat: boolean;
   enableConferenceRoomChat: boolean;
   enableClassicTaskInterface: boolean;

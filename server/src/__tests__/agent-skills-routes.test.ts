@@ -1252,10 +1252,10 @@ describe.sequential("agent skill routes", () => {
     const input = mockAgentService.create.mock.calls[0][1];
     expect(input.role).toBe("general");
     const canonicalKey = skill === "paperclip" ? "paperclipai/paperclip/paperclip" : skill;
-    const expected = ["paperclip", "paperclip-board", "paperclip-converting-plans-to-tasks", "paperclip-create-agent", "para-memory-files", "first-task"]
+    const expected = ["paperclip", "paperclip-board", "paperclip-converting-plans-to-tasks", "paperclip-create-agent", "para-memory-files", "memory-documents", "first-task"]
       .map((name) => ({ key: `paperclipai/paperclip/${name}`, versionId: `paperclipai/paperclip/${name}` === canonicalKey ? versionId : null }));
     expect(input.adapterConfig.paperclipSkillSync.desiredSkills).toEqual(expect.arrayContaining(expected));
-    expect(input.adapterConfig.paperclipSkillSync.desiredSkills).toHaveLength(6);
+    expect(input.adapterConfig.paperclipSkillSync.desiredSkills).toHaveLength(7);
   });
 
   it.each(["agents", "agent-hires"])("leaves ordinary general agents' defaults unchanged via %s", async (route) => {
@@ -1411,7 +1411,7 @@ describe.sequential("agent skill routes", () => {
     };
     const desired = createInput.adapterConfig.paperclipSkillSync.desiredSkills;
     // "paperclip" resolves to its canonical key and dedupes with the default.
-    expect(desired).toHaveLength(5);
+    expect(desired).toHaveLength(6);
     expect(desired).toContain("paperclipai/paperclip/paperclip");
   });
 

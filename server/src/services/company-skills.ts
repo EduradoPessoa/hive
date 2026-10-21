@@ -639,8 +639,8 @@ export const PAPERCLIP_CORE_SKILL_KEYS = [
   "paperclipai/paperclip/paperclip-converting-plans-to-tasks",
   "paperclipai/paperclip/paperclip-create-agent",
   "paperclipai/paperclip/para-memory-files",
+  "paperclipai/paperclip/memory-documents",
 ] as const;
-
 export const ONBOARDING_FIRST_TASK_SKILL_KEY = "paperclipai/paperclip/first-task";
 
 function deriveCanonicalSkillKey(

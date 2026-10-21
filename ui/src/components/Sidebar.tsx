@@ -107,7 +107,6 @@ export function Sidebar({ children }: { children?: ReactNode }) {
   });
   const attentionCount = attentionBadgeCount(attentionFeed);
   const showCases = experimentalSettings?.enableCases === true;
-  const showMemory = experimentalSettings?.enableMemory === true;
   // Conference Room Chat flag (PAP-136/PAP-137): the Conference Room nav item
   // is a new surface, hidden entirely while the flag is off (same no-flash
   // pattern as showWorkspacesLink above).
@@ -204,9 +203,7 @@ export function Sidebar({ children }: { children?: ReactNode }) {
           ) : null}
           <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
           <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />
-          {showMemory ? (
-            <SidebarNavItem to="/memory" label="Memory" icon={Brain} />
-          ) : null}
+          <SidebarNavItem to="/memory" label="Memory" icon={Brain} />
           {showCases ? (
             <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
           ) : null}
