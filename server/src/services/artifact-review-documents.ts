@@ -163,7 +163,7 @@ export function artifactReviewDocumentService(db: Db, storage: StorageService) {
       }
       const metadata = getAttachmentArtifactWorkProductMetadata(workProduct);
       if (!metadata) {
-        throw unprocessable("Work product is not an attachment-backed Paperclip artifact", {
+        throw unprocessable("Work product is not an attachment-backed Hive artifact", {
           code: "not_attachment_backed_artifact",
           workProductId: workProduct.id,
         });

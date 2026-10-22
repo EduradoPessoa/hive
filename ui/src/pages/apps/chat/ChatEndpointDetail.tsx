@@ -75,25 +75,25 @@ const providerLifecycleGuidance: Record<
     reconnect:
       "Reconnect verifies or replaces credentials for this same Slack app. It does not reinstall the app or change its workspace or channel membership.",
     remove:
-      "Paperclip archives the endpoint, stops new ingress, and retires its saved Slack credentials. It does not uninstall the Slack app: the app remains installed, and its bot remains in channels, until you remove them in Slack.",
+      "Hive archives the endpoint, stops new ingress, and retires its saved Slack credentials. It does not uninstall the Slack app: the app remains installed, and its bot remains in channels, until you remove them in Slack.",
   },
   github: {
     reconnect:
       "Reconnect verifies this same App and installation, then updates its webhook URL, secret, and secure delivery settings. It does not reinstall the App or change repository access.",
     remove:
-      "Paperclip archives the endpoint, stops new ingress, and retires its saved App key and webhook secret. It does not uninstall the GitHub App: the App, its installations, and its webhook settings remain until you remove or update them on GitHub.",
+      "Hive archives the endpoint, stops new ingress, and retires its saved App key and webhook secret. It does not uninstall the GitHub App: the App, its installations, and its webhook settings remain until you remove or update them on GitHub.",
   },
   discord: {
     reconnect:
       "Reconnect verifies this same Discord application and server installation. It does not add or remove the bot from the server.",
     remove:
-      "Paperclip archives the endpoint, stops its Paperclip Gateway connection, and retires its saved bot token. It does not uninstall the bot: the bot remains in the Discord server, and the application remains in the Developer Portal, until you remove them there.",
+      "Hive archives the endpoint, stops its Hive Gateway connection, and retires its saved bot token. It does not uninstall the bot: the bot remains in the Discord server, and the application remains in the Developer Portal, until you remove them there.",
   },
   "microsoft-teams": {
     reconnect:
       "Reconnect verifies this same Microsoft app, tenant, and bot identity. It does not upload or reinstall the Teams app.",
     remove:
-      "Paperclip archives the endpoint, stops new ingress, and retires its saved client secret. It does not uninstall the Teams app: the Entra app registration, Azure Bot, custom Teams app, and Teams installations remain until you remove them in Microsoft.",
+      "Hive archives the endpoint, stops new ingress, and retires its saved client secret. It does not uninstall the Teams app: the Entra app registration, Azure Bot, custom Teams app, and Teams installations remain until you remove them in Microsoft.",
   },
   "imessage-photon": {
     reconnect: "Reconnect verifies the same Photon project and line allocation, then recovers eligible missed messages.",
@@ -101,9 +101,9 @@ const providerLifecycleGuidance: Record<
   },
   telegram: {
     reconnect:
-      "Reconnect verifies this same BotFather bot and automatically refreshes its Paperclip webhook and command menu.",
+      "Reconnect verifies this same BotFather bot and automatically refreshes its Hive webhook and command menu.",
     remove:
-      "Paperclip archives the endpoint and queues durable removal of its Telegram webhook and command menu. After Telegram confirms that cleanup, Paperclip retires the saved token. The BotFather bot and its chat memberships remain until you remove them in Telegram.",
+      "Hive archives the endpoint and queues durable removal of its Telegram webhook and command menu. After Telegram confirms that cleanup, Hive retires the saved token. The BotFather bot and its chat memberships remain until you remove them in Telegram.",
   },
 };
 
@@ -168,8 +168,8 @@ export function activityResolutionDescription(item: ChatActivityItem): string {
   if (phase === "consent_unknown")
     return "The consent card may have reached Teams. File delivery is not confirmed. Cancelling here does not remove any card already sent.";
   if (phase)
-    return "The file may already exist in OneDrive. Cancelling stops this Paperclip transfer; it does not delete remote bytes. Uploads cannot be marked delivered or retried from this uncertain state.";
-  return "Paperclip lost confirmation after sending. Check the provider conversation first. Retrying can create a duplicate message.";
+    return "The file may already exist in OneDrive. Cancelling stops this Hive transfer; it does not delete remote bytes. Uploads cannot be marked delivered or retried from this uncertain state.";
+  return "Hive lost confirmation after sending. Check the provider conversation first. Retrying can create a duplicate message.";
 }
 
 export function isResolutionEligible(item: ChatActivityItem): boolean {
@@ -204,7 +204,7 @@ export function connectionHealthPresentation(
     paused: "Connection is paused. Resume it to receive new messages.",
     attention: "Connection needs attention.",
     revoked: "Connection access is revoked. Reconnect to verify access.",
-    archived: "Connection has been removed from Paperclip.",
+    archived: "Connection has been removed from Hive.",
   };
   const lifecycleMessage =
     endpoint.status === "active" ? null : lifecycleMessages[endpoint.status];
@@ -615,15 +615,15 @@ function Access({
                 }}><Copy className="size-4" />{joinCommandCopied ? "Copied" : "Copy command"}</Button>
               </div>
             </li>
-            <li>Open the private link from the bot, sign into Paperclip, and confirm their Slack account. The link expires in 15 minutes and works once.</li>
+            <li>Open the private link from the bot, sign into Hive, and confirm their Slack account. The link expires in 15 minutes and works once.</li>
             <li>If they aren’t a member of this organization, choose <strong>Request access</strong>. An admin must approve their request before they can link their account.</li>
           </ol>
-          <p className="text-sm text-muted-foreground">Each person links their own account and uses their own Paperclip permissions. They don’t need to create another Slack app or share credentials.</p>
+          <p className="text-sm text-muted-foreground">Each person links their own account and uses their own Hive permissions. They don’t need to create another Slack app or share credentials.</p>
         </div>
       )}
       <SettingToggle
         label="Allow unlinked people"
-        detail="They are restricted guests. Their tasks run only with an isolated workspace and sandbox environment; otherwise Paperclip safely refuses the request. They cannot approve, hire, spend, manage access, or reassign agents."
+        detail="They are restricted guests. Their tasks run only with an isolated workspace and sandbox environment; otherwise Hive safely refuses the request. They cannot approve, hire, spend, manage access, or reassign agents."
         checked={allowUnlinked}
         pending={updatePolicy.isPending}
         onChange={(value) => updatePolicy.mutate(value)}
@@ -940,7 +940,7 @@ function Activity({
           <p className="text-xs text-muted-foreground">
             {endpoint.setup?.callbacksNeedUpdate
               ? "Slack callback URLs need an update. Save the current App Manifest, then exercise Events, Interactivity, and the registered command again."
-              : "Paperclip records each callback surface independently after Slack successfully calls it."}
+              : "Hive records each callback surface independently after Slack successfully calls it."}
           </p>
           <div className="divide-y divide-border border-y border-border">
             {callbackSurfaceRows.map(([label, surface]) => (
@@ -1160,9 +1160,9 @@ function Activity({
             </AlertDialogTitle>
             <AlertDialogDescription>
               {resolutionItem?.actionType === "slash_task_start"
-                ? "Paperclip lost confirmation after asking Slack to start the task. Check Slack first. Retrying can create a duplicate starter message and task."
+                ? "Hive lost confirmation after asking Slack to start the task. Check Slack first. Retrying can create a duplicate starter message and task."
                 : resolutionItem?.actionType === "provider_effect"
-                  ? "Paperclip lost confirmation after sending this provider reply. Check the provider first. Marking it delivered applies any pending Paperclip state change; retrying can create a duplicate message."
+                  ? "Hive lost confirmation after sending this provider reply. Check the provider first. Marking it delivered applies any pending Hive state change; retrying can create a duplicate message."
                   : resolutionItem
                     ? activityResolutionDescription(resolutionItem)
                     : ""}
@@ -1242,7 +1242,7 @@ function Activity({
             <AlertDialogTitle>Remove this connection?</AlertDialogTitle>
             <AlertDialogDescription>
               {endpoint.assignedAgentName} will stop receiving new work from
-              {` ${providerNames[endpoint.provider]}`}. Existing Paperclip tasks
+              {` ${providerNames[endpoint.provider]}`}. Existing Hive tasks
               remain available.{" "}
               {providerLifecycleGuidance[endpoint.provider].remove}
             </AlertDialogDescription>

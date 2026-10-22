@@ -21,7 +21,7 @@ Every new-role `AGENTS.md` should cover these sections in order. Remove a sectio
 
 ### 1. Identity and reporting line
 
-One or two sentences. Name the agent, its role, and its company. State the reporting line. Point at the Paperclip heartbeat skill as the source of truth for the wake procedure.
+One or two sentences. Name the agent, its role, and its company. State the reporting line. Point at the Hive heartbeat skill as the source of truth for the wake procedure.
 
 Reference phrasing:
 

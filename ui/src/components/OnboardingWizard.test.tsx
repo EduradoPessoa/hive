@@ -2742,7 +2742,7 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
           {
             code: "environment_identity",
             level: "info",
-            message: 'Environment test identity for "Paperclip Computer".',
+            message: 'Environment test identity for "Hive Computer".',
             detail: "paperclipLeaseId=ff9e58e9; provider=daytona",
           },
         ],
@@ -3343,7 +3343,7 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const { root } = await openStep4({ adapterType: "claude_local" });
       await pickSource(/Claude/);
       expect(document.body.textContent).toContain("claude auth login");
-      expect(document.body.textContent).toContain("machine running Paperclip");
+      expect(document.body.textContent).toContain("machine running Hive");
       expect(document.body.textContent).not.toContain("No managed sandbox");
       expect(mockAgentsApi.startClaudeSetupTokenLogin).not.toHaveBeenCalled();
       const connect = [...document.body.querySelectorAll("button")].find(b => b.textContent?.trim().startsWith("Connect"));

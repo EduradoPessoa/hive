@@ -73,7 +73,7 @@ describe("PaperclipApiClient", () => {
       causeMessage: "fetch failed",
     } satisfies Partial<ApiConnectionError>);
     await expect(client.post("/api/companies/import/preview", {})).rejects.toThrow(
-      /Could not reach the Paperclip API\./,
+      /Could not reach the Hive API\./,
     );
     await expect(client.post("/api/companies/import/preview", {})).rejects.toThrow(
       /curl http:\/\/localhost:3100\/api\/health/,

@@ -234,7 +234,7 @@ describe("IssueRecoveryActionCard", () => {
     );
     expect(node.textContent).toContain("Task Needs Next Step");
     expect(node.textContent).toContain(
-      "Paperclip could not find a clear next step for this open task. Choose whether to continue work, send it for review, mark it done, or record what is blocking it.",
+      "Hive could not find a clear next step for this open task. Choose whether to continue work, send it for review, mark it done, or record what is blocking it.",
     );
   });
 
@@ -263,7 +263,7 @@ describe("IssueRecoveryActionCard", () => {
     expect(section?.getAttribute("data-recovery-kind")).toBe("workspace_validation");
     expect(node.textContent).toContain("Workspace Validation");
     expect(node.textContent).toContain(
-      "Paperclip stopped this run because the task's git workspace could not be validated.",
+      "Hive stopped this run because the task's git workspace could not be validated.",
     );
     expect(node.textContent).toContain("Repair the source issue workspace link");
   });
@@ -390,7 +390,7 @@ function buildWorkspaceValidationAction(
     actualHeadSha: "bbbbbbbbbbbb33334444",
     ancestryVerdict: "diverged",
     plainLanguageReason:
-      'The recorded branch "PAP-522-recorded" is not an ancestor of the checked-out branch "nleach/PAP-1405-live", so Paperclip cannot prove a forward-only reconciliation.',
+      'The recorded branch "PAP-522-recorded" is not an ancestor of the checked-out branch "nleach/PAP-1405-live", so Hive cannot prove a forward-only reconciliation.',
     ...overrides.provenance,
   };
   return buildAction({
@@ -886,7 +886,7 @@ describe("IssueRecoveryActionCard owner-sticky retry lineage", () => {
     expect(node.textContent).not.toContain("RECOVERY NEEDED");
     expect(node.textContent).toContain("Wait Without A Target");
     expect(node.textContent).toContain("The task stays with its owner, and no action is needed yet.");
-    expect(node.textContent).toContain("Paperclip is retrying the original owner");
+    expect(node.textContent).toContain("Hive is retrying the original owner");
   });
 
   it("shows the five-attempt budget and the next due time", () => {
@@ -972,7 +972,7 @@ describe("IssueRecoveryActionCard owner-sticky retry lineage", () => {
     // The follow-up line must not keep promising a retry that will never run, and the
     // generic timeout chip must not reintroduce a stale due time next to it.
     expect(node.textContent).toContain("Automatic retries are finished — a decision is needed");
-    expect(node.textContent).not.toContain("Paperclip is retrying the original owner");
+    expect(node.textContent).not.toContain("Hive is retrying the original owner");
     expect(node.textContent).not.toContain("Times out");
   });
 
@@ -1053,7 +1053,7 @@ describe("IssueRecoveryActionCard owner-sticky retry lineage", () => {
     const node = render(
       <IssueRecoveryActionCard action={buildSourceLaneAction()} agentMap={bothAgents} />,
     );
-    expect(node.textContent).toContain("Paperclip is retrying the original owner");
+    expect(node.textContent).toContain("Hive is retrying the original owner");
     expect(node.textContent).not.toContain("Times out");
   });
 

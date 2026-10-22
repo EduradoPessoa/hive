@@ -416,7 +416,7 @@ export function toolAccessRoutes(
       ?? requestLoopbackBaseUrl(req);
     if (!baseUrl) {
       throw unprocessable(
-        "This Paperclip needs a browser-reachable HTTPS address (or loopback HTTP) before browser sign-in can start.",
+        "This Hive needs a browser-reachable HTTPS address (or loopback HTTP) before browser sign-in can start.",
         { code: "oauth_redirect_origin_unsupported" },
       );
     }

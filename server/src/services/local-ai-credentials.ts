@@ -56,7 +56,7 @@ export async function readVerifiedLocalAiCredential(provider: AiProvider, loginH
   } catch {
     // Provider/CLI errors may contain credential material; never return them.
     throw unprocessable(provider === "anthropic" && !loginHome
-      ? "Could not verify the local subscription. Run claude auth login in a terminal on the machine running Paperclip, then try Connect again."
+      ? "Could not verify the local subscription. Run claude auth login in a terminal on the machine running Hive, then try Connect again."
       : "Could not verify the local subscription. Run the sign-in command shown for this connection, finish signing in, then try Connect again.");
   }
 }

@@ -194,7 +194,7 @@ export function SidebarAccountMenu({
               />
               <MenuAction
                 label="Documentation"
-                description="Open Paperclip docs in a new tab."
+                description="Open Hive docs in a new tab."
                 icon={BookOpen}
                 href={DOCS_URL}
                 external

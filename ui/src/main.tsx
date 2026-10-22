@@ -58,7 +58,7 @@ function CompanyAwareBreadcrumbProvider({ children }: { children: React.ReactNod
 }
 
 const rootElement = document.getElementById("root");
-if (!rootElement) throw new Error("Paperclip root element is missing");
+if (!rootElement) throw new Error("Hive root element is missing");
 
 getOrCreatePaperclipReactRoot(window, rootElement).render(
   <StrictMode>

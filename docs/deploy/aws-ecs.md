@@ -1,16 +1,16 @@
 ---
 title: AWS ECS Fargate
-summary: Deploy Paperclip to AWS using ECS Fargate, RDS Postgres, and EFS
+summary: Deploy Hive to AWS using ECS Fargate, RDS Postgres, and EFS
 ---
 
-Deploy Paperclip to AWS with ECS Fargate (compute), RDS Postgres 17 (database), and EFS (persistent storage). This guide uses the AWS CLI and produces a single-task ECS service behind an ALB with HTTPS.
+Deploy Hive to AWS with ECS Fargate (compute), RDS Postgres 17 (database), and EFS (persistent storage). This guide uses the AWS CLI and produces a single-task ECS service behind an ALB with HTTPS.
 
 ## Prerequisites
 
 - AWS CLI v2 configured with a profile that has admin-level permissions
 - Docker installed locally (for building and pushing the image)
 - A registered domain with DNS you control (for the TLS certificate)
-- The Paperclip repo cloned locally
+- The Hive repo cloned locally
 
 Set these shell variables for the rest of the guide:
 

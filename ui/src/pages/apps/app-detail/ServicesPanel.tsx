@@ -195,7 +195,7 @@ function ServicesIntro({ appName, connectedCount }: { appName: string; connected
     <div className="max-w-2xl space-y-1">
       <h2 className="text-lg font-semibold">Services</h2>
       <p className="text-sm leading-6 text-muted-foreground">
-        {appName} brokers these services. Connect one and it becomes its own app in Paperclip, which
+        {appName} brokers these services. Connect one and it becomes its own app in Hive, which
         you then give to agents on its Permissions tab.
         {connectedCount > 0 && (
           <>
@@ -215,7 +215,7 @@ function ServicesEmptyState() {
     <div className="rounded-xl border border-border bg-card p-6">
       <p className="text-sm font-medium">No services available yet</p>
       <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-        This Composio project has no toolkits Paperclip can offer. Add a toolkit and an auth
+        This Composio project has no toolkits Hive can offer. Add a toolkit and an auth
         configuration in Composio, then check back.
       </p>
     </div>
@@ -413,7 +413,7 @@ function DisconnectDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Disconnect {row.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            This removes {row.name} from Paperclip and deletes its credentials in Composio. Agents
+            This removes {row.name} from Hive and deletes its credentials in Composio. Agents
             using its actions lose them immediately. Connecting it again needs a new sign-in.
           </AlertDialogDescription>
         </AlertDialogHeader>

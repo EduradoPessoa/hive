@@ -4,7 +4,7 @@ import { webhookUrlWarningReason } from "@/lib/webhook-url-warning";
 const warnings = {
   loopback: {
     title: "Other apps can’t reach this localhost URL",
-    message: "This address points back to the machine sending the request. Services such as GitHub can’t use it to reach Paperclip on your computer.",
+    message: "This address points back to the machine sending the request. Services such as GitHub can’t use it to reach Hive on your computer.",
   },
   private: {
     title: "This webhook URL appears to be private",

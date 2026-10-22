@@ -200,7 +200,7 @@ export function EmailEndpointSetup() {
       <p className="text-sm text-muted-foreground">
         {lowTrust
           ? "Email tasks stay inside the configured project or root task boundary. Output is quarantined for trusted review."
-          : "Email can contain malicious instructions. We recommend Low-trust review to limit the agent’s access to Paperclip work."}
+          : "Email can contain malicious instructions. We recommend Low-trust review to limit the agent’s access to Hive work."}
       </p>
       <p className="text-xs text-muted-foreground">Low-trust execution also requires isolated workspaces and an active sandbox environment in the agent’s runtime settings.</p>
       <Button
@@ -589,7 +589,7 @@ export function EmailEndpointSetup() {
             candidatesLoading={projects.isPending || boundaryIssues.isPending}
           />
           <p className="text-xs text-muted-foreground">
-            Low trust limits Paperclip access; it does not sandbox the runtime.
+            Low trust limits Hive access; it does not sandbox the runtime.
             Review filesystem, tool, and secret access separately.
           </p>
           {(trust.error || projects.error || boundaryIssues.error) && (

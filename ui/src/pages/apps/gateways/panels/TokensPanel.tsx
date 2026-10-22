@@ -193,7 +193,7 @@ export function TokensPanel({
             Issue a reusable token for an external client. Its name is also used as the client label.
           </p>
           <p className="text-xs text-muted-foreground">
-            Paperclip creates a fresh one-hour runtime token when an agent run starts, then revokes it when the
+            Hive creates a fresh one-hour runtime token when an agent run starts, then revokes it when the
             run ends. Codex can receive the same gateway through both an app connection and the managed-gateway
             path, so one run may leave two revoked rows. These are audit history, not repeated manual tokens.
           </p>

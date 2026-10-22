@@ -38,15 +38,15 @@ export function ManagedOAuthHandoffState({
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {failed
-              ? error ?? "Paperclip couldn’t prepare the provider sign-in. Try again."
+              ? error ?? "Hive couldn’t prepare the provider sign-in. Try again."
               : phase === "reauthenticating"
-                ? "Your Paperclip sign-in is being refreshed."
-                : "Paperclip is opening the provider securely."}
+                ? "Your Hive sign-in is being refreshed."
+                : "Hive is opening the provider securely."}
           </p>
           {failed ? (
             <div className="mt-6 flex items-center gap-2">
               <Button type="button" onClick={onRetry}>Try again</Button>
-              <Button type="button" variant="ghost" onClick={onCancel}>Return to Paperclip</Button>
+              <Button type="button" variant="ghost" onClick={onCancel}>Return to Hive</Button>
             </div>
           ) : null}
         </div>
@@ -64,7 +64,7 @@ export function PaperclipCloudOAuthHandoffPage() {
     const handoff = readPendingCloudHandoff();
     if (!handoff) {
       setPhase("error");
-      setError("This sign-in expired. Return to Paperclip and start the connection again.");
+      setError("This sign-in expired. Return to Hive and start the connection again.");
       return;
     }
     setPhase("loading");
@@ -73,14 +73,14 @@ export function PaperclipCloudOAuthHandoffPage() {
       const target = await prepareOAuthNavigation({ authorizationUrl: "", handoff });
       if (target.kind === "reauthentication") {
         setPhase("error");
-        setError("Paperclip couldn’t refresh this sign-in. Try again to continue.");
+        setError("Hive couldn’t refresh this sign-in. Try again to continue.");
         return;
       }
       clearPendingCloudHandoff();
       navigateTopLevel(target.url);
     } catch (caught) {
       setPhase("error");
-      setError(caught instanceof Error ? caught.message : "Paperclip couldn’t prepare secure sign-in.");
+      setError(caught instanceof Error ? caught.message : "Hive couldn’t prepare secure sign-in.");
     }
   }, []);
 

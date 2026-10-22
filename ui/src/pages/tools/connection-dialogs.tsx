@@ -474,7 +474,7 @@ export function AddConnectionDialog({
                       </p>
                     ) : null}
                     <p className="text-xs text-muted-foreground">
-                      Free-text secrets are not accepted — pick a vault entry; Paperclip stores only the
+                      Free-text secrets are not accepted — pick a vault entry; Hive stores only the
                       <span className="font-mono"> vault://</span> reference and resolves it at gateway use time.
                     </p>
                   </>

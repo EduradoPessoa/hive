@@ -835,7 +835,7 @@ function splitRequiredOptional(schema: JsonSchemaNode): JsonSchemaNode {
 
 const GUT_CHECK: Record<ToolConnectionTestDecision, (app: string, agent: string) => string> = {
   allowed: (app, agent) => `This runs a real call against ${app} as ${agent}.`,
-  ask_first: () => `Waiting for your OK before this call leaves Paperclip.`,
+  ask_first: () => `Waiting for your OK before this call leaves Hive.`,
   off: (_app, agent) => `No call will be made — this action is off for ${agent}.`,
 };
 

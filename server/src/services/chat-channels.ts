@@ -3033,7 +3033,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
 
   function discordGatewayNotOwnedError() {
     return conflict(
-      "Another Paperclip server owns this Discord Gateway connection; retry shortly",
+      "Another Hive server owns this Discord Gateway connection; retry shortly",
       { code: "chat_discord_gateway_not_owned" },
     );
   }
@@ -6470,7 +6470,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
     });
     if (conflictEndpoint) {
       throw conflict(
-        `This ${PROVIDER_LABELS[endpoint.provider]} bot already represents another Paperclip agent connection`,
+        `This ${PROVIDER_LABELS[endpoint.provider]} bot already represents another Hive agent connection`,
         conflictEndpoint.companyId === endpoint.companyId
           ? {
               code: "chat_bot_identity_in_use",
@@ -6497,7 +6497,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
 
   function nativeBotIdentityConflict(provider: ChatProvider) {
     return conflict(
-      `This ${PROVIDER_LABELS[provider]} bot already represents another Paperclip agent connection`,
+      `This ${PROVIDER_LABELS[provider]} bot already represents another Hive agent connection`,
       { code: "chat_bot_identity_in_use" },
     );
   }
@@ -9496,7 +9496,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
     }
     if (!getWebhookPublicBaseUrl() && endpoint.provider !== "discord" && endpoint.provider !== "imessage-photon") {
       throw unprocessable(
-        `A public HTTPS Paperclip URL is required before connecting ${PROVIDER_LABELS[endpoint.provider]}`,
+        `A public HTTPS Hive URL is required before connecting ${PROVIDER_LABELS[endpoint.provider]}`,
       );
     }
     if (
@@ -9527,7 +9527,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
         );
       }
       if (!endpoint.setup.webhookVerifiedAt) {
-        throw conflict("Slack has not verified the Paperclip Request URL yet", {
+        throw conflict("Slack has not verified the Hive Request URL yet", {
           code: "chat_webhook_not_verified",
         });
       }
@@ -10133,7 +10133,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
             );
           if (!finalPublication) {
             throw conflict(
-              "Wait for the Paperclip agent to reply to the setup turn before completing setup",
+              "Wait for the Hive agent to reply to the setup turn before completing setup",
               {
                 code: "chat_test_round_trip_incomplete",
               },
@@ -16047,7 +16047,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
         }
         if (!conversation)
           throw conflict(
-            "Could not bind external conversation to a Paperclip task",
+            "Could not bind external conversation to a Hive task",
           );
 
         const issue =
@@ -20079,7 +20079,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
       ["active"],
     );
     if (!record) {
-      throw forbidden("This chat action is not a current Paperclip question");
+      throw forbidden("This chat action is not a current Hive question");
     }
     const deny = async (safelyKnown?: {
       conversationId?: string | null;
@@ -21147,7 +21147,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
     runtimeContext: RuntimeContext,
   ): Promise<ModalResponse> {
     const denialError = () =>
-      forbidden("This chat form is not a current Paperclip question");
+      forbidden("This chat form is not a current Hive question");
     const record = await runtimeCallbackRecord(
       event.endpointId,
       runtimeContext,
@@ -28151,7 +28151,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
         .then((rows) => rows[0] ?? null);
       if (membership?.status !== "active") {
         throw forbidden(
-          "The signed-in Paperclip account is not a member of this company",
+          "The signed-in Hive account is not a member of this company",
         );
       }
       const conflictingLink = await tx
@@ -28172,7 +28172,7 @@ export function chatChannelService(db: Db, options: ChatChannelServiceOptions) {
         .then((rows) => rows[0] ?? null);
       if (conflictingLink) {
         throw conflict(
-          "This provider identity is linked to a different Paperclip account",
+          "This provider identity is linked to a different Hive account",
           {
             code: "chat_identity_link_conflict",
           },

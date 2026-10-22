@@ -51,7 +51,7 @@ export function webhookAgentInstructions(
   setupPending = true,
 ) {
   const common = [
-    `Connect the sending app to the Paperclip routine ${JSON.stringify(routineTitle)}.`,
+    `Connect the sending app to the Hive routine ${JSON.stringify(routineTitle)}.`,
     `Webhook URL: ${webhookUrl}`,
     "Send an HTTP POST request with a JSON object as the body (not an array or string).",
     "Content-Type: application/json",
@@ -78,11 +78,11 @@ export function webhookAgentInstructions(
   return [
     ...common,
     ...auth,
-    "Open Check connection in Paperclip to see whether the event arrived and authentication passed.",
+    "Open Check connection in Hive to see whether the event arrived and authentication passed.",
     ...(setupPending
       ? [
           "During setup, deliveries only test the connection. They do not start the routine or create a task.",
-          "Finish setup in Paperclip to enable this webhook for future events. Test events are not replayed.",
+          "Finish setup in Hive to enable this webhook for future events. Test events are not replayed.",
         ]
       : [
           "This webhook is enabled. Deliveries can start the routine and create tasks.",
@@ -201,7 +201,7 @@ export function RoutineTriggerWizard({
       ? `Choose how to start “${routineTitle}”. You can add another trigger later.`
       : schedule
         ? draft.step === 1
-          ? "Choose when Paperclip should start this routine automatically."
+          ? "Choose when Hive should start this routine automatically."
           : "This schedule starts the routine automatically. You can pause or change it later."
         : draft.step === 1
           ? "Copy these details into the sending app, then save its webhook settings."

@@ -71,7 +71,7 @@ describe("PaperclipCloudOAuthHandoffPage", () => {
     expect(window.sessionStorage.length).toBe(0);
   });
 
-  it("keeps terminal handoff failures in Paperclip instead of opening confirmation", async () => {
+  it("keeps terminal handoff failures in Hive instead of opening confirmation", async () => {
     savePendingCloudHandoff(SESSION);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({
       error: "SESSION_NOT_AVAILABLE",
@@ -95,7 +95,7 @@ describe("PaperclipCloudOAuthHandoffPage", () => {
     await act(async () => root.render(<PaperclipCloudOAuthHandoffPage />));
     await flushReact();
 
-    expect(container.textContent).toContain("Paperclip couldn’t refresh this sign-in. Try again to continue.");
+    expect(container.textContent).toContain("Hive couldn’t refresh this sign-in. Try again to continue.");
     expect(navigateTopLevel).not.toHaveBeenCalled();
   });
 });

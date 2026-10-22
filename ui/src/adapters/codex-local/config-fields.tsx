@@ -154,7 +154,7 @@ export function CodexLocalConfigFields({
     ? "Fast mode will be passed through for this manual model. If Codex rejects it, turn the toggle off."
     : fastModeSupported
       ? "Fast mode consumes credits/tokens much faster than standard Codex runs."
-      : `Fast mode currently only works on ${supportedModelsLabel} or manual model IDs. Paperclip will ignore this toggle until the model is switched.`;
+      : `Fast mode currently only works on ${supportedModelsLabel} or manual model IDs. Hive will ignore this toggle until the model is switched.`;
 
   return configFieldsForSection(section, (
     <>
@@ -300,7 +300,7 @@ export function CodexLocalConfigFields({
           </Field>
           <Field
             label="Estimated session ceiling (USD)"
-            hint="Paperclip estimate; AWS does not provide a per-session currency hard stop."
+            hint="Hive estimate; AWS does not provide a per-session currency hard stop."
           >
             <DraftNumberInput
               value={Number(runnerSchemaValue("maxEstimatedSessionCostUsd", 1))}
@@ -373,7 +373,7 @@ export function CodexLocalConfigFields({
       {runnerManaged && runnerPermissionCapability.configurable && (runnerPermissionCapability.options.length > 1 || runnerPermissionModeUnsupported) && (
         <Field
           label="Permission mode"
-          hint={`${runnerPermissionCapability.description} The selected mode does not widen Paperclip's workspace, network, credential, or planning boundaries.`}
+          hint={`${runnerPermissionCapability.description} The selected mode does not widen Hive's workspace, network, credential, or planning boundaries.`}
         >
           <Select
             value={
@@ -573,7 +573,7 @@ export function CodexLocalConfigFields({
           {!managedSandboxOnly && (
             <Field
               label="ACP state directory"
-              hint="Optional ACP session state directory. Defaults to Paperclip-managed organization/agent scoped storage."
+              hint="Optional ACP session state directory. Defaults to Hive-managed organization/agent scoped storage."
             >
               <div className="flex items-center gap-2">
                 <DraftInput

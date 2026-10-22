@@ -258,7 +258,7 @@ export const connectionGrantSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["kind"], message: "User and agent grants require exactly their matching subject; organization grants cannot have a subject" });
   }
   if (grant.externalCredential && grant.credentialSecretRefs.length > 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["credentialSecretRefs"], message: "External grants cannot also contain Paperclip secret references" });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["credentialSecretRefs"], message: "External grants cannot also contain Hive secret references" });
   }
 });
 

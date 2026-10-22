@@ -849,7 +849,7 @@ describe("IssueThreadInteractionCard", () => {
     expect((resumeFailed.firstElementChild as HTMLElement).className).toContain("border-amber-500/70");
     expect(resumeFailed.textContent).toContain("Approved — agent resume failed");
     expect(resumeFailed.textContent).toContain("Agent resume failed");
-    expect(resumeFailed.textContent).toContain("Paperclip needs attention before the agent can resume this approved work.");
+    expect(resumeFailed.textContent).toContain("Hive needs attention before the agent can resume this approved work.");
     expect(resumeFailed.textContent).toContain("adapter_failed");
 
     act(() => root?.unmount());

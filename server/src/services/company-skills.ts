@@ -309,7 +309,7 @@ function assertImportedSkillKeyAllowed(skill: ImportedSkill) {
   const sourceKind = asString(metadata?.sourceKind);
   if (sourceKind === "paperclip_bundled") return;
   throw unprocessable(
-    `Reserved Paperclip skill key "${skill.key}" cannot be imported from unbundled sources.`,
+    `Reserved Hive skill key "${skill.key}" cannot be imported from unbundled sources.`,
     {
       skillKey: skill.key,
       sourceKind: sourceKind ?? skill.sourceType,
@@ -4053,7 +4053,7 @@ export function companySkillService(db: Db) {
         result = await withSkillFileMutation(companyId, skillId, async (skill, tx) => {
           if (!isPaperclipManagedRenameTarget(skill)) {
             throw unprocessable(
-              "Only Paperclip-managed skills can be renamed. Catalog, external, project-scanned, and unmanaged local skills are read-only.",
+              "Only Hive-managed skills can be renamed. Catalog, external, project-scanned, and unmanaged local skills are read-only.",
               { skillId: skill.id, sourceType: skill.sourceType, sourceKind: getSkillMeta(skill).sourceKind ?? null },
             );
           }

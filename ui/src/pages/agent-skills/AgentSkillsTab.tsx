@@ -28,7 +28,7 @@ import { buildAgentSkillSourceMeta } from "./agent-skill-source";
 import { AgentSkillReleasePicker, releaseShortLabel } from "./AgentSkillReleasePicker";
 
 const MATERIALIZATION_NOTE =
-  "Enabled skills are materialized into the stable Paperclip-managed prompt bundle on the agent's next run.";
+  "Enabled skills are materialized into the stable Hive-managed prompt bundle on the agent's next run.";
 
 /** Company skill key of the Paperclip core skill that carries beta releases. */
 const PAPERCLIP_CORE_SKILL_KEY = "paperclipai/paperclip/paperclip";
@@ -311,12 +311,12 @@ export function AgentSkillsTab({ agent, companyId }: { agent: Agent; companyId?:
       typeof agent.adapterConfig.agent === "string" &&
       agent.adapterConfig.agent === "custom"
     ) {
-      return "Paperclip cannot manage skills for custom ACP commands yet.";
+      return "Hive cannot manage skills for custom ACP commands yet.";
     }
     if (agent.adapterType === "openclaw_gateway") {
-      return "Paperclip cannot manage OpenClaw skills here. Visit your OpenClaw instance to manage this agent's skills.";
+      return "Hive cannot manage OpenClaw skills here. Visit your OpenClaw instance to manage this agent's skills.";
     }
-    return "Paperclip cannot manage skills for this adapter yet. Manage them in the adapter directly.";
+    return "Hive cannot manage skills for this adapter yet. Manage them in the adapter directly.";
   }, [agent.adapterConfig.agent, agent.adapterType, unsupported]);
 
   const hasUnsavedChanges = !sameSkillSelection(skillDraft, lastSavedSkills);
@@ -353,7 +353,7 @@ export function AgentSkillsTab({ agent, companyId }: { agent: Agent; companyId?:
       && row.key === PAPERCLIP_CORE_SKILL_KEY;
     const rowDisabled = unsupported || legacyPaperclipBlocked;
     const rowDisabledReason = legacyPaperclipBlocked
-      ? "Paperclip Runner uses native semantic coordination and cannot attach the legacy Paperclip operational skill."
+      ? "Paperclip Runner uses native semantic coordination and cannot attach the legacy Hive operational skill."
       : unsupportedMessage;
     const showReleasePicker =
       releasePickerActive && variant === "enabled" && row.key === PAPERCLIP_CORE_SKILL_KEY;

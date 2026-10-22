@@ -1,4 +1,4 @@
-# Paperclip Create Agent API Reference
+# Hive Create Agent API Reference
 
 ## Core Endpoints
 

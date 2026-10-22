@@ -12,7 +12,7 @@
  * operator has to paste, because that is the only part Paperclip's config
  * preview parser reads. Everything else is prose for the human.
  */
-export const MCP_CONFIG_HELP_PROMPT = `I want to connect an MCP (Model Context Protocol) server to Paperclip, and I need a paste-ready config.
+export const MCP_CONFIG_HELP_PROMPT = `I want to connect an MCP (Model Context Protocol) server to Hive, and I need a paste-ready config.
 
 Target server: <name the server, or ask me if I have not said>
 
@@ -52,5 +52,5 @@ Please:
 export const MCP_CONFIG_HELP_INSTRUCTIONS = [
   "Copy this prompt and send it to an agent or assistant that can look up the server's documentation.",
   "Paste only the JSON block it replies with back into the box on this page.",
-  "Paperclip reads the header names from that JSON and asks you for the values, then stores them as Paperclip secrets — so the config you paste should contain placeholders, not live credentials.",
+  "Hive reads the header names from that JSON and asks you for the values, then stores them as Hive secrets — so the config you paste should contain placeholders, not live credentials.",
 ] as const;

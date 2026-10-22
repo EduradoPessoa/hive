@@ -1,6 +1,6 @@
 # Built-in Agents
 
-Built-in agents are first-party, company-scoped agents that Paperclip can resolve by a stable registry key. They are normal rows in `agents`, but they carry immutable metadata under `metadata.paperclipBuiltInAgent` so services can find them without hardcoding a database id.
+Built-in agents are first-party, company-scoped agents that Hive can resolve by a stable registry key. They are normal rows in `agents`, but they carry immutable metadata under `metadata.paperclipBuiltInAgent` so services can find them without hardcoding a database id.
 
 The first built-ins are `briefs` and `learning`. Operators can provision them from the API without going through board hire approval, but the route still requires the same `agents:create` permission as normal agent creation.
 

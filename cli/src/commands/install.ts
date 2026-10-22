@@ -86,7 +86,7 @@ export function resolveGitInstallWorkspacePackages(checkoutPath: string): Releas
 
 export function assertSupportedNodeVersion(): void {
   if (!isSupportedNodeVersion(process.versions.node)) {
-    throw new Error(`Installing or updating Paperclip requires Node.js ${MINIMUM_NODE_VERSION} or newer (found ${process.version} at ${process.execPath}). Put a supported Node bin directory first on PATH and run 'npx paperclipai@latest install --yes' to re-pin an existing managed install.`);
+    throw new Error(`Installing or updating Hive requires Node.js ${MINIMUM_NODE_VERSION} or newer (found ${process.version} at ${process.execPath}). Put a supported Node bin directory first on PATH and run 'npx paperclipai@latest install --yes' to re-pin an existing managed install.`);
   }
 }
 
@@ -327,7 +327,7 @@ async function ensureShimOnPath(options: InstallOptions): Promise<void> {
   const manualInstruction = `export PATH="$HOME/.local/bin:$PATH"`;
   const rcPath = shellRcPath();
   if (!process.stdin.isTTY || !process.stdout.isTTY || !rcPath) {
-    console.log(pc.yellow(`Add Paperclip to PATH for this shell:\n  ${manualInstruction}`));
+    console.log(pc.yellow(`Add Hive to PATH for this shell:\n  ${manualInstruction}`));
     return;
   }
   const confirmed = options.yes === true ? true : await p.confirm({ message: `Add ~/.local/bin to PATH in ${rcPath}?`, initialValue: true });

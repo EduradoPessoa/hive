@@ -2683,7 +2683,7 @@ export async function loadGitHubGrantMetadata(
       ? `https://github.com/apps/${resolvedAppSlug}/installations/new`
       : "https://github.com/settings/installations";
     throw unprocessable(
-      "GitHub access is required. Install Paperclip and grant at least one repository before refreshing access.",
+      "GitHub access is required. Install Hive and grant at least one repository before refreshing access.",
       {
         code: "github_installation_required",
         installationUrl,
@@ -6970,7 +6970,7 @@ export function toolAccessService(
       .filter((tool): tool is McpToolDescriptor => Boolean(tool));
     if (!isRailwayConnection(connection)) return descriptors;
     if (descriptors.some((tool) => normalizeRailwayToolName(tool.name).startsWith(RAILWAY_TOOL_PREFIX))) {
-      throw unprocessable("Railway advertised a reserved Paperclip action name. Refresh is blocked pending review.", { code: "railway_tool_name_collision" });
+      throw unprocessable("Railway advertised a reserved Hive action name. Refresh is blocked pending review.", { code: "railway_tool_name_collision" });
     }
     let apiStatus = "available";
     let apiMessage = "Direct Railway service, log, and deployment tools are available.";
@@ -12587,7 +12587,7 @@ export function toolAccessService(
       const integration = vercelConnectIntegrationStatus();
       if (!integration.enabled || !integration.configured || !vercelConnect) {
         throw unprocessable(
-          "Vercel Connect setup is not available on this Paperclip instance",
+          "Vercel Connect setup is not available on this Hive instance",
           {
             code: "vercel_connect_unavailable",
           },
@@ -12665,7 +12665,7 @@ export function toolAccessService(
           .limit(1);
         if (connectorInUse) {
           throw conflict(
-            "App-subject Vercel connectors are dedicated to one Paperclip connection. Create or attach a separate connector in Vercel.",
+            "App-subject Vercel connectors are dedicated to one Hive connection. Create or attach a separate connector in Vercel.",
             {
               code: "vercel_connect_app_connector_in_use",
             },
@@ -13050,7 +13050,7 @@ export function toolAccessService(
         }
         if (!applicationRow) {
           throw conflict(
-            "Paperclip could not allocate a unique connection name",
+            "Hive could not allocate a unique connection name",
             {
               code: "tool_access_name_allocation_exhausted",
             },
@@ -14232,7 +14232,7 @@ export function toolAccessService(
       throw conflict("Archived app connections cannot be reconnected");
     if (connection.credentialSource === "vercel_connect") {
       throw conflict(
-        "Manage this connector in Vercel Connect, then run a Paperclip health check to verify it.",
+        "Manage this connector in Vercel Connect, then run a Hive health check to verify it.",
         {
           code: "vercel_connect_managed_externally",
           manageUrl: vercelConnectIntegrationStatus().manageUrl,
@@ -14599,7 +14599,7 @@ export function toolAccessService(
       const cloudConnector = currentCloudConnector();
       if (!cloudConnector) {
         throw unprocessable(
-          `${providerName} connections through Paperclip are not available on this instance yet`,
+          `${providerName} connections through Hive are not available on this instance yet`,
           {
             code: "paperclip_cloud_connector_unavailable",
           },
@@ -15271,7 +15271,7 @@ export function toolAccessService(
     const cloudConnector = currentCloudConnector();
     if (!cloudConnector) {
       throw unprocessable(
-        `${providerName} connections through Paperclip are not available on this instance yet`,
+        `${providerName} connections through Hive are not available on this instance yet`,
         {
           code: "paperclip_cloud_connector_unavailable",
         },

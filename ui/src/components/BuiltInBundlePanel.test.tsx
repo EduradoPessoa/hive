@@ -191,7 +191,7 @@ describe("BuiltInBundlePanel (PAP-13099)", () => {
     ]));
     const text = container.textContent ?? "";
     expect(text).toContain("Update available");
-    expect(text).toContain("Paperclip shipped a newer default");
+    expect(text).toContain("Hive shipped a newer default");
     // The per-resource Update trigger button is present.
     const buttons = Array.from(container.querySelectorAll("button")).map((b) => b.textContent);
     expect(buttons).toContain("Update");

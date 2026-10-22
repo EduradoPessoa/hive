@@ -31,7 +31,7 @@ New sends require `endpointId`, `parentIssueId`, `to`, `subject`, and `text`;
 optional `cc`, `bcc`, and `attachmentIds` are explicit. Attachments must already
 belong to the source task. Both operations require a new UUID `idempotencyKey`.
 Preserve that key and the identical payload across retries. The CLI supplies
-`X-Paperclip-Run-Id` from the run environment. Provider keys are held by Paperclip.
+`X-Paperclip-Run-Id` from the run environment. Provider keys are held by Hive.
 
 Inspect the returned publication with `paperclipai email delivery <publicationId>`.
 If the installed CLI does not include `email`, use the authenticated HTTP API
@@ -46,13 +46,13 @@ Queued means persisted, not sent. Do not create a second send merely because the
 first timed out. Uncertain sends beyond the provider deduplication window need
 operator reconciliation. Sending does not automatically complete the task.
 If access is revoked or this inbox is disconnected, stop using it. Reassignment
-and reconnection are managed through the AgentMail connection in Paperclip.
+and reconnection are managed through the AgentMail connection in Hive.
 
 
 ## HTTP API reference
 
 These endpoints are also available through the sandbox callback bridge. Use the
-injected Paperclip API URL and agent credential; include `X-Paperclip-Run-Id` on
+injected Hive API URL and agent credential; include `X-Paperclip-Run-Id` on
 writes. Provider keys stay in the control plane.
 
 | Action | Endpoint |

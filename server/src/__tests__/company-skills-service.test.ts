@@ -2136,7 +2136,7 @@ describeEmbeddedPostgres("companySkillService.list", () => {
       ].join("\n"),
     })).rejects.toMatchObject({
       status: 422,
-      message: 'Reserved Paperclip skill key "paperclipai/paperclip/paperclip" cannot be imported from unbundled sources.',
+      message: 'Reserved Hive skill key "paperclipai/paperclip/paperclip" cannot be imported from unbundled sources.',
     });
 
     const stored = await svc.getById(companyId, skillId);

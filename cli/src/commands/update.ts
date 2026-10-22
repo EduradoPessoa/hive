@@ -50,7 +50,7 @@ function isDatabaseUnreachableError(error: unknown): boolean {
 
 async function runPreUpdateBackup(options: UpdateOptions, backup: () => Promise<void>, hasInstanceData = hasPaperclipInstanceData): Promise<void> {
   if (!hasInstanceData()) {
-    const message = "Skipping the pre-update backup because this Paperclip instance has not been onboarded and has no data to back up.";
+    const message = "Skipping the pre-update backup because this Hive instance has not been onboarded and has no data to back up.";
     if (options.json) console.error(message); else console.log(pc.yellow(message));
     return;
   }
@@ -179,7 +179,7 @@ export async function updateCommand(options: UpdateOptions, overrides: Partial<D
     return;
   }
   if (mode === "npx") { emit(options, { mode, action: "install" }, "This is an ephemeral npx install. Run `paperclipai install`, then use `paperclipai update` from the managed shim."); return; }
-  if (mode === "source" || mode === "unknown") { emit(options, { mode, action: "manual" }, "This appears to be a source checkout. Update it with `git pull` followed by `pnpm install`; Paperclip will not mutate the repository."); return; }
+  if (mode === "source" || mode === "unknown") { emit(options, { mode, action: "manual" }, "This appears to be a source checkout. Update it with `git pull` followed by `pnpm install`; Hive will not mutate the repository."); return; }
   if (!options.check && !options.dryRun) assertSupportedNodeVersion();
   const request = resolveUpdateRequest(mode === "managed" ? manifest : null, options);
   if (mode === "managed" && manifest?.source === "git") {

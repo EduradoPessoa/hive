@@ -1,6 +1,6 @@
 # MCP Fixture Smoke Harness
 
-Paperclip's MCP permission work uses deterministic fixture servers so policy
+Hive's MCP permission work uses deterministic fixture servers so policy
 logic can be tested without real customer credentials or live integrations.
 
 Run the local smoke:
@@ -10,7 +10,7 @@ pnpm smoke:mcp-fixtures
 ```
 
 The runner starts one local stdio fixture and one remote-style HTTP fixture,
-checks the local Paperclip `/api/health` endpoint when available, then exercises:
+checks the local Hive `/api/health` endpoint when available, then exercises:
 
 - allow and deny decisions
 - approval-gated writes

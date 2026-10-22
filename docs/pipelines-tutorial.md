@@ -10,7 +10,7 @@ The walkthrough intentionally labels conventions separately from primitives. Tho
 
 ## Prerequisites
 
-Run this against a dev Paperclip instance with a board token or an agent token that can manage pipelines, routines, and issues.
+Run this against a dev Hive instance with a board token or an agent token that can manage pipelines, routines, and issues.
 
 ```sh
 export PAPERCLIP_API_URL=http://localhost:3100

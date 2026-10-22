@@ -146,15 +146,15 @@ export function oauthEndpointUrlRejectionMessage(
     case "missing":
       return `This server did not provide a ${label} address.`;
     case "malformed":
-      return `This server's ${label} address is not a valid URL, so Paperclip stopped.`;
+      return `This server's ${label} address is not a valid URL, so Hive stopped.`;
     case "unsupported_scheme":
-      return `This server's ${label} address does not use https, so Paperclip stopped.`;
+      return `This server's ${label} address does not use https, so Hive stopped.`;
     case "insecure_transport":
-      return `This server's ${label} address is not secure (https), so Paperclip stopped.`;
+      return `This server's ${label} address is not secure (https), so Hive stopped.`;
     case "embedded_credentials":
-      return `This server's ${label} address hides a different site behind a username, so Paperclip stopped.`;
+      return `This server's ${label} address hides a different site behind a username, so Hive stopped.`;
     case "fragment":
-      return `This server's ${label} address is malformed for sign-in, so Paperclip stopped.`;
+      return `This server's ${label} address is malformed for sign-in, so Hive stopped.`;
   }
 }
 

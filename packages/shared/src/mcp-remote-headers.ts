@@ -124,7 +124,7 @@ export function mcpRemoteHeaderRejectionMessage(
     case "invalid_characters":
       return `"${headerName.slice(0, MAX_HEADER_NAME_LENGTH)}" is not a valid header name. Use letters, digits, and dashes.`;
     case "forbidden":
-      return `Paperclip manages the "${headerName}" header and cannot send a custom value for it.`;
+      return `Hive manages the "${headerName}" header and cannot send a custom value for it.`;
     case "value_too_long":
       return `The value for "${headerName}" is too long.`;
     case "value_control_characters":

@@ -1,9 +1,9 @@
 ---
 title: External Adapters
-summary: Build, package, and distribute adapters as plugins without modifying Paperclip source
+summary: Build, package, and distribute adapters as plugins without modifying Hive source
 ---
 
-Paperclip supports external adapter plugins that can be installed from npm packages or local directories. External adapters work exactly like built-in adapters — they execute agents, parse output, and render transcripts — but they live in their own package and don't require changes to Paperclip's source code.
+Hive supports external adapter plugins that can be installed from npm packages or local directories. External adapters work exactly like built-in adapters — they execute agents, parse output, and render transcripts — but they live in their own package and don't require changes to Hive's source code.
 
 ## Built-in vs External
 
@@ -12,8 +12,8 @@ Paperclip supports external adapter plugins that can be installed from npm packa
 | Source location | Inside `paperclip-fork/packages/adapters/` | Separate npm package or local directory |
 | Registration | Hardcoded in three registries | Loaded at startup via plugin system |
 | UI parser | Static import at build time | Dynamically loaded from API (see [UI Parser](/adapters/adapter-ui-parser)) |
-| Distribution | Ships with Paperclip | Published to npm or linked via `file:` |
-| Updates | Requires Paperclip release | Independent versioning |
+| Distribution | Ships with Hive | Published to npm or linked via `file:` |
+| Updates | Requires Hive release | Independent versioning |
 
 ### Built-in Hermes compatibility note
 
@@ -295,7 +295,7 @@ curl -X POST http://localhost:3102/api/adapters \
   -d '{"localPath": "/home/user/my-adapter"}'
 ```
 
-Local adapters are symlinked into Paperclip's adapter directory. Changes to the source are picked up on server restart.
+Local adapters are symlinked into Hive's adapter directory. Changes to the source are picked up on server restart.
 
 ### Via adapter-plugins.json
 
@@ -391,7 +391,7 @@ npm run build
 npm publish
 ```
 
-Other Paperclip users can then install your adapter by package name from the UI or API.
+Other Hive users can then install your adapter by package name from the UI or API.
 
 ## Security
 

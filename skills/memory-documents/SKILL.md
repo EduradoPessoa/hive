@@ -44,7 +44,7 @@ and leave Memory empty — the human opens the Memory page and finds nothing. If
 the task says Memory, use the route above and no other surface.
 
 Memory is the company's **shared** knowledge base: Markdown documents organized
-into folders, stored in the Paperclip database and edited by humans in the
+into folders, stored in the Hive database and edited by humans in the
 Memory page under Work. You read and write the same documents they see.
 
 **This is not your private scratch memory.** If you need per-agent notes across

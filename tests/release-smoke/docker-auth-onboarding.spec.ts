@@ -250,7 +250,7 @@ test.describe("Docker authenticated onboarding smoke", () => {
     // card are seeded without an LLM, so their absence means the launch
     // half-finished) …
     await expect(
-      page.getByText("Welcome to Paperclip!").first()
+      page.getByText("Welcome to Hive!").first()
     ).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText("What would you like to do?")).toBeVisible();
 

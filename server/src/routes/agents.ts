@@ -1170,7 +1170,7 @@ export function agentRoutes(
     if ((await instanceSettings.getExperimental()).enableManagedSandboxOnly === true) {
       const managed = await environmentsSvc.findManagedSandboxEnvironment(companyId);
       if (!managed) {
-        throw unprocessable("The managed sandbox is unavailable. Restore Paperclip Computer and retry.", {
+        throw unprocessable("The managed sandbox is unavailable. Restore Hive Computer and retry.", {
           code: "managed_sandbox_unavailable",
         });
       }

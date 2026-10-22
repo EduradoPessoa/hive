@@ -144,7 +144,7 @@ describe("service health doctor checks", () => {
       expect.objectContaining({
         name: "Service runtime",
         status: "fail",
-        message: expect.stringContaining("another Paperclip process"),
+        message: expect.stringContaining("another Hive process"),
       }),
     );
   });
@@ -231,7 +231,7 @@ describe("service runtime shim awareness", () => {
     expect(healthResult?.status).toBe("warn");
     expect(healthResult?.message).toContain("but not from ing.paperclip.paperclipai");
     const runtime = results.find((r) => r.name === "Service runtime");
-    expect(runtime?.message).toContain("serving another Paperclip process");
+    expect(runtime?.message).toContain("serving another Hive process");
   });
 });
 

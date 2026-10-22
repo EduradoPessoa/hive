@@ -48,7 +48,7 @@ vi.mock("../context/DialogContext", () => ({
 vi.mock("../context/CompanyContext", () => ({
   useCompany: () => ({
     selectedCompanyId: "company-1",
-    selectedCompany: { id: "company-1", issuePrefix: "PAP", name: "Paperclip" },
+    selectedCompany: { id: "company-1", issuePrefix: "PAP", name: "Hive" },
   }),
 }));
 
@@ -404,7 +404,7 @@ describe("Sidebar", () => {
     const labels = (section: Element | undefined) => [...(section?.querySelectorAll("a") ?? [])]
       .map((anchor) => anchor.textContent?.trim());
 
-    expect(labels(workSection)).toEqual(["Tasks", "Projects", "Routines", "Artifacts"]);
+    expect(labels(workSection)).toEqual(["Tasks", "Projects", "Routines", "Artifacts", "Memory"]);
     expect(labels(orgSection)).toEqual(["Agents", "Skills", "Connectors", "Audit"]);
     expect(sections.indexOf(workSection!)).toBeLessThan(sections.indexOf(orgSection!));
     expect(

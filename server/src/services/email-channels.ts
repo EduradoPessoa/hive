@@ -836,7 +836,7 @@ export function emailChannelService(db: Db, options: EmailChannelOptions) {
         .catch((error) => {
           if ((error as { cause?: { code?: string } }).cause?.code === "23505")
             throw conflict(
-              "This AgentMail inbox already has a Paperclip owner",
+              "This AgentMail inbox already has a Hive owner",
             );
           throw error;
         });

@@ -265,7 +265,7 @@ export function gradeFirstTask(e: FirstTaskEvidence): FirstTaskCheck[] {
   );
   add(
     "no-reintroduction",
-    !/welcome to paperclip|your first agent teammate/i.test(text),
+    !/welcome to (?:paperclip|hive)|your first agent teammate/i.test(text),
     "Do not repeat the seeded welcome",
     [first.id],
   );

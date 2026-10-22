@@ -648,7 +648,7 @@ export function AuditFeed({
       ) : null}
 
       <p className="text-xs text-muted-foreground">
-        Recorded by Paperclip — entries can't be edited. Sensitive values are never stored.
+        Recorded by Hive — entries can't be edited. Sensitive values are never stored.
       </p>
     </div>
   );

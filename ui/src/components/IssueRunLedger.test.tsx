@@ -459,7 +459,7 @@ describe("IssueRunLedger", () => {
     expect(container.textContent).toContain("Critical output silence");
     expect(container.textContent).toContain("PAP-404");
     expect(container.textContent).toContain("Critical silence");
-    expect(container.textContent).toContain("Paperclip did not create new delegated recovery work");
+    expect(container.textContent).toContain("Hive did not create new delegated recovery work");
     const watchdogBanner = Array.from(container.querySelectorAll("p"))
       .find((node) => node.textContent?.includes("Critical output silence"))
       ?.closest("div");
@@ -510,7 +510,7 @@ describe("IssueRunLedger", () => {
 
     expect(container.textContent).toContain(heading);
     expect(container.textContent).toContain(badge);
-    expect(container.textContent).toContain("Paperclip did not create or assign a recovery task");
+    expect(container.textContent).toContain("Hive did not create or assign a recovery task");
     expect(container.textContent).not.toContain("PAP-404");
     expect(container.querySelector('a[href^="/issues/"]')).toBeNull();
     expect(container.textContent).toContain("Continue monitoring");

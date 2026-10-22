@@ -8049,7 +8049,7 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
       issueId,
       authorAgentId: agentId,
       authorType: "agent",
-      body: "Welcome to Paperclip!",
+      body: "Welcome to Hive!",
     });
     const heartbeat = heartbeatService(db);
 

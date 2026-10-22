@@ -504,7 +504,7 @@ function assertNotManagedNamespaceExternalRef(
 ) {
   if (!isManagedSecretNamespaceRef(config, externalRef)) return;
   throw unprocessable(
-    "AWS Paperclip-managed namespace secrets cannot be imported as external references",
+    "AWS Hive-managed namespace secrets cannot be imported as external references",
   );
 }
 

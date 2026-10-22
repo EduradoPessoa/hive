@@ -533,7 +533,7 @@ async function inspectExecutionWorkspaceBranchForReconcile(
 
   const worktreePath = readNullableString(workspace.providerRef) ?? readNullableString(workspace.cwd);
   if (!worktreePath) {
-    throw unprocessable("Execution workspace needs a local worktree path before Paperclip can reconcile its branch record");
+    throw unprocessable("Execution workspace needs a local worktree path before Hive can reconcile its branch record");
   }
 
   const repoRoot = await readGitStdout(["rev-parse", "--show-toplevel"], worktreePath).catch(() => null);
@@ -543,7 +543,7 @@ async function inspectExecutionWorkspaceBranchForReconcile(
 
   const toBranch = await readGitStdout(["symbolic-ref", "--quiet", "--short", "HEAD"], worktreePath).catch(() => null);
   if (!toBranch) {
-    throw unprocessable("Execution workspace is detached; Paperclip cannot reconcile it to a branch name");
+    throw unprocessable("Execution workspace is detached; Hive cannot reconcile it to a branch name");
   }
 
   const status = await runExpensiveGitStatus({
@@ -3402,7 +3402,7 @@ export function executionWorkspaceService(db: Db, opts: ExecutionWorkspaceServic
 
       const existing = toExecutionWorkspace(existingRow);
       if (!existing.sourceIssueId) {
-        throw unprocessable("Execution workspace needs a source issue before Paperclip can audit branch reconciliation");
+        throw unprocessable("Execution workspace needs a source issue before Hive can audit branch reconciliation");
       }
 
       const inspection = await inspectExecutionWorkspaceBranchForReconcile(existing);
@@ -3515,7 +3515,7 @@ export function executionWorkspaceService(db: Db, opts: ExecutionWorkspaceServic
         const lockedRuntimeServices = (lockedRuntimeServicesByWorkspaceId.get(lockedRow.id) ?? []).map(toRuntimeService);
         const lockedWorkspace = toExecutionWorkspace(lockedRow, lockedRuntimeServices);
         if (!lockedWorkspace.sourceIssueId) {
-          throw unprocessable("Execution workspace needs a source issue before Paperclip can audit branch reconciliation");
+          throw unprocessable("Execution workspace needs a source issue before Hive can audit branch reconciliation");
         }
 
         let updatedRow: ExecutionWorkspaceRow = lockedRow;

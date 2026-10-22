@@ -175,7 +175,7 @@ describe("ConnectClientDialog", () => {
     });
     await new Promise((resolve) => window.setTimeout(resolve, 0));
 
-    expect(container.textContent).toContain("does not give it access to Paperclip or skills");
+    expect(container.textContent).toContain("does not give it access to Hive or skills");
     const copyButton = [...container.querySelectorAll("button")].find((button) => button.textContent?.trim() === "Copy");
     if (!copyButton) throw new Error("snippet copy button missing");
     copyButton.click();

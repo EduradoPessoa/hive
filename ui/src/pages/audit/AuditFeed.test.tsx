@@ -203,7 +203,7 @@ describe("AuditFeed", () => {
     expect(container.textContent).toContain("Looks good to me");
     expect(container.textContent).toContain("on behalf of Dotta");
     expect(container.querySelector('a[href="/agents/agent-1/runs/run-1"]')).toBeTruthy();
-    expect(container.textContent).toContain("Recorded by Paperclip");
+    expect(container.textContent).toContain("Recorded by Hive");
   });
 
   it("filters and renders connection tests in the same audit row shape", async () => {
@@ -244,7 +244,7 @@ describe("AuditFeed", () => {
     expect(container.textContent).toContain("Paperclip Enterprise view");
     expect(container.textContent).toContain("audit:view_agent_actions");
     // The feed chrome (filters, footer) is not rendered in the denied state.
-    expect(container.textContent).not.toContain("Recorded by Paperclip");
+    expect(container.textContent).not.toContain("Recorded by Hive");
   });
 
   it("hides attribution filters and export for a basic all-actors reader", async () => {

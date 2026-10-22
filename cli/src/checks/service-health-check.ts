@@ -110,7 +110,7 @@ export async function serviceHealthChecks(
           ? {
               name: "Service runtime",
               status: "fail",
-              message: `${status.serviceName} is inactive but the configured port is serving another Paperclip process`,
+              message: `${status.serviceName} is inactive but the configured port is serving another Hive process`,
               repairHint: "Run `paperclipai service start`, or stop the conflicting foreground process first",
             }
           : {

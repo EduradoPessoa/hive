@@ -196,14 +196,14 @@ export const INSTANCE_FEATURE_CATALOG: Record<InstanceFeatureKey, FeatureCatalog
   enableBuiltInAgents: {
     title: "Built-in Agents",
     description:
-      "Show Paperclip-managed built-in agent surfaces, including roster badges, the Built-in agents tab, and setup controls.",
+      "Show Hive-managed built-in agent surfaces, including roster badges, the Built-in agents tab, and setup controls.",
     tier: "managed",
     cloudDefault: false,
     selfHostedDefault: false,
   },
   enableBetaSkills: {
     title: "Beta skills",
-    description: "Allow agents to pin beta releases of the Paperclip core skill.",
+    description: "Allow agents to pin beta releases of the Hive core skill.",
     tier: "preference",
     cloudDefault: false,
     selfHostedDefault: false,
@@ -248,9 +248,9 @@ export const INSTANCE_FEATURE_CATALOG: Record<InstanceFeatureKey, FeatureCatalog
     selfHostedDefault: false,
   },
   enablePaperclipDeveloperMode: {
-    title: "Paperclip Developer Mode",
+    title: "Hive Developer Mode",
     description:
-      "Show internal Paperclip maintainer tools and observability links, including Honeycomb trace queries on run pages.",
+      "Show internal Hive maintainer tools and observability links, including Honeycomb trace queries on run pages.",
     tier: "preference",
     cloudDefault: false,
     selfHostedDefault: false,

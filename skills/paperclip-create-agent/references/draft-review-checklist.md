@@ -27,7 +27,7 @@ Use it for every path: exact template, adjacent template, or generic fallback.
 - [ ] `AGENTS.md` states the "leave a clear next action" rule
 - [ ] `AGENTS.md` covers how to mark work `blocked` with owner + action
 - [ ] `AGENTS.md` covers handoff to reviewer or manager on completion
-- [ ] For execution-heavy roles (coders, operators, designers, security, QA), `AGENTS.md` includes the Paperclip execution contract verbatim:
+- [ ] For execution-heavy roles (coders, operators, designers, security, QA), `AGENTS.md` includes the Hive execution contract verbatim:
   > Start actionable work in the same heartbeat; do not stop at a plan unless planning was requested. Leave durable progress with a clear next action. Use child issues for long or parallel delegated work instead of polling. Mark blocked work with owner and action. Respect budget, pause/cancel, approval gates, and company boundaries.
 
 ## D. Domain lenses and judgment
@@ -56,7 +56,7 @@ Use it for every path: exact template, adjacent template, or generic fallback.
 - [ ] `icon` is set to one of `/llms/agent-icons.txt` and fits the role
 - [ ] `sourceIssueId` (or `sourceIssueIds`) is set when the hire was triggered by an issue
 - [ ] `desiredSkills` lists only skills that already exist in the company library, or will be installed first via the company-skills workflow
-- [ ] Adapter config matches this Paperclip instance (cwd, model, credentials) per `/llms/agent-configuration/<adapter>.txt`
+- [ ] Adapter config matches this Hive instance (cwd, model, credentials) per `/llms/agent-configuration/<adapter>.txt`
 - [ ] Local managed-bundle adapters send custom instructions through top-level `instructionsBundle.files["AGENTS.md"]` and do not set `adapterConfig.promptTemplate` or `bootstrapPromptTemplate`
 - [ ] Placeholders like `{{companyName}}`, `{{managerTitle}}`, `{{issuePrefix}}`, and any URL stubs are replaced with real values
 

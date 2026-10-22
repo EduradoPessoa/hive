@@ -3112,7 +3112,7 @@ function buildManifestFromPackageFiles(
     ? declaredSchemaVersion
     : UNSTAMPED_BUNDLE_SCHEMA_VERSION;
   if (bundleSchemaVersion > BUNDLE_SCHEMA_VERSION) {
-    throw unprocessable(`Company package declares schemaVersion ${bundleSchemaVersion}, which was produced by a newer Paperclip; this board reads up to schemaVersion ${BUNDLE_SCHEMA_VERSION}.`);
+    throw unprocessable(`Company package declares schemaVersion ${bundleSchemaVersion}, which was produced by a newer Hive; this board reads up to schemaVersion ${BUNDLE_SCHEMA_VERSION}.`);
   }
   const paperclipCompany = isPlainRecord(paperclipExtension.company) ? paperclipExtension.company : {};
   const paperclipSidebar = normalizePortableSidebarOrder(paperclipExtension.sidebar);

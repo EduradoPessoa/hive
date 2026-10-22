@@ -1,9 +1,9 @@
 ---
 title: Adapter UI Parser Contract
-summary: Ship a custom run-log parser so the Paperclip UI renders your adapter's output correctly
+summary: Ship a custom run-log parser so the Hive UI renders your adapter's output correctly
 ---
 
-When Paperclip runs an agent, stdout is streamed to the UI in real time. The UI needs a **parser** to convert raw stdout lines into structured transcript entries (tool calls, tool results, assistant messages, system events). Without a custom parser, the UI falls back to a generic shell parser that treats every non-system line as `assistant` output — tool commands leak as plain text, durations are lost, and errors are invisible.
+When Hive runs an agent, stdout is streamed to the UI in real time. The UI needs a **parser** to convert raw stdout lines into structured transcript entries (tool calls, tool results, assistant messages, system events). Without a custom parser, the UI falls back to a generic shell parser that treats every non-system line as `assistant` output — tool commands leak as plain text, durations are lost, and errors are invisible.
 
 ## The Problem
 
@@ -69,7 +69,7 @@ With a parser, the UI renders:
 }
 ```
 
-The Paperclip host checks this field. If the major version is unsupported, the host logs a warning and falls back to the generic parser instead of executing potentially incompatible code.
+The Hive host checks this field. If the major version is unsupported, the host logs a warning and falls back to the generic parser instead of executing potentially incompatible code.
 
 | Host expects | Adapter declares | Result |
 |---|---|---|

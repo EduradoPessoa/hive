@@ -188,7 +188,7 @@ Fires a run immediately, bypassing the schedule. Concurrency policy still applie
 POST /api/routine-triggers/public/{publicId}/fire
 ```
 
-Fires a webhook trigger from an external system without a Paperclip login. Send
+Fires a webhook trigger from an external system without a Hive login. Send
 `Content-Type: application/json` and a JSON object. The trigger authenticates the
 request using its own secret; an agent or board API key is not a substitute.
 

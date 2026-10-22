@@ -151,7 +151,7 @@ export function breakdownSummarySentence(
   }
   const noun = config.pieceNoun;
   const parts: string[] = [
-    `Paperclip will create one ${noun} per item in ${names.targetPipelineName} → ${names.entryStageName}`,
+    `Hive will create one ${noun} per item in ${names.targetPipelineName} → ${names.entryStageName}`,
   ];
   if (names.inheritedFieldLabels.length > 0) {
     parts.push(`carry over ${joinWithAnd(names.inheritedFieldLabels)}`);

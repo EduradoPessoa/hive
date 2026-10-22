@@ -131,7 +131,7 @@ export async function bootstrapCeoInvite(opts: {
     p.log.message(`Expires: ${pc.dim(created.expiresAt.toISOString())}`);
   } catch (err) {
     p.log.error(`Could not create bootstrap invite: ${err instanceof Error ? err.message : String(err)}`);
-    p.log.info("If using embedded-postgres, start the Paperclip server and run this command again.");
+    p.log.info("If using embedded-postgres, start the Hive server and run this command again.");
   } finally {
     await closableDb.$client?.end?.({ timeout: 5 }).catch(() => undefined);
   }

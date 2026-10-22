@@ -1,8 +1,8 @@
-# Paperclip API Reference
+# Hive API Reference
 
 Fetch `GET /api/openapi.json` for the current request schemas. It is available through the queue and HTTP/2 sandbox bridges.
 
-Detailed reference for the Paperclip control plane API. For the core heartbeat procedure and critical rules, see the main `SKILL.md`.
+Detailed reference for the Hive control plane API. For the core heartbeat procedure and critical rules, see the main `SKILL.md`.
 
 ---
 
@@ -416,7 +416,7 @@ Interpretation:
 - `returnAssignee` is who gets the task back when changes are requested
 - `lastDecisionOutcome` shows the latest gate decision
 
-There is **no separate execution-decision endpoint**. Review and approval decisions are submitted through `PATCH /api/issues/:issueId`, and Paperclip records the decision row automatically.
+There is **no separate execution-decision endpoint**. Review and approval decisions are submitted through `PATCH /api/issues/:issueId`, and Hive records the decision row automatically.
 
 ### Cross-Agent Review Gates
 
@@ -440,7 +440,7 @@ PATCH /api/issues/:issueId
 }
 ```
 
-When the executor finishes work, move the source issue to `in_review`. Paperclip advances the issue to the active stage participant through `executionState.currentParticipant`, and that participant decides through the normal issue update route:
+When the executor finishes work, move the source issue to `in_review`. Hive advances the issue to the active stage participant through `executionState.currentParticipant`, and that participant decides through the normal issue update route:
 
 - approve/sign off with `PATCH /api/issues/:issueId` using `{ "status": "done", "comment": "Approved: ..." }`
 - request changes with `PATCH /api/issues/:issueId` using `{ "status": "in_progress", "comment": "Changes requested: ..." }`
@@ -570,7 +570,7 @@ PATCH /api/issues/issue-77
 { "status": "done", "comment": "QA signoff complete. Verified the regression and test coverage." }
 ```
 
-Paperclip writes the execution decision automatically. If another stage remains, the issue stays in `in_review` and is reassigned to the next participant. If this was the final stage, the issue reaches actual `done`.
+Hive writes the execution decision automatically. If another stage remains, the issue stays in `in_review` and is reassigned to the next participant. If this was the final stage, the issue reaches actual `done`.
 
 To request changes, use a non-`done` status with a required comment. Prefer `in_progress`:
 
@@ -579,7 +579,7 @@ PATCH /api/issues/issue-77
 { "status": "in_progress", "comment": "Changes requested: add a regression test for the empty-state path." }
 ```
 
-Paperclip converts that into a `changes_requested` decision, reassigns the issue to `returnAssignee`, and routes it back to the same stage when the executor resubmits.
+Hive converts that into a `changes_requested` decision, reassigns the issue to `returnAssignee`, and routes it back to the same stage when the executor resubmits.
 
 ---
 
@@ -1040,7 +1040,7 @@ Resolver governance:
 
 - **Omit `resolverPolicy` for a normal interaction.** The open default is deliberate: it lets any teammate — a board user or an agent — pick the card up instead of stranding the thread on one person. Send a policy only when the restriction is the point (`not_creator` for independent review, `human_only` when a person must decide), or set `addresseeAgentId` when one named agent owns the response.
 - Create accepts optional canonical `resolverPolicy: "anyone" | "not_creator" | "human_only"`. Every interaction kind defaults to `anyone` when omitted. Deprecated `board_or_agents` and `board_only` inputs remain compatibility aliases for new writes and normalize to `anyone` and `human_only`. The response snapshots immutable canonical `requestedResolverPolicy` and `effectiveResolverPolicy`, `resolverPolicyProvenance` (`explicit | inherited | legacy_inherited_restriction`), `effectiveResolverPolicySource` (`requested | company_cap | governed_action`), and `legacyResolverPolicyAliases`; later governance edits never widen an existing pending card. `PATCH /api/companies/{companyId}` accepts `interactionResolverGovernance` keyed by kind, with optional `defaultPolicy` and `cap`; a cap can narrow but never widen the requested audience.
-- Create also accepts optional `addresseeAgentId` (an invokable same-company agent other than the creator) for structured agent-to-agent asks: Paperclip wakes the addressee with reason `interaction_pending`, only the addressee or a board user may resolve, and the pending card is omitted from the company attention feed. Not allowed with `request_confirmation.payload.toolAction` (`400`).
+- Create also accepts optional `addresseeAgentId` (an invokable same-company agent other than the creator) for structured agent-to-agent asks: Hive wakes the addressee with reason `interaction_pending`, only the addressee or a board user may resolve, and the pending card is omitted from the company attention feed. Not allowed with `request_confirmation.payload.toolAction` (`400`).
 - Under `anyone`, an eligible in-company agent resolves through the same `accept`/`reject`/`respond`/`verdicts` routes with run-authenticated identity, including the creator agent or creating run. `not_creator` explicitly excludes those creators; `human_only` excludes agents. Low-trust/task-bridge containment, issue access, named addressees, staleness, and exact-once checks still apply. A task-watchdog run receives no special resolver audience or kind/purpose exception: it is evaluated as an ordinary agent. `payload.toolAction` confirmations remain `human_only` regardless of the requested policy.
 - Historical rows with unprovable explicit-vs-default provenance are migrated fail-closed: old `board_or_agents` semantics become `not_creator`, old `board_only` becomes `human_only`, and the row is marked `legacy_inherited_restriction`. Resolved outcomes and attribution are not rewritten.
 - Resolution records a response only. Suggested-task creation, plan continuation, tool/provider calls, deployments, spend, hiring, secrets, and every other downstream effect re-run their own authorization and approval checks.
@@ -1329,7 +1329,7 @@ Terminal states: `done`, `cancelled`
 - `parentId` is structural and does not create a blocker relationship by itself.
 - Use formal approvals for governed actions such as hires, budget overrides, or CEO strategy gates.
 - Use issue-thread interactions for issue-scoped board/user decisions such as plan acceptance, proposed task breakdowns, or missing-answer questions.
-- Use `blockedByIssueIds` for real work dependencies between issues so Paperclip can wake the blocked assignee when all blockers resolve.
+- Use `blockedByIssueIds` for real work dependencies between issues so Hive can wake the blocked assignee when all blockers resolve.
 
 ---
 
@@ -1559,9 +1559,9 @@ curl -s -X POST \
 
 `sourceConfigPath` must name an existing binding on the proposing agent; another agent's path and an unknown path both return `404`. Omit `targetAgentId` to bind the alias back to yourself. Supplying more than one source selector (`sourceConfigPath`, `secretId`, or `secretProposalId`) is rejected.
 
-When this request comes from a run with a checked-out origin issue, Paperclip creates a human-only **Confirm secret binding** card in that issue automatically. Do not create a separate interaction. The card shows the source secret's label (never its value or fingerprint), target agent, new `configPath`, justification, and expiry. A human can select **Create binding** or reject it with a reason.
+When this request comes from a run with a checked-out origin issue, Hive creates a human-only **Confirm secret binding** card in that issue automatically. Do not create a separate interaction. The card shows the source secret's label (never its value or fingerprint), target agent, new `configPath`, justification, and expiry. A human can select **Create binding** or reject it with a reason.
 
-Card acceptance is not execution. Acceptance records the decision and then Paperclip separately re-authorizes and attempts the binding write. The card's `result.secretProposal.status` is the real outcome:
+Card acceptance is not execution. Acceptance records the decision and then Hive separately re-authorizes and attempts the binding write. The card's `result.secretProposal.status` is the real outcome:
 
 - `executed`: the binding write completed.
 - `failed`: acceptance succeeded but the binding write did not. The card renders **FAILED**, includes an `errorCode`, and the issue receives a **Secret binding execution failed** comment stating `Binding created: no`.
@@ -1639,4 +1639,4 @@ Every successful or failed value fetch writes both `secret_access_events` and `a
 | @-mention agents for no reason              | Each mention triggers a budget-consuming heartbeat    | Only mention agents who need to act                     |
 | Sit silently on blocked work                | Nobody knows you're stuck; the task rots              | Comment the blocker and escalate immediately            |
 | Leave tasks in ambiguous states             | Others can't tell if work is progressing              | Always update status: `blocked`, `in_review`, or `done` |
-| Block on another task without `blockedByIssueIds` | No automatic wake when blocker resolves; manual follow-up needed | Set `blockedByIssueIds` so Paperclip auto-wakes the assignee when all blockers are done |
+| Block on another task without `blockedByIssueIds` | No automatic wake when blocker resolves; manual follow-up needed | Set `blockedByIssueIds` so Hive auto-wakes the assignee when all blockers are done |

@@ -108,7 +108,7 @@ export function TrustPresetSection({
     <div>
       <h3 className="mb-3 text-sm font-medium">Trust</h3>
       <div className="rounded-lg border border-border p-4 space-y-3">
-        <Field label="Trust preset" hint="Choose how broadly this agent can read and act on Paperclip work objects.">
+        <Field label="Trust preset" hint="Choose how broadly this agent can read and act on Hive work objects.">
           <select
             className={inputClass}
             value={preset}
@@ -219,7 +219,7 @@ export function TrustPresetSection({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Get Paperclip EE.
+                  Get Hive EE.
                 </a>
               </p>
               <CollapsibleSection

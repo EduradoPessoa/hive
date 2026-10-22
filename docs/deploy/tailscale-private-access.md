@@ -1,11 +1,11 @@
 ---
 title: Tailscale Private Access
-summary: Run Paperclip with Tailscale-friendly bind presets and connect from other devices
+summary: Run Hive with Tailscale-friendly bind presets and connect from other devices
 ---
 
-Use this when you want to access Paperclip over Tailscale (or a private LAN/VPN) instead of only `localhost`.
+Use this when you want to access Hive over Tailscale (or a private LAN/VPN) instead of only `localhost`.
 
-## 1. Start Paperclip in private authenticated mode
+## 1. Start Hive in private authenticated mode
 
 ```sh
 pnpm dev --bind tailnet

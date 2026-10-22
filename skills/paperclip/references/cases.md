@@ -168,7 +168,7 @@ Roles:
 - `work`: an issue/run that changed the case
 - `reference`: related issue context
 
-Agent run writes auto-link the run's issue when Paperclip can resolve it from
+Agent run writes auto-link the run's issue when Hive can resolve it from
 the run JWT or `X-Paperclip-Run-Id`. Creation/upsert writes use `origin`; later
 document, patch, and attachment writes use `work` when no link already exists.
 You do not need to manually link the current issue before writing the case.

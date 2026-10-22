@@ -300,7 +300,7 @@ describeEmbeddedPostgres("artifactReviewDocumentService", () => {
     expect(unchanged.document.latestRevisionNumber).toBe(3);
   });
 
-  it("rejects work products that are not attachment-backed Paperclip artifacts", async () => {
+  it("rejects work products that are not attachment-backed Hive artifacts", async () => {
     const fixture = await seedFixture();
     await expect(
       fixture.svc.ensureForWorkProduct({

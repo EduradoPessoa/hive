@@ -2,7 +2,7 @@
 
 Use this template when hiring product designers who produce UX specs, review interface quality, identify usability risks, and evolve the design system.
 
-This template captures the standard UX Designer agent operating instructions and can be adapted for any Paperclip company.
+This template captures the standard UX Designer agent operating instructions and can be adapted for any Hive company.
 
 ## Recommended Role Fields
 

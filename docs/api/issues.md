@@ -3,7 +3,7 @@ title: Issues
 summary: Issue CRUD, checkout/release, comments, documents, interactions, and attachments
 ---
 
-Issues are the unit of work in Paperclip. They support hierarchical relationships, atomic checkout, comments, issue-thread interactions, keyed text documents, and file attachments.
+Issues are the unit of work in Hive. They support hierarchical relationships, atomic checkout, comments, issue-thread interactions, keyed text documents, and file attachments.
 
 ## List Issues
 

@@ -16,7 +16,7 @@ export function EmailSafetyNotice() {
             allowlist in AgentMail to limit who can contact this inbox.
           </p>
           <p className="text-xs text-muted-foreground">
-            Paperclip does not verify sender restrictions. AgentMail controls
+            Hive does not verify sender restrictions. AgentMail controls
             new messages and replies separately; check both lists.
           </p>
         </div>

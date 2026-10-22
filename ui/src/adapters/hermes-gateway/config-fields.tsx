@@ -144,7 +144,7 @@ export function HermesGatewayConfigFields({
     <>
       <Field
         label="API base URL"
-        hint="Hermes API server base URL that Paperclip can reach, such as http://127.0.0.1:8642 or a private HTTPS URL. Default dashboard root/chat URLs such as http://127.0.0.1:9119/chat are accepted and map to /api."
+        hint="Hermes API server base URL that Hive can reach, such as http://127.0.0.1:8642 or a private HTTPS URL. Default dashboard root/chat URLs such as http://127.0.0.1:9119/chat are accepted and map to /api."
       >
         <DraftInput
           value={apiBaseUrl}
@@ -164,8 +164,8 @@ export function HermesGatewayConfigFields({
       />
 
       <Field
-        label="Paperclip API URL"
-        hint="Optional Paperclip API URL reachable by the Hermes host. This is not a credential."
+        label="Hive API URL"
+        hint="Optional Hive API URL reachable by the Hermes host. This is not a credential."
       >
         <DraftInput
           value={paperclipApiUrl}

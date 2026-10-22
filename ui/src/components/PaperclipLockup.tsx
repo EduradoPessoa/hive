@@ -17,7 +17,7 @@ interface PaperclipLockupProps extends Omit<SVGProps<SVGSVGElement>, "children">
  */
 export function PaperclipLockup({
   decorative = false,
-  title = "Paperclip",
+  title = "Hive",
   className,
   ...rest
 }: PaperclipLockupProps) {

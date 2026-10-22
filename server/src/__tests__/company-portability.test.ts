@@ -5259,7 +5259,7 @@ describe("company portability", () => {
     );
   });
 
-  it("rejects packages produced by a newer Paperclip", async () => {
+  it("rejects packages produced by a newer Hive", async () => {
     const portability = companyPortabilityService({} as any);
 
     await expect(portability.importBundle({
@@ -5268,7 +5268,7 @@ describe("company portability", () => {
       target: { mode: "new_company", newCompanyName: "Future Import" },
       agents: "all",
       collisionStrategy: "rename",
-    }, "user-1")).rejects.toThrow(/newer Paperclip/);
+    }, "user-1")).rejects.toThrow(/newer Hive/);
     expect(issueSvc.importIssues).not.toHaveBeenCalled();
   });
 
