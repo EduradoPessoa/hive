@@ -132,7 +132,7 @@ describe("SidebarAccountMenu", () => {
     const feedbackButton = container.querySelector<HTMLAnchorElement>(
       'a[aria-label="Share feedback"]',
     );
-    expect(feedbackButton?.getAttribute("href")).toBe("https://paperclip.ing/feedback");
+    expect(feedbackButton?.getAttribute("href")).toBe("https://docs.google.com/forms/d/e/1FAIpQLSeAZy_vkTMPym7Hg7U5oIPj24UbboH_YZLzp0V0FaeOekgRzw/viewform?usp=header");
     expect(feedbackButton?.getAttribute("target")).toBe("_blank");
     expect(feedbackButton?.classList).toContain("text-muted-foreground/50");
     expect(feedbackButton?.classList).not.toContain("text-border");
@@ -171,7 +171,7 @@ describe("SidebarAccountMenu", () => {
     const feedbackButton = container.querySelector<HTMLAnchorElement>(
       'a[aria-label="Share feedback"]',
     );
-    expect(feedbackButton?.getAttribute("href")).toBe("https://paperclip.ing/feedback");
+    expect(feedbackButton?.getAttribute("href")).toBe("https://docs.google.com/forms/d/e/1FAIpQLSeAZy_vkTMPym7Hg7U5oIPj24UbboH_YZLzp0V0FaeOekgRzw/viewform?usp=header");
     expect(feedbackButton?.getAttribute("target")).toBe("_blank");
     expect(feedbackButton?.classList).toContain("text-muted-foreground/50");
     expect(feedbackButton?.classList).not.toContain("text-border");
@@ -187,7 +187,7 @@ describe("SidebarAccountMenu", () => {
 
     const popover = document.body.querySelector('[data-slot="popover-content"]');
     expect(popover?.textContent).not.toContain("Feedback");
-    expect(popover?.querySelector('a[href="https://paperclip.ing/feedback"]')).toBeNull();
+    expect(popover?.querySelector('a[href="https://docs.google.com/forms/d/e/1FAIpQLSeAZy_vkTMPym7Hg7U5oIPj24UbboH_YZLzp0V0FaeOekgRzw/viewform?usp=header"]')).toBeNull();
 
     await act(async () => root.unmount());
   });
@@ -233,7 +233,7 @@ describe("SidebarAccountMenu", () => {
 
     const popover = document.body.querySelector('[data-slot="popover-content"]');
     expect(popover?.textContent).not.toContain("Feedback");
-    expect(popover?.querySelector('a[href="https://paperclip.ing/feedback"]')).toBeNull();
+    expect(popover?.querySelector('a[href="https://docs.google.com/forms/d/e/1FAIpQLSeAZy_vkTMPym7Hg7U5oIPj24UbboH_YZLzp0V0FaeOekgRzw/viewform?usp=header"]')).toBeNull();
 
     // Documentation still appears before the theme toggle.
     const menuText = popover?.textContent ?? "";

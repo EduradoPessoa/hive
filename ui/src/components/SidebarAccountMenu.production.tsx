@@ -24,7 +24,7 @@ import { SidebarServerInfo } from "./SidebarServerInfo";
 
 const PROFILE_SETTINGS_PATH = "/company/settings/instance/profile";
 const DOCS_URL = "https://docs.paperclip.ing/";
-const FEEDBACK_URL = "https://paperclip.ing/feedback";
+const FEEDBACK_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeAZy_vkTMPym7Hg7U5oIPj24UbboH_YZLzp0V0FaeOekgRzw/viewform?usp=header";
 
 interface SidebarAccountMenuProps {
   deploymentMode?: DeploymentMode;

@@ -348,16 +348,28 @@ async function startServerWithDatabaseTeardown(
   }
 
   const LOCAL_BOARD_USER_ID = "local-board";
-  const LOCAL_BOARD_USER_EMAIL = "local@paperclip.local";
+  const LOCAL_BOARD_USER_EMAIL = "local@hive.local";
+  // What this address was before the Hive rename. Instances created earlier
+  // still have it stored on the local board user.
+  const LEGACY_LOCAL_BOARD_USER_EMAIL = "local@paperclip.local";
   const LOCAL_BOARD_USER_NAME = "Board";
   
   async function ensureLocalTrustedBoardPrincipal(db: any): Promise<void> {
     const now = new Date();
     const existingUser = await db
-      .select({ id: authUsers.id })
+      .select({ id: authUsers.id, email: authUsers.email })
       .from(authUsers)
       .where(eq(authUsers.id, LOCAL_BOARD_USER_ID))
-      .then((rows: Array<{ id: string }>) => rows[0] ?? null);
+      .then((rows: Array<{ id: string; email: string | null }>) => rows[0] ?? null);
+  
+    // Only the untouched legacy address is rewritten: a user who changed the
+    // email themselves keeps theirs. The user is keyed by id, never by email.
+    if (existingUser && existingUser.email === LEGACY_LOCAL_BOARD_USER_EMAIL) {
+      await db
+        .update(authUsers)
+        .set({ email: LOCAL_BOARD_USER_EMAIL, updatedAt: now })
+        .where(eq(authUsers.id, LOCAL_BOARD_USER_ID));
+    }
   
     if (!existingUser) {
       await db.insert(authUsers).values({

@@ -1,40 +1,29 @@
 <p align="center">
-  <img src="doc/assets/banner.jpg" alt="Paperclip is the app people use to manage AI agents for work." width="720" />
+  <img src="docs/images/logo-hive.svg" alt="Hive" width="120" />
 </p>
 
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
-  <a href="https://docs.paperclip.ing"><strong>Docs</strong></a> &middot;
-  <a href="https://github.com/paperclipai/paperclip"><strong>GitHub</strong></a> &middot;
-  <a href="https://discord.gg/m4HZY7xNG3"><strong>Discord</strong></a> &middot;
-  <a href="https://x.com/papercliping"><strong>Twitter</strong></a> &middot;
-  <a href="https://paperclip.ing"><strong>Website</strong></a>
+  <a href="docs/"><strong>Docs</strong></a> &middot;
+  <a href="https://github.com/gugow06/hive"><strong>GitHub</strong></a> &middot;
+  <a href="#hive-is-a-fork-of-paperclip"><strong>About this fork</strong></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/paperclipai/paperclip/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
-  <a href="https://github.com/paperclipai/paperclip/stargazers"><img src="https://img.shields.io/github/stars/paperclipai/paperclip?style=flat" alt="Stars" /></a>
-  <a href="https://www.star-history.com/paperclipai/paperclip"><img src="https://api.star-history.com/badge?repo=paperclipai/paperclip" alt="Star History Rank" /></a>
-  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/badge/discord-join-7289da" alt="Discord" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
 </p>
 
 <br/>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/773bdfb2-6d1e-4e30-8c5f-3487d5b70c8f" width="600" controls></video>
-</div>
-
-<br/>
-
-# Paperclip is the app people use to manage AI agents for work.
+# Hive is the app people use to manage AI agents for work.
 
 Open-source orchestration for teams of AI agents.
 
-**If OpenClaw is an _employee_, Paperclip is the _company_.**
+**If OpenClaw is an _employee_, Hive is the _company_.**
 
-Paperclip is a Node.js server and React UI that orchestrates a team of AI agents to run a business. Bring your own agents, assign goals, and track work and costs from one dashboard.
+Hive is a Node.js server and React UI that orchestrates a team of AI agents to run a business. Bring your own agents, assign goals, and track work and costs from one dashboard.
 
-It looks like a task manager. Under the hood: org charts, budgets, governance, goal alignment, and agent coordination.
+It looks like a task manager. Under the hood: org charts, budgets, governance, goal alignment, a shared knowledge base, and agent coordination.
 
 **Manage business goals, not pull requests.**
 
@@ -65,7 +54,7 @@ It looks like a task manager. Under the hood: org charts, budgets, governance, g
 
 <br/>
 
-## Paperclip is right for you if
+## Hive is right for you if
 
 - ✅ You want to build **autonomous AI organizations**
 - ✅ You **coordinate many different agents** (OpenClaw, Codex, Claude, Cursor) toward a common goal
@@ -73,19 +62,14 @@ It looks like a task manager. Under the hood: org charts, budgets, governance, g
 - ✅ You want agents running **autonomously 24/7**, but still want to audit work and chime in when needed
 - ✅ You want to **monitor costs** and enforce budgets
 - ✅ You want a process for managing agents that **feels like using a task manager**
+- ✅ You want your agents to **share a knowledge base** instead of rediscovering the same facts every run
 - ✅ You want to manage your autonomous businesses **from your phone**
 
 <br/>
 
 ## The four pillars
 
-Four things have to work for an organization of AI agents to actually produce: the tasks, the org, the training, and the infrastructure. Paperclip is built around exactly those four pillars.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/paperclipai/paperclip/1ec33ffd8b597f7e36aac3e2fbb4665b8c42dc3c/doc/assets/four-pillars-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/paperclipai/paperclip/1ec33ffd8b597f7e36aac3e2fbb4665b8c42dc3c/doc/assets/four-pillars-light.png">
-  <img src="https://raw.githubusercontent.com/paperclipai/paperclip/1ec33ffd8b597f7e36aac3e2fbb4665b8c42dc3c/doc/assets/four-pillars-light.png" alt="The four pillars of Paperclip">
-</picture>
+Four things have to work for an organization of AI agents to actually produce: the tasks, the org, the training, and the infrastructure. Hive is built around exactly those four pillars.
 
 | Pillar | Built for | What it covers |
 | --- | --- | --- |
@@ -137,36 +121,37 @@ Approve hires, override strategy, pause or terminate any agent — at any time.
 Hierarchies, roles, reporting lines. Your agents have a boss, a title, and a job description.
 </td>
 <td align="center">
-<h3>📱 Mobile Ready</h3>
-Monitor and manage your autonomous businesses from anywhere.
+<h3>🧠 Memory</h3>
+A shared Markdown knowledge base with folders, <code>[[wikilinks]]</code> and a graph view. Agents consult it before they work.
 </td>
 </tr>
 </table>
 
 <br/>
 
-## Problems Paperclip solves
+## Problems Hive solves
 
-| Without Paperclip                                                                                                                     | With Paperclip                                                                                                                         |
+| Without Hive                                                                                                                          | With Hive                                                                                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | ❌ You have 20 Claude Code tabs open and can't track which one does what. On reboot you lose everything.                              | ✅ Tasks are ticket-based, conversations are threaded, sessions persist across reboots.                                                |
 | ❌ You manually gather context from several places to remind your bot what you're actually doing.                                     | ✅ Context flows from the task up through the project and company goals — your agent always knows what to do and why.                  |
-| ❌ Folders of agent configs are disorganized and you're re-inventing task management, communication, and coordination between agents. | ✅ Paperclip gives you org charts, ticketing, delegation, and governance out of the box — so you run a company, not a pile of scripts. |
+| ❌ Folders of agent configs are disorganized and you're re-inventing task management, communication, and coordination between agents. | ✅ Hive gives you org charts, ticketing, delegation, and governance out of the box — so you run a company, not a pile of scripts.      |
 | ❌ Runaway loops waste hundreds of dollars of tokens and max your quota before you even know what happened.                           | ✅ Cost tracking surfaces token budgets and throttles agents when they're out. Management prioritizes with budgets.                    |
 | ❌ You have recurring jobs (customer support, social, reports) and have to remember to manually kick them off.                        | ✅ Heartbeats handle regular work on a schedule. Management supervises.                                                                |
-| ❌ You have an idea, you have to find your repo, fire up Claude Code, keep a tab open, and babysit it.                                | ✅ Add a task in Paperclip. Your coding agent works on it until it's done. Management reviews their work.                              |
+| ❌ You have an idea, you have to find your repo, fire up Claude Code, keep a tab open, and babysit it.                                | ✅ Add a task in Hive. Your coding agent works on it until it's done. Management reviews their work.                                   |
+| ❌ What the team learned last week lives in someone's chat history, and every agent starts from zero.                                 | ✅ Durable knowledge goes into Memory, organized by project and linked together, so the next agent starts with it.                     |
 
 <br/>
 
-## Why Paperclip is special
+## Why Hive is special
 
-Paperclip handles the hard orchestration details correctly.
+Hive handles the hard orchestration details correctly.
 
 |                                   |                                                                                                               |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | **Atomic execution.**             | Task checkout and budget enforcement are atomic, so no double-work and no runaway spend.                      |
 | **Persistent agent state.**       | Agents resume the same task context across heartbeats instead of restarting from scratch.                     |
-| **Runtime skill injection.**      | Agents can learn Paperclip workflows and project context at runtime, without retraining.                      |
+| **Runtime skill injection.**      | Agents can learn Hive workflows and project context at runtime, without retraining.                           |
 | **Governance with rollback.**     | Approval gates are enforced, config changes are revisioned, and bad changes can be rolled back safely.        |
 | **Goal-aware execution.**         | Tasks carry full goal ancestry so agents consistently see the "why," not just a title.                        |
 | **Portable company templates.**   | Export/import orgs, agents, and skills with secret scrubbing and collision handling.                          |
@@ -176,11 +161,11 @@ Paperclip handles the hard orchestration details correctly.
 
 ## What's Under the Hood
 
-Paperclip is a full control plane, not a wrapper. Before you build any of this yourself, know that it already exists:
+Hive is a full control plane, not a wrapper. Before you build any of this yourself, know that it already exists:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                       PAPERCLIP SERVER                       │
+│                         HIVE SERVER                          │
 │                                                              │
 │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  │
 │  │Identity & │  │  Work &   │  │ Heartbeat │  │Governance │  │
@@ -258,22 +243,29 @@ Paperclip is a full control plane, not a wrapper. Before you build any of this y
 <tr>
 <td>
 
-**Plugins** — Instance-wide plugin system with out-of-process workers, capability-gated host services, job scheduling, tool exposure, and UI contributions. Extend Paperclip without forking it.
+**Memory** — A company-wide knowledge base of Markdown documents organized in folders and linked with `[[wikilinks]]`. Browse it as a tree or as a graph, read and edit side by side, and let agents consult it before they start a task. Lead agents curate it; every other agent reads it.
 
 </td>
 <td>
 
-**Secrets & Storage** — Instance and company secrets, encrypted local storage, provider-backed object storage, attachments, and work products. Sensitive values stay out of prompts unless a scoped run explicitly needs them.
+**Plugins** — Instance-wide plugin system with out-of-process workers, capability-gated host services, job scheduling, tool exposure, and UI contributions. Extend Hive without forking it.
 
 </td>
 </tr>
 <tr>
 <td>
 
-**Activity & Events** — Mutating actions, heartbeat state changes, cost events, approvals, comments, and work products are recorded as durable activity so operators can audit what happened and why.
+**Secrets & Storage** — Instance and company secrets, encrypted local storage, provider-backed object storage, attachments, and work products. Sensitive values stay out of prompts unless a scoped run explicitly needs them.
 
 </td>
 <td>
+
+**Activity & Events** — Mutating actions, heartbeat state changes, cost events, approvals, comments, and work products are recorded as durable activity so operators can audit what happened and why.
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
 
 **Company Portability** — Export and import entire organizations — agents, skills, projects, routines, and issues — with secret scrubbing and collision handling. One deployment, many companies, complete data isolation.
 
@@ -283,119 +275,57 @@ Paperclip is a full control plane, not a wrapper. Before you build any of this y
 
 <br/>
 
-## What Paperclip is not
+## What Hive is not
 
 |                              |                                                                                                                      |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **Not a chatbot.**           | Agents have jobs, not chat windows.                                                                                  |
 | **Not an agent framework.**  | We don't tell you how to build agents. We tell you how to run a company made of them.                                |
-| **Not a workflow builder.**  | No drag-and-drop pipelines. Paperclip models companies — with org charts, goals, budgets, and governance.            |
-| **Not a prompt manager.**    | Agents bring their own prompts, models, and runtimes. Paperclip manages the organization they work in.               |
-| **Not a single-agent tool.** | This is for teams. If you have one agent, you probably don't need Paperclip. If you have twenty — you definitely do. |
-| **Not a code review tool.**  | Paperclip orchestrates work, not pull requests. Bring your own review process.                                       |
+| **Not a workflow builder.**  | No drag-and-drop pipelines. Hive models companies — with org charts, goals, budgets, and governance.                 |
+| **Not a prompt manager.**    | Agents bring their own prompts, models, and runtimes. Hive manages the organization they work in.                    |
+| **Not a single-agent tool.** | This is for teams. If you have one agent, you probably don't need Hive. If you have twenty — you definitely do.      |
+| **Not a code review tool.**  | Hive orchestrates work, not pull requests. Bring your own review process.                                            |
 
 <br/>
 
 ## Quickstart
 
-Open source. Self-hosted. No Paperclip account required.
+Open source. Self-hosted. No account required.
+
+Hive runs from this repository:
 
 ```bash
-curl -fsSLO https://paperclip.ing/install.sh
-curl -fsSLO https://paperclip.ing/install.sh.sha256
-if command -v sha256sum >/dev/null 2>&1; then
-  sha256sum -c install.sh.sha256
-else
-  shasum -a 256 -c install.sh.sha256
-fi
-bash install.sh
-```
-
-The installer ensures Node.js 24.11 or newer is available, installs a managed
-Paperclip CLI under `~/.paperclip/cli`, and starts interactive onboarding. It
-can also install Paperclip as a background service on supported Linux and
-macOS systems. The checksum detects transfer or publishing mistakes, but it is
-served from the same origin as the script; use a release-tag or commit-pinned
-GitHub copy when you need an independently hosted source.
-
-For a non-interactive managed install:
-
-```bash
-curl -fsSL https://paperclip.ing/install.sh | bash -s -- --no-prompt --no-onboard
-paperclipai onboard --yes
-```
-
-The piped form requires supported Node.js, npm, and npx to already be present.
-If Node.js bootstrap is required, download and review `install.sh` before
-running it so no privileged dependency-install command is accepted through a
-pipe.
-
-To try Paperclip without installing anything permanently:
-
-```bash
-npx --registry https://registry.npmjs.org paperclipai onboard --yes
-```
-
-For an isolated manual test instance that is already initialized with a CEO
-agent, use `test-drive`. It stays in the foreground, never installs a service
-or creates a first task, and opens the browser only after setup succeeds:
-
-```bash
-ANTHROPIC_API_KEY=... npx paperclipai test-drive
-OPENAI_API_KEY=... npx paperclipai test-drive --harness codex
-OPENROUTER_API_KEY=... npx paperclipai test-drive \
-  --harness opencode \
-  --model openrouter/anthropic/claude-sonnet-4.5
-```
-
-Each run without `--data-dir` gets a unique, retained temporary directory; its
-absolute path is printed at startup. Pass `--data-dir` to reuse one, or
-`--no-browser` to leave the initialized instance unopened. When invoked from a
-linked Git worktree, `test-drive` also enables task execution in that worktree.
-See [`doc/CLI.md`](doc/CLI.md#isolated-manual-test-drives) for credential and
-reuse behavior.
-
-> **Troubleshooting: private npm registry `.npmrc`**
->
-> If this fails with an `E404` for `paperclipai` (or similar) and you use a private npm registry (for example GitHub Packages) via a global `~/.npmrc`, `npx` may be resolving `paperclipai` against that private registry instead of the public npm registry.
->
-> Diagnostic:
->
-> ```bash
-> npm config get registry
-> ```
->
-> Workaround (cross-platform; force the public npm registry for this command):
->
-> ```bash
-> npx --registry https://registry.npmjs.org paperclipai onboard --yes
-> ```
-
-That quickstart path now defaults to trusted local loopback mode for the fastest first run. To start in authenticated/private mode instead, choose a bind preset explicitly:
-
-```bash
-paperclipai onboard --yes --bind lan
-# or:
-paperclipai onboard --yes --bind tailnet
-```
-
-If you already have Paperclip configured, rerunning `onboard` keeps the existing config in place. Use `paperclipai configure` to edit settings.
-
-See [`doc/INSTALLING.md`](doc/INSTALLING.md) for pinned versions, canary and
-git-ref installs, updates, rollback, service management, and uninstalling.
-
-Or manually:
-
-```bash
-git clone https://github.com/paperclipai/paperclip.git
-cd paperclip
+git clone https://github.com/gugow06/hive.git
+cd hive
 pnpm install
 pnpm dev
 ```
 
-This starts the API server at `http://localhost:3100`. An embedded PostgreSQL database is created automatically — no setup required.
+This starts the API server and the UI at `http://localhost:3100`. An embedded PostgreSQL database is created automatically — no setup required.
 
 > **Requirements:** Node.js 24.11+, pnpm 9.15+
+
+The quickstart defaults to trusted local loopback mode for the fastest first run. Open `http://localhost:3100` and the onboarding walks you through creating your first company and agent.
+
+The command-line tool lives in `cli/` and keeps its original name, `paperclipai`. From the repository root, run it with:
+
+```bash
+pnpm paperclipai onboard --yes          # initialize a local instance
+pnpm paperclipai onboard --yes --bind lan       # authenticated/private mode on your LAN
+pnpm paperclipai onboard --yes --bind tailnet   # authenticated/private mode on your tailnet
+pnpm paperclipai configure              # edit settings later
+pnpm paperclipai doctor                 # diagnose your setup
+```
+
+If an instance is already configured, rerunning `onboard` keeps the existing config in place.
+
+> **Note:** the published `paperclipai` package on npm and the `paperclip.ing` installer belong to the upstream Paperclip project and install Paperclip, not Hive. Run Hive from source as shown above.
+
+To read the documentation locally:
+
+```bash
+pnpm docs:dev
+```
 
 <br/>
 
@@ -404,21 +334,24 @@ This starts the API server at `http://localhost:3100`. An embedded PostgreSQL da
 **What does a typical setup look like?**
 Locally, a single Node.js process manages an embedded Postgres and local file storage. For production, point it at your own Postgres and deploy however you like. Configure projects, agents, and goals — the agents take care of the rest.
 
-If you're a solo entrepreneur you can use Tailscale to access Paperclip on the go. Then later you can deploy to e.g. Vercel when you need it.
+If you're a solo entrepreneur you can use Tailscale to access Hive on the go. Then later you can deploy to e.g. Vercel when you need it.
 
 **Can I run multiple companies?**
 Yes. A single deployment can run an unlimited number of companies with complete data isolation.
 
-**How is Paperclip different from agents like OpenClaw or Claude Code?**
-Paperclip _uses_ those agents. It orchestrates them into a company — with org charts, budgets, goals, governance, and accountability.
+**How is Hive different from agents like OpenClaw or Claude Code?**
+Hive _uses_ those agents. It orchestrates them into a company — with org charts, budgets, goals, governance, and accountability.
 
-**Why should I use Paperclip instead of just pointing my OpenClaw to Asana or Trello?**
-Agent orchestration has subtleties in how you coordinate who has work checked out, how to maintain sessions, monitoring costs, establishing governance - Paperclip does this for you.
+**Why should I use Hive instead of just pointing my OpenClaw to Asana or Trello?**
+Agent orchestration has subtleties in how you coordinate who has work checked out, how to maintain sessions, monitoring costs, establishing governance - Hive does this for you.
 
 (Bring-your-own-ticket-system is on the Roadmap)
 
 **Do agents run continuously?**
-By default, agents run on scheduled heartbeats and event-based triggers (task assignment, @-mentions). You can also hook in continuous agents like OpenClaw. You bring your agent and Paperclip coordinates.
+By default, agents run on scheduled heartbeats and event-based triggers (task assignment, @-mentions). You can also hook in continuous agents like OpenClaw. You bring your agent and Hive coordinates.
+
+**Where do agents keep what they learn?**
+In Memory: a shared knowledge base of linked Markdown documents, organized in one folder per project. Agents read it before starting a task, and lead agents record what is worth keeping.
 
 <br/>
 
@@ -437,6 +370,7 @@ pnpm test:watch       # Vitest watch mode
 pnpm test:e2e         # Playwright browser suite
 pnpm db:generate      # Generate DB migration
 pnpm db:migrate       # Apply migrations
+pnpm docs:dev         # Serve the documentation site locally
 ```
 
 `pnpm test` does not run Playwright. Browser suites stay separate and are typically run only when working on those flows or in CI.
@@ -465,7 +399,7 @@ See [doc/DEVELOPING.md](doc/DEVELOPING.md) for the full development guide.
 - ✅ Activity log & action attribution
 - ✅ Self-healing runs & automatic recovery
 - ✅ Agent evals & feedback
-- ⚪ Memory / Knowledge
+- ✅ Memory / Knowledge (shared knowledge base with graph view)
 - ⚪ MAXIMIZER MODE
 - ⚪ Work Queues
 - ⚪ Self-Organization
@@ -480,19 +414,15 @@ This is the short roadmap preview. See the full roadmap in [ROADMAP.md](ROADMAP.
 
 <br/>
 
-## Community & Plugins
-
-Find Plugins and more at [awesome-paperclip](https://github.com/gsxdsm/awesome-paperclip)
-
 ## Observability
 
-Paperclip ships with opt-in OpenTelemetry auto-instrumentation for the server (traces only). It activates when `OTEL_EXPORTER_OTLP_ENDPOINT` is set and supports `grpc`, `http/protobuf`, and `http/json` via the standard `OTEL_EXPORTER_OTLP_PROTOCOL` env var. `@opentelemetry/api` is a normal server dependency; the SDK, auto-instrumentation, and exporter packages are optional peer dependencies — install them only if you want tracing. See [doc/observability.md](doc/observability.md) for install commands and the full env-var reference.
+Hive ships with opt-in OpenTelemetry auto-instrumentation for the server (traces only). It activates when `OTEL_EXPORTER_OTLP_ENDPOINT` is set and supports `grpc`, `http/protobuf`, and `http/json` via the standard `OTEL_EXPORTER_OTLP_PROTOCOL` env var. `@opentelemetry/api` is a normal server dependency; the SDK, auto-instrumentation, and exporter packages are optional peer dependencies — install them only if you want tracing. See [doc/observability.md](doc/observability.md) for install commands and the full env-var reference.
 
-Paperclip also ships with opt-in Sentry error monitoring for the server and the browser. Set `SENTRY_DSN_FRONTEND` to activate it for the browser and `SENTRY_DSN_BACKEND` to activate it for the server — each variable is optional, and the legacy `SENTRY_DSN` variable still works as a fallback for either component. The supported server SDK version is `@sentry/node@10.71.0`; it is an optional peer dependency for the server, so install it only if you want error monitoring. The browser SDK, `@sentry/browser`, is pinned to the same exact version. See [doc/observability.md](doc/observability.md#sentry-error-monitoring) for the install command, the privacy settings, and the full default capture set.
+Hive also ships with opt-in Sentry error monitoring for the server and the browser. Set `SENTRY_DSN_FRONTEND` to activate it for the browser and `SENTRY_DSN_BACKEND` to activate it for the server — each variable is optional, and the legacy `SENTRY_DSN` variable still works as a fallback for either component. The supported server SDK version is `@sentry/node@10.71.0`; it is an optional peer dependency for the server, so install it only if you want error monitoring. The browser SDK, `@sentry/browser`, is pinned to the same exact version. See [doc/observability.md](doc/observability.md#sentry-error-monitoring) for the install command, the privacy settings, and the full default capture set.
 
 ## Telemetry
 
-Paperclip collects anonymous usage telemetry to help us understand how the product is used and improve it. No personal information, issue content, prompts, file paths, or secrets are ever collected. Private repository references are hashed with a per-install salt before being sent.
+Hive collects anonymous usage telemetry to help understand how the product is used and improve it. No personal information, issue content, prompts, file paths, or secrets are ever collected. Private repository references are hashed with a per-install salt before being sent.
 
 Contributors changing emitted telemetry events should follow the [Telemetry Data Contract](packages/shared/src/telemetry/README.md).
 For proposed first-party events that are not in the generated contract yet, follow [Telemetry Workflow](doc/TELEMETRY_WORKFLOW.md).
@@ -504,41 +434,24 @@ Telemetry is **enabled by default** and can be disabled with any of the followin
 | Environment variable | `PAPERCLIP_TELEMETRY_DISABLED=1`                        |
 | Standard convention  | `DO_NOT_TRACK=1`                                        |
 | CI environments      | Automatically disabled when `CI=true`                   |
-| Config file          | Set `telemetry.enabled: false` in your Paperclip config |
+| Config file          | Set `telemetry.enabled: false` in your Hive config      |
 
 ## Contributing
 
-We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for details.
-
-<br/>
-
-## Community
-
-- [Discord](https://discord.gg/m4HZY7xNG3) — Join the community
-- [Twitter / X](https://x.com/papercliping) — Follow updates and announcements
-- [GitHub Issues](https://github.com/paperclipai/paperclip/issues) — bugs and feature requests
-- [GitHub Discussions](https://github.com/paperclipai/paperclip/discussions) — ideas and RFC
+We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for details, and open issues or pull requests on [GitHub](https://github.com/gugow06/hive).
 
 <br/>
 
 ## License
 
-MIT &copy; 2026 [Paperclip Labs, Inc](https://paperclip.ing)
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=paperclipai%2Fpaperclip&type=date&legend=top-left">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=paperclipai/paperclip&type=date&theme=dark&legend=top-left&sealed_token=hFjuwFq41bQD5cevvXVv5cTru2swWRZujwJYKlHhtBh6n0H5-VvJZW2SAlcQKB8u4KxhyEB9JqFg1yccJ8WLv9wPBcoWpWcak4gx0MYTWu_pOs2jKOaDluH7KsLeTKt6DHGkHiN3LsqV9s--MTDQcC6Xl7zV51W0-YezQXo-pVPgoFDFAGf2CY5fiP5Q" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=paperclipai/paperclip&type=date&legend=top-left&sealed_token=hFjuwFq41bQD5cevvXVv5cTru2swWRZujwJYKlHhtBh6n0H5-VvJZW2SAlcQKB8u4KxhyEB9JqFg1yccJ8WLv9wPBcoWpWcak4gx0MYTWu_pOs2jKOaDluH7KsLeTKt6DHGkHiN3LsqV9s--MTDQcC6Xl7zV51W0-YezQXo-pVPgoFDFAGf2CY5fiP5Q" />
-    <img src="https://api.star-history.com/chart?repos=paperclipai/paperclip&type=date&legend=top-left&sealed_token=hFjuwFq41bQD5cevvXVv5cTru2swWRZujwJYKlHhtBh6n0H5-VvJZW2SAlcQKB8u4KxhyEB9JqFg1yccJ8WLv9wPBcoWpWcak4gx0MYTWu_pOs2jKOaDluH7KsLeTKt6DHGkHiN3LsqV9s--MTDQcC6Xl7zV51W0-YezQXo-pVPgoFDFAGf2CY5fiP5Q" alt="Star History Chart" />
-  </picture>
-</a>
+MIT. See [LICENSE](LICENSE). Copyright &copy; 2025 Paperclip AI, the authors of the original project.
 
 <br/>
 
 ---
 
-<p align="center">
-  <sub>Open source under MIT. Built for people who want to get work done, not babysit agents.</sub>
-</p>
+## Hive is a fork of Paperclip
+
+Hive is a fork of [Paperclip](https://github.com/paperclipai/paperclip), the open-source control plane for AI-agent companies. It keeps Paperclip's core architecture and its MIT license, and builds on it with its own identity and features, such as the shared Memory knowledge base with a graph view.
+
+Some internal names still carry the original project's name — the `paperclipai` command, the `@paperclipai/*` packages, the `PAPERCLIP_*` environment variables and the `~/.paperclip` data directory — so that existing configurations, plugins and integrations keep working.
