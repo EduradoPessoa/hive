@@ -5,7 +5,9 @@ import { Loader2, Network } from "lucide-react";
 import {
   createMemoryWikiLinkResolver,
   type FolderListItem,
+  type FolderListResult,
   type MemoryDocumentListItem,
+  type MemoryDocumentListResult,
 } from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +39,11 @@ import {
   writeGraphViewPreference,
 } from "@/components/memory/memory-view-preferences";
 import { MemoryTree } from "@/components/memory/MemoryTree";
-import { buildMemoryTree } from "@/components/memory/memory-tree";
+import {
+  buildMemoryTree,
+  withDocumentMoved,
+  withFolderMoved,
+} from "@/components/memory/memory-tree";
 import { foldersApi } from "../api/folders";
 import { memoryDocumentsApi } from "../api/memoryDocuments";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
@@ -244,15 +250,50 @@ export function Memory() {
       if (documentId === selectedDocumentId) selectDocument(null);
     },
   });
+  // A move is applied to the cached lists the moment it is dropped, so the tree
+  // reflects it at once instead of after a refetch. A failed request restores
+  // the snapshot; either way the lists are refetched to settle on server truth.
   const moveDocument = useMutation({
     mutationFn: ({ documentId, folderId }: { documentId: string; folderId: string | null }) =>
       memoryDocumentsApi.move(selectedCompanyId!, documentId, { folderId }),
-    onSuccess: invalidateAll,
+    onMutate: async ({ documentId, folderId }) => {
+      const key = queryKeys.memoryDocuments.list(selectedCompanyId!);
+      await queryClient.cancelQueries({ queryKey: key, exact: true });
+      const previous = queryClient.getQueryData<MemoryDocumentListResult>(key);
+      if (previous) {
+        const documents = withDocumentMoved(previous.documents, documentId, folderId);
+        queryClient.setQueryData<MemoryDocumentListResult>(key, {
+          ...previous,
+          documents,
+          unfiledCount: documents.filter((document) => document.folderId === null).length,
+        });
+      }
+      return { key, previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) queryClient.setQueryData(context.key, context.previous);
+    },
+    onSettled: invalidateAll,
   });
   const moveFolder = useMutation({
     mutationFn: ({ folderId, parentId }: { folderId: string; parentId: string | null }) =>
       foldersApi.moveFolder(selectedCompanyId!, folderId, { parentId, position: 0 }),
-    onSuccess: invalidateAll,
+    onMutate: async ({ folderId, parentId }) => {
+      const key = queryKeys.folders.list(selectedCompanyId!, "memory");
+      await queryClient.cancelQueries({ queryKey: key, exact: true });
+      const previous = queryClient.getQueryData<FolderListResult>(key);
+      if (previous) {
+        queryClient.setQueryData<FolderListResult>(key, {
+          ...previous,
+          folders: withFolderMoved(previous.folders, folderId, parentId),
+        });
+      }
+      return { key, previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) queryClient.setQueryData(context.key, context.previous);
+    },
+    onSettled: invalidateAll,
   });
   const saveDocument = useMutation({
     mutationFn: ({ documentId, markdown }: { documentId: string; markdown: string }) =>

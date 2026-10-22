@@ -191,3 +191,56 @@ export function flattenFolders(
     ...flattenFolders(node.folders, depth + 1),
   ]);
 }
+
+/**
+ * Whether dropping `activeId` on `overId` would change anything. The drop
+ * handler and the hover feedback share this one answer, so a target lights up
+ * exactly when releasing there would move the node — never for the folder it
+ * already sits in, itself, or its own subtree.
+ */
+export function isValidMemoryDropTarget(
+  model: MemoryTreeModel,
+  activeId: string | null,
+  overId: string,
+): boolean {
+  return activeId !== null && resolveMemoryDrop(model, activeId, overId) !== null;
+}
+
+/** The label and kind shown in the drag preview that follows the cursor. */
+export function memoryDragPreview(
+  model: MemoryTreeModel,
+  activeId: string | null,
+): { kind: "document" | "folder"; label: string } | null {
+  if (!activeId) return null;
+  const source = memoryDragId.parse(activeId);
+  if (source.kind === "document") {
+    const document = model.documentsById.get(source.id);
+    return document ? { kind: "document", label: document.title } : null;
+  }
+  if (source.kind === "folder") {
+    const folder = model.foldersById.get(source.id);
+    return folder ? { kind: "folder", label: folder.name } : null;
+  }
+  return null;
+}
+
+/**
+ * Cache edits that make a move show up before the server answers. They only
+ * touch the fields the tree is built from (`folderId`, `parentId`), and a
+ * moved folder is placed first among its new siblings, as the server does.
+ */
+export function withDocumentMoved<T extends { id: string; folderId: string | null }>(
+  documents: readonly T[],
+  documentId: string,
+  folderId: string | null,
+): T[] {
+  return documents.map((document) => (document.id === documentId ? { ...document, folderId } : document));
+}
+
+export function withFolderMoved<T extends { id: string; parentId: string | null; position: number }>(
+  folders: readonly T[],
+  folderId: string,
+  parentId: string | null,
+): T[] {
+  return folders.map((folder) => (folder.id === folderId ? { ...folder, parentId, position: 0 } : folder));
+}

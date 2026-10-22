@@ -7,8 +7,12 @@ import {
   flattenFolders,
   folderBreadcrumbTrail,
   memoryDragId,
+  isValidMemoryDropTarget,
+  memoryDragPreview,
   resolveMemoryDrop,
   subtreeFolderIds,
+  withDocumentMoved,
+  withFolderMoved,
 } from "./memory-tree";
 
 function folder(
@@ -195,5 +199,79 @@ describe("flattenFolders", () => {
       { folder: model.foldersById.get("root"), depth: 0 },
       { folder: model.foldersById.get("child"), depth: 1 },
     ]);
+  });
+});
+
+describe("isValidMemoryDropTarget", () => {
+  const model = buildMemoryTree(
+    [
+      folder("f1", "Alpha", null, 0),
+      folder("f2", "Child", "f1", 0),
+      folder("f3", "Other", null, 1),
+    ],
+    [
+      document("d-in-f1", "In alpha", "f1"),
+      document("d-root", "At root", null),
+    ],
+  );
+
+  it("accepts a different folder and, for nested nodes, the root", () => {
+    expect(isValidMemoryDropTarget(model, "document:d-in-f1", "folder:f3")).toBe(true);
+    expect(isValidMemoryDropTarget(model, "document:d-in-f1", "memory-root")).toBe(true);
+    expect(isValidMemoryDropTarget(model, "folder:f2", "memory-root-area")).toBe(true);
+  });
+
+  it("rejects the folder a document already sits in, and the root for a root document", () => {
+    expect(isValidMemoryDropTarget(model, "document:d-in-f1", "folder:f1")).toBe(false);
+    expect(isValidMemoryDropTarget(model, "document:d-root", "memory-root")).toBe(false);
+  });
+
+  it("rejects a folder as its own target, its descendants and its current parent", () => {
+    expect(isValidMemoryDropTarget(model, "folder:f1", "folder:f1")).toBe(false);
+    expect(isValidMemoryDropTarget(model, "folder:f1", "folder:f2")).toBe(false);
+    expect(isValidMemoryDropTarget(model, "folder:f2", "folder:f1")).toBe(false);
+  });
+
+  it("rejects everything when nothing is being dragged", () => {
+    expect(isValidMemoryDropTarget(model, null, "folder:f1")).toBe(false);
+  });
+});
+
+describe("memoryDragPreview", () => {
+  const model = buildMemoryTree(
+    [folder("f1", "Alpha", null, 0)],
+    [document("d1", "Runbook", null)],
+  );
+
+  it("labels documents and folders by their name", () => {
+    expect(memoryDragPreview(model, "document:d1")).toEqual({ kind: "document", label: "Runbook" });
+    expect(memoryDragPreview(model, "folder:f1")).toEqual({ kind: "folder", label: "Alpha" });
+  });
+
+  it("returns null for unknown or missing nodes", () => {
+    expect(memoryDragPreview(model, "document:nope")).toBeNull();
+    expect(memoryDragPreview(model, null)).toBeNull();
+  });
+});
+
+describe("optimistic move helpers", () => {
+  it("moves a document without touching the input or the other documents", () => {
+    const documents = [
+      { id: "a", folderId: "f1" as string | null },
+      { id: "b", folderId: null as string | null },
+    ];
+    const next = withDocumentMoved(documents, "a", null);
+    expect(next).toEqual([{ id: "a", folderId: null }, { id: "b", folderId: null }]);
+    expect(documents[0]!.folderId).toBe("f1");
+    expect(next[1]).toBe(documents[1]);
+  });
+
+  it("re-parents a folder and puts it first among its new siblings", () => {
+    const folders = [
+      { id: "f1", parentId: null as string | null, position: 3 },
+      { id: "f2", parentId: "f1" as string | null, position: 1 },
+    ];
+    expect(withFolderMoved(folders, "f1", "f2")[0]).toEqual({ id: "f1", parentId: "f2", position: 0 });
+    expect(folders[0]!.parentId).toBeNull();
   });
 });

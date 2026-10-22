@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   DndContext,
+  DragOverlay,
   MouseSensor,
   pointerWithin,
   useDraggable,
@@ -34,8 +35,9 @@ import {
   MEMORY_ROOT_AREA_DROP_ID,
   MEMORY_ROOT_DROP_ID,
   memoryDragId as dragId,
+  isValidMemoryDropTarget,
+  memoryDragPreview,
   resolveMemoryDrop,
-  subtreeFolderIds,
   type MemoryFolderNode,
   type MemoryTreeModel,
 } from "./memory-tree";
@@ -138,20 +140,31 @@ function FolderRow({
   depth,
   expanded,
   onToggle,
-  illegalDropTarget,
+  validDropTarget,
+  dragging,
+  inClosedBranch,
   props,
 }: {
   node: MemoryFolderNode;
   depth: number;
   expanded: boolean;
   onToggle: () => void;
-  illegalDropTarget: boolean;
+  /** Releasing the dragged node here would move it. */
+  validDropTarget: boolean;
+  /** Something is being dragged, so non-targets should read as inert. */
+  dragging: boolean;
+  /**
+   * Inside a collapsed folder. Those rows stay mounted so the fold can animate,
+   * and their boxes keep their full size under the clip — so they must not be
+   * offered as drop targets, or the pointer could "hit" a row nobody can see.
+   */
+  inClosedBranch: boolean;
   props: MemoryTreeProps;
 }) {
   const folder = node.folder;
   const draggable = useDraggable({ id: dragId.folder(folder.id) });
-  const droppable = useDroppable({ id: dragId.folder(folder.id), disabled: illegalDropTarget });
-  const isOver = droppable.isOver && !illegalDropTarget;
+  const droppable = useDroppable({ id: dragId.folder(folder.id), disabled: !validDropTarget || inClosedBranch });
+  const isOver = droppable.isOver && validDropTarget && !inClosedBranch;
 
   return (
     <div
@@ -159,8 +172,13 @@ function FolderRow({
       style={{ paddingLeft: `${depth * 12 + 8}px` }}
       className={cn(
         rowClass,
-        "cursor-pointer hover:bg-accent/50",
-        isOver && "bg-accent ring-1 ring-ring",
+        "cursor-pointer outline outline-2 -outline-offset-2 outline-transparent",
+        // While dragging, hover only means something on a folder that can take
+        // the node; an invalid folder keeps its resting look.
+        !dragging && "hover:bg-accent/50",
+        // Yellow outline = "you can drop it here". The outline is always there,
+        // transparent, so its colour fades in rather than popping.
+        isOver && "bg-accent/40 outline-(--memory-drop-outline)",
         draggable.isDragging && "opacity-50",
       )}
       data-testid="memory-folder-row"
@@ -197,14 +215,18 @@ function FolderBranch({
   depth,
   expandedIds,
   toggle,
-  illegalDropTargets,
+  isValidTarget,
+  dragging,
+  inClosedBranch = false,
   props,
 }: {
   node: MemoryFolderNode;
   depth: number;
   expandedIds: Set<string>;
   toggle: (folderId: string) => void;
-  illegalDropTargets: Set<string>;
+  isValidTarget: (folderId: string) => boolean;
+  dragging: boolean;
+  inClosedBranch?: boolean;
   props: MemoryTreeProps;
 }) {
   const expanded = expandedIds.has(node.folder.id);
@@ -215,11 +237,15 @@ function FolderBranch({
         depth={depth}
         expanded={expanded}
         onToggle={() => toggle(node.folder.id)}
-        illegalDropTarget={illegalDropTargets.has(node.folder.id)}
+        validDropTarget={isValidTarget(node.folder.id)}
+        dragging={dragging}
+        inClosedBranch={inClosedBranch}
         props={props}
       />
-      {expanded ? (
-        <>
+      {/* Always mounted so opening and closing can animate; `inert` keeps the
+          hidden rows out of tab order and the accessibility tree. */}
+      <div className="memory-folder-fold" data-open={expanded ? "true" : "false"} inert={!expanded}>
+        <div>
           {node.folders.map((child) => (
             <FolderBranch
               key={child.folder.id}
@@ -227,7 +253,9 @@ function FolderBranch({
               depth={depth + 1}
               expandedIds={expandedIds}
               toggle={toggle}
-              illegalDropTargets={illegalDropTargets}
+              isValidTarget={isValidTarget}
+              dragging={dragging}
+              inClosedBranch={inClosedBranch || !expanded}
               props={props}
             />
           ))}
@@ -250,8 +278,8 @@ function FolderBranch({
               Empty
             </p>
           ) : null}
-        </>
-      ) : null}
+        </div>
+      </div>
     </>
   );
 }
@@ -262,6 +290,25 @@ function FolderBranch({
  * layout: inserting a row at drag start would shove the tree down by its own
  * height, moving the folder the user was aiming at.
  */
+/**
+ * What follows the cursor while a node is dragged: the node's icon and name in
+ * a compact card, so it is clear what is being moved even after the pointer
+ * leaves the row it came from. Purely visual — the real row stays in place,
+ * dimmed, and the pointer never lands on this card.
+ */
+function DragPreview({ kind, label }: { kind: "document" | "folder"; label: string }) {
+  const Icon = kind === "document" ? FileText : FolderIcon;
+  return (
+    <div
+      data-testid="memory-drag-preview"
+      className="pointer-events-none flex h-8 max-w-64 cursor-grabbing items-center gap-1.5 rounded-md border border-border bg-popover px-2 text-sm text-popover-foreground shadow-md"
+    >
+      <Icon className="size-4 shrink-0 text-muted-foreground" />
+      <span className="truncate">{label}</span>
+    </div>
+  );
+}
+
 function RootDropZone() {
   const { setNodeRef, isOver } = useDroppable({ id: MEMORY_ROOT_DROP_ID });
   return (
@@ -271,8 +318,8 @@ function RootDropZone() {
       className={cn(
         "absolute inset-x-2 bottom-2 z-10 flex h-9 items-center justify-center rounded-md border border-dashed text-xs shadow-sm backdrop-blur-sm transition-colors",
         isOver
-          ? "border-ring bg-accent text-accent-foreground"
-          : "border-border bg-background/90 text-muted-foreground",
+          ? "border-transparent bg-accent/40 text-accent-foreground outline outline-2 -outline-offset-2 outline-(--memory-drop-outline)"
+          : "border-border bg-background/90 text-muted-foreground outline outline-2 -outline-offset-2 outline-transparent",
       )}
     >
       <FolderOutput className="mr-1.5 size-3.5" />
@@ -285,23 +332,21 @@ export function MemoryTree(props: MemoryTreeProps) {
   const { model } = props;
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [activeDrag, setActiveDrag] = useState<{ kind: string; id: string } | null>(null);
-  const draggingFolderId = activeDrag?.kind === "folder" ? activeDrag.id : null;
   const sensors = useSensors(
     // Desktop-only drag, matching the projects rail: touch stays tap/scroll.
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
   );
-  const rootAreaDroppable = useDroppable({ id: MEMORY_ROOT_AREA_DROP_ID });
+  const activeRawId = activeDrag ? `${activeDrag.kind}:${activeDrag.id}` : null;
 
-  // Only worth offering the escape hatch when the node is nested to begin with.
-  const draggedIsNested = activeDrag
-    ? activeDrag.kind === "document"
-      ? (model.documentsById.get(activeDrag.id)?.folderId ?? null) !== null
-      : (model.foldersById.get(activeDrag.id)?.parentId ?? null) !== null
-    : false;
-
-  const illegalDropTargets = draggingFolderId
-    ? subtreeFolderIds(model, draggingFolderId)
-    : new Set<string>();
+  // The root is a destination only when the node is nested to begin with — the
+  // same rule the drop uses, so the strip and the rail's empty space light up
+  // exactly when releasing there would unfile the node.
+  const rootIsValidTarget = isValidMemoryDropTarget(model, activeRawId, MEMORY_ROOT_DROP_ID);
+  const draggedIsNested = rootIsValidTarget;
+  const rootAreaDroppable = useDroppable({ id: MEMORY_ROOT_AREA_DROP_ID, disabled: !rootIsValidTarget });
+  const preview = memoryDragPreview(model, activeRawId);
+  const isValidTarget = (folderId: string) =>
+    isValidMemoryDropTarget(model, activeRawId, dragId.folder(folderId));
 
   function toggle(folderId: string) {
     setExpandedIds((current) => {
@@ -358,7 +403,7 @@ export function MemoryTree(props: MemoryTreeProps) {
         data-testid="memory-tree"
         className={cn(
           "min-h-0 flex-1 overflow-y-auto pb-2 scrollbar-auto-hide",
-          rootAreaDroppable.isOver && "bg-accent/30",
+          rootAreaDroppable.isOver && rootIsValidTarget && "bg-accent/30 outline outline-2 -outline-offset-2 outline-(--memory-drop-outline)",
           // Keep the last row reachable above the floating strip.
           draggedIsNested && "pb-14",
         )}
@@ -375,7 +420,8 @@ export function MemoryTree(props: MemoryTreeProps) {
             depth={0}
             expandedIds={expandedIds}
             toggle={toggle}
-            illegalDropTargets={illegalDropTargets}
+            isValidTarget={isValidTarget}
+            dragging={activeDrag !== null}
             props={props}
           />
         ))}
@@ -392,6 +438,12 @@ export function MemoryTree(props: MemoryTreeProps) {
         ))}
       </div>
       </div>
+
+      {/* Portalled by dnd-kit, so the card is never clipped by the rail's
+          scroll area and always tracks the pointer. */}
+      <DragOverlay dropAnimation={null}>
+        {preview ? <DragPreview kind={preview.kind} label={preview.label} /> : null}
+      </DragOverlay>
     </DndContext>
   );
 }

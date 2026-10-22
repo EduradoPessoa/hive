@@ -954,6 +954,18 @@
 .tc-turn-fold[data-folded="true"] { grid-template-rows: 0fr; opacity: 0; }
 .tc-turn-fold > * { overflow: hidden; min-height: 0; }
 
+/* Memory folder open/close: same grid-rows technique as the turn fold, so the
+   children slide to their natural height without being measured. */
+.memory-folder-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows var(--motion-duration-base) var(--motion-ease-standard),
+    opacity var(--motion-duration-base) var(--motion-ease-standard);
+}
+.memory-folder-fold[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
+.memory-folder-fold > * { overflow: hidden; min-height: 0; }
+
 /* Hover-revealed activity carets remain discoverable on touch-only devices. */
 @media (hover: none) {
   .tc-hover-disclosure-caret { opacity: 1; }
@@ -1050,6 +1062,7 @@
   .tc-scroll-pill-out,
   .tc-enter-plan-entry { animation: none; }
   .tc-turn-fold,
+  .memory-folder-fold,
   .tc-turn-metrics,
   .tc-line-scroll-inner,
   .tc-pane-glide,
@@ -2510,6 +2523,9 @@ span.paperclip-mention-chip[data-mention-kind="external-object"] {
   --sz-source-tile-two-up: calc((100% - 0.75rem) / 2);
   /* The "more tools" picker. Wide enough for a name over its description. */
   --sz-source-popover: 20rem;
+  /* Memory tree drag-and-drop: outline on a folder (or the "move out" area) that can
+     take the dragged node. Brand yellow in both themes, so it reads as one signal. */
+  --memory-drop-outline: #FFB800;
   /* The connect step's sign-in card, held at one height across its own states.
      It opens on a spinner and then fills with an instruction and a field, and
      the height is fixed so that arrival is the only movement — a card that grew
