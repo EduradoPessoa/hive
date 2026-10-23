@@ -78,5 +78,3 @@ tests/storybook-visual/playwright-report/
 .vercel/
 .env.local
 test-results/
-dist-hive/
-server/ui-dist/

@@ -1,15 +1,1 @@
 patches/*.patch whitespace=-space-before-tab
-
-# Windows: o Git converte para CRLF com core.autocrlf=true, e isso quebra as
-# verificações por hash do runner (protocol manifest) e os scripts de shell.
-# Forçar LF no disco deixa o clone igual em Windows, macOS e Linux.
-* text=auto eol=lf
-*.sh text eol=lf
-*.mjs text eol=lf
-*.png binary
-*.jpg binary
-*.webp binary
-*.ico binary
-*.svg text
-*.woff2 binary
-*.mp4 binary

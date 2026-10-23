@@ -292,32 +292,7 @@ Hive is a full control plane, not a wrapper. Before you build any of this yourse
 
 Open source. Self-hosted. No account required.
 
-### From the npm package (pnpm or npm)
-
-With Node.js 24.11+ installed (Windows, macOS or Linux; WSL is not required):
-
-```bash
-pnpm setup            # once, then reopen the terminal
-pnpm add -g hive-agents
-hive onboard --yes   # first time: creates the config and starts Hive
-hive run              # next times
-```
-
-npm works too: `npm install -g hive-agents` (on Windows PowerShell use `npm.cmd` if scripts are blocked by the execution policy). With pnpm 10 you will see an "Ignored build scripts" warning; it can be ignored, Hive prepares what it needs on the first run.
-
-`hive onboard --yes` sets up a local instance and starts the server and UI at `http://localhost:3100`; `hive run` starts it afterwards. The `hive` command accepts the same subcommands as `paperclipai` below (`onboard`, `doctor`, `configure`...).
-
-To build and publish the package, see [`scripts/build-hive-package.mjs`](scripts/build-hive-package.mjs):
-
-```bash
-node scripts/build-hive-package.mjs        # builds dist-hive/hive-agents-<version>.tgz
-npm i -g ./dist-hive/hive-agents-*.tgz     # test it locally
-npm publish ./dist-hive/hive-agents-*.tgz  # needs `npm login`
-```
-
-### From source
-
-Hive also runs from this repository:
+Hive runs from this repository:
 
 ```bash
 git clone https://github.com/gugow06/hive.git
