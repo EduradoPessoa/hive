@@ -303,6 +303,23 @@ FASE 3b tuning (prompt, turnos, sessão) 2 d     (ajuste fino)               →
 Racional: **custo primeiro** porque ele é o instrumento de medição das outras duas fases
 (sem tokens/custo por run não se prova ganho de latência nem de roteamento).
 
+- **FASE 3 — primeira leva (26/10/2026)**
+  - `DEFAULT_MAX_TURNS = 60` quando o agente não define `maxTurnsPerRun`: runaway vira falha
+    rápida e atribuível em vez de estourar o timeout de 30 min (2 runs estouraram num dia).
+  - Contrato de execução (compartilhado por todos os adapters) ganhou 4 diretrizes:
+    agrupar tool calls independentes no mesmo turno; não reler arquivo/comando já executado;
+    checar dependências antes de reinstalar (e rodar job longo em background); preferir uma
+    verificação decisiva a uma sequência exploratória.
+  - Instrumentação: `[hermes] Timing: wall=..s turns=.. wall_per_turn=..s model_timeout=..
+    max_turns=..` por run no log do run (sem tabela nova: `heartbeat_runs` + `usage_json`
+    já dão duração e `apiCallCount`).
+  - Corrigido de quebra o mock de `node:fs/promises` em `execute.onspawn.test.ts` (6 testes
+    estavam vermelhos por falta de export default, antes de chegar ao adapter).
+  - Verificado: run de fumaça com 3 turnos → `wall=26.6s`, `wall_per_turn=8.9s`,
+    `max_turns=60`, custo US$ 0,001139 registrado.
+  - **Pendente da FASE 3**: política de sessão (resume acumulando contexto), toolsets por papel
+    (prompt de 11,5k tokens por chamada) e paralelismo de sub-issues. Dependem da FASE 4.
+
 ---
 
 ## 6. Decisões tomadas (aprovadas em 26/10/2026)
