@@ -28,6 +28,14 @@ export const DEFAULT_GRACE_SEC = 10;
 export const DEFAULT_MODEL = "auto";
 
 /**
+ * Safety ceiling on model turns per heartbeat run when the agent config does not set
+ * `maxTurnsPerRun`. Runs with no ceiling explore until the 30-minute timeout (two runs
+ * hit exactly that in one day). 60 turns is generous for real work while still
+ * surfacing a runaway loop as a fast, attributable failure instead of a timeout.
+ */
+export const DEFAULT_MAX_TURNS = 60;
+
+/**
  * Valid --provider choices for the hermes CLI.
  * Must stay in sync with `hermes chat --help`.
  */

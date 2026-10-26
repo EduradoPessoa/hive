@@ -49,6 +49,7 @@ import {
   DEFAULT_TIMEOUT_SEC,
   DEFAULT_GRACE_SEC,
   DEFAULT_MODEL,
+  DEFAULT_MAX_TURNS,
   VALID_PROVIDERS,
 } from "../shared/constants.js";
 
@@ -425,7 +426,7 @@ export async function execute(
   const model = cfgString(config.model) || DEFAULT_MODEL;
   const timeoutSec = cfgNumber(config.timeoutSec) || DEFAULT_TIMEOUT_SEC;
   const graceSec = cfgNumber(config.graceSec) || DEFAULT_GRACE_SEC;
-  const maxTurns = cfgNumber(config.maxTurnsPerRun);
+  const maxTurns = cfgNumber(config.maxTurnsPerRun) || DEFAULT_MAX_TURNS;
   const toolsets = cfgString(config.toolsets) || cfgStringArray(config.enabledToolsets)?.join(",");
   const extraArgs = cfgStringArray(config.extraArgs);
   const persistSession = cfgBoolean(config.persistSession) !== false;
@@ -667,6 +668,7 @@ export async function execute(
     return ctx.onLog(stream, chunk);
   };
 
+  const runStartedAtMs = Date.now();
   const result = await runChildProcess(ctx.runId, hermesCmd, args, {
     cwd,
     env,
@@ -720,11 +722,21 @@ export async function execute(
     };
   })();
   if (runUsage) {
+    const wallSec = Math.max(0, (Date.now() - runStartedAtMs) / 1000);
+    const turns = sessionUsage?.apiCalls ?? 0;
     await ctx.onLog(
       "stdout",
-      `[hermes] Usage: in=${runUsage.inputTokens} out=${runUsage.outputTokens} cached=${runUsage.cachedInputTokens} api_calls=${sessionUsage?.apiCalls ?? 0} cost_usd=${
+      `[hermes] Usage: in=${runUsage.inputTokens} out=${runUsage.outputTokens} cached=${runUsage.cachedInputTokens} api_calls=${turns} cost_usd=${
         runUsage.costUsd === null ? "unknown" : runUsage.costUsd.toFixed(6)
       }${sessionUsage?.costStatus ? ` (${sessionUsage.costStatus})` : ""}\n`,
+    );
+    // Latency instrument: one line per run so a slow heartbeat can be attributed to
+    // model round-trips (wall/turn) versus tool execution without digging in the log.
+    await ctx.onLog(
+      "stdout",
+      `[hermes] Timing: wall=${wallSec.toFixed(1)}s turns=${turns}${
+        turns > 0 ? ` wall_per_turn=${(wallSec / turns).toFixed(1)}s` : ""
+      } model_timeout=${timeoutSec}s max_turns=${maxTurns}\n`,
     );
   } else if (parsed.sessionId) {
     await ctx.onLog(
