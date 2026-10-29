@@ -9038,8 +9038,20 @@ export function resolveSkillTestRunCompletionForHeartbeatOutcome(
 }
 
 const HERMES_ADAPTER_TYPE = "hermes_local";
+/**
+ * Session ids the Hermes CLI actually prints.
+ *
+ * - `YYYYMMDD_HHMMSS_<suffix>` — the legacy file-backed session id.
+ * - `local-<64 hex>` — what every current release prints (`Session:` footer,
+ *   `hermes --resume <id>`, quiet-mode `session_id:`). Absent from this pattern,
+ *   `isCanonicalSessionIdForAdapter` rejected every real id, so
+ *   `resolveNextSessionState` discarded it and each heartbeat opened a brand new
+ *   session: no run in the instance ever logged "Resuming session", and the work
+ *   of a run that died mid-turn was redone from scratch (PHO-85).
+ * - A UUID, for hosts whose session store is database-backed.
+ */
 const HERMES_SESSION_ID_REGEX =
-  /^(?:\d{8}_\d{6}_[A-Za-z0-9_-]{4,}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
+  /^(?:\d{8}_\d{6}_[A-Za-z0-9_-]{4,}|local-[A-Za-z0-9_-]{8,}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
 
 function requiresCanonicalSessionIds(adapterType: string | null | undefined) {
   return adapterType === HERMES_ADAPTER_TYPE;
@@ -9175,7 +9187,35 @@ export function resolveNextSessionState(input: {
   };
 
   if (input.outcome !== "succeeded") {
-    return previousState();
+    const previous = previousState();
+    if (previous.params) return previous;
+    // A failed run usually has nothing worth carrying forward, so an earlier
+    // session wins. With no earlier session at all there is nothing to lose by
+    // adopting the one the adapter reported — and for Hermes that is the whole
+    // point: an interrupted turn prints its session id and says to resume it
+    // rather than resend the work. Dropping it here made every retry start a new
+    // session and redo what the dead run had already written (PHO-85).
+    const reported = normalizeResumeParamsForAdapter(
+      adapterType,
+      input.adapterResult.sessionParams,
+    ) ?? normalizeResumeParamsForAdapter(
+      adapterType,
+      readNonEmptyString(input.adapterResult.sessionId)
+        ? { sessionId: readNonEmptyString(input.adapterResult.sessionId) }
+        : null,
+    );
+    const reportedSessionId = readNonEmptyString(reported?.sessionId);
+    if (!reportedSessionId) return previous;
+    const serialized = normalizeResumeParamsForAdapter(
+      adapterType,
+      codec.serialize(reported),
+    );
+    if (!serialized) return previous;
+    return {
+      params: serialized,
+      displayId: truncateDisplayId(readNonEmptyString(serialized.sessionId) ?? reportedSessionId),
+      legacySessionId: readNonEmptyString(serialized.sessionId) ?? reportedSessionId,
+    };
   }
 
   const explicitParams = adapterResult.sessionParams;

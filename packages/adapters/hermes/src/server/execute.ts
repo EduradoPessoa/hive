@@ -289,11 +289,49 @@ export function buildPrompt(
 /** Regex to extract session ID from Hermes quiet-mode output: "session_id: <id>" */
 const SESSION_ID_REGEX = /^session_id:\s*(\S+)/m;
 
-/** Regex for legacy session output format */
-const SESSION_ID_REGEX_LEGACY = /session[_ ](?:id|saved)[:\s]+([a-zA-Z0-9_-]+)/i;
+/**
+ * The CLI footer prints the id to resume even when the turn was cut short:
+ *
+ *   Resume this session with:
+ *     hermes --resume local-b233e8477a8c35f91d5e0c775b189803a3d7b0124f7b258d9402f40f647e8c4d
+ *
+ * That footer survives a gateway disconnect, so it is the load-bearing source of
+ * the session id for an interrupted run (PHO-85): without it the next heartbeat
+ * starts a brand new session and redoes the work the dead run already wrote.
+ */
+const SESSION_RESUME_HINT_REGEX = /^\s*hermes\s+(?:--resume|-r)\s+(\S+)\s*$/m;
+
+/**
+ * Legacy `session_id:`/`session saved:` key-value form.
+ *
+ * Anchored to a whole line on purpose. Unanchored, this matched free prose: the
+ * gateway-disconnect advice "Resume the printed session ID to check whether it
+ * completed" parsed as `sessionId = "to"`, which threw away the real id, lost
+ * the usage/cost row lookup, and made every retry start from scratch (PHO-85).
+ */
+const SESSION_ID_REGEX_LEGACY = /^\s*session[_ ](?:id|saved)[:\s]+([A-Za-z0-9_-]+)\s*$/im;
 
 /** Session id printed in the non-quiet summary block: `Session:  20261026_114032_776f76` */
-const SESSION_SUMMARY_ID_REGEX = /^Session:\s+([A-Za-z0-9_-]{6,})\s*$/m;
+const SESSION_SUMMARY_ID_REGEX = /^Session:[ \t]+([A-Za-z0-9_-]{6,})[ \t]*$/m;
+
+/**
+ * Tool invocations the CLI renders as `🔧 Patch src/app/route.ts  25.3s`.
+ *
+ * The session store is authoritative for the count, but the store row is
+ * missing exactly when it matters most — a turn cut short by a gateway
+ * disconnect. Counting the rendered invocations gives the run a floor above
+ * zero whenever files were actually edited (PHO-85).
+ */
+const TOOL_CALL_MARKER = "\u{1F527}";
+
+/** ANSI SGR sequences the CLI wraps tool names and durations in. */
+const ANSI_SGR_REGEX = /\u001b\[[0-9;]*m/g;
+
+/**
+ * Hermes' own gateway dropped the websocket mid-turn. The CLI aborts with exit
+ * code 1 and this advice; it is not a Paperclip timeout and not a model error.
+ */
+const GATEWAY_DISCONNECTED_REGEX = /Gateway disconnected;[^\n]*turn outcome is unknown/i;
 
 /** Regex to extract token usage from Hermes output. */
 const TOKEN_USAGE_REGEX =
@@ -343,7 +381,7 @@ function cleanResponse(raw: string): string {
 // Output parsing
 // ---------------------------------------------------------------------------
 
-function parseHermesOutput(stdout: string, stderr: string): ParsedOutput {
+export function parseHermesOutput(stdout: string, stderr: string): ParsedOutput {
   const combined = stdout + "\n" + stderr;
   const result: ParsedOutput = {};
 
@@ -360,20 +398,19 @@ function parseHermesOutput(stdout: string, stderr: string): ParsedOutput {
       result.response = cleanResponse(stdout.slice(0, sessionLineIdx));
     }
   } else {
-    // Legacy format (non-quiet mode)
+    // Non-quiet mode. Sources, most to least trustworthy:
+    //   1. the `hermes --resume <id>` footer, printed even for an interrupted turn
+    //   2. the summary block `Session:  20261026_114032_776f76`
+    //   3. the legacy `session_id: <id>` key-value line
+    // Only whole-line matches count: the disconnect advice this adapter now has to
+    // survive contains the words "session ID to ...", which an unanchored pattern
+    // scraped as the session id.
+    const resumeHintMatch = combined.match(SESSION_RESUME_HINT_REGEX);
+    const summaryMatch = combined.match(SESSION_SUMMARY_ID_REGEX);
     const legacyMatch = combined.match(SESSION_ID_REGEX_LEGACY);
-    if (legacyMatch?.[1]) {
-      result.sessionId = legacyMatch?.[1] ?? null;
-    } else {
-      // Non-quiet mode ends with a summary block:
-      //   Session:        20261026_114032_776f76
-      //   Duration:       58s
-      // Without the session id we cannot read the real token usage/cost from the
-      // Hermes session store, so this line is load-bearing for cost accounting.
-      const summaryMatch = combined.match(SESSION_SUMMARY_ID_REGEX);
-      if (summaryMatch?.[1]) {
-        result.sessionId = summaryMatch[1];
-      }
+    const sessionId = resumeHintMatch?.[1] ?? summaryMatch?.[1] ?? legacyMatch?.[1];
+    if (sessionId) {
+      result.sessionId = sessionId;
     }
     // In non-quiet mode, extract clean response from stdout by
     // filtering out tool lines, system messages, and noise
@@ -410,6 +447,19 @@ function parseHermesOutput(stdout: string, stderr: string): ParsedOutput {
   }
 
   return result;
+}
+
+/**
+ * Count the tool invocations the CLI rendered in this stream.
+ *
+ * Not a substitute for the session store's `api_call_count` — that counts model
+ * round-trips — but it is the only evidence left when a turn is cut short and no
+ * session row is written. Without it a run that just patched three files reports
+ * zero tool calls, which reads as "nothing happened" (PHO-85).
+ */
+export function countToolCalls(stdout: string): number {
+  const plain = stdout.replace(ANSI_SGR_REGEX, "");
+  return plain.split(TOOL_CALL_MARKER).length - 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -683,6 +733,14 @@ export async function execute(
 
   // ── Parse output ───────────────────────────────────────────────────────
   const parsed = parseHermesOutput(result.stdout || "", result.stderr || "");
+  const toolCalls = countToolCalls(result.stdout || "");
+  // The gateway drop is upstream of Paperclip: Hermes' own daemon lost the
+  // websocket, so the CLI aborted the turn with exit code 1. Keep the diagnosis
+  // explicit instead of reporting a bare "exited with code 1" (PHO-85).
+  const gatewayDisconnected =
+    (result.exitCode ?? 0) !== 0 &&
+    !result.timedOut &&
+    GATEWAY_DISCONNECTED_REGEX.test(`${result.stdout || ""}\n${result.stderr || ""}`);
 
   // ── Real usage & cost (source of truth: Hermes' own session store) ──────
   // The stdout-regex scrape almost never matches (quiet mode prints only the
@@ -750,8 +808,23 @@ export async function execute(
     "stdout",
     `[hermes] Exit code: ${result.exitCode ?? "null"}, timed out: ${result.timedOut}\n`,
   );
+  // Tool-call evidence for the run log. Reported every run, not only the
+  // successful ones: a run cut short by a gateway drop still edited files, and
+  // "0 tool calls" next to three applied patches is what made this look like an
+  // idle run that the watchdog had to stop (PHO-85).
+  await ctx.onLog("stdout", `[hermes] Tool calls: ${toolCalls}\n`);
   if (parsed.sessionId) {
     await ctx.onLog("stdout", `[hermes] Session: ${parsed.sessionId}\n`);
+  }
+  if (gatewayDisconnected) {
+    await ctx.onLog(
+      "stdout",
+      "[hermes] Gateway disconnected mid-turn: Hermes' own gateway dropped the websocket, not a " +
+        "Paperclip timeout and not a model error. " +
+        (parsed.sessionId
+          ? `Session ${parsed.sessionId} stays resumable, so the next attempt continues this work instead of redoing it.\n`
+          : "No session id was printed, so this run cannot be resumed.\n"),
+    );
   }
 
   // ── Build result ───────────────────────────────────────────────────────
@@ -763,7 +836,11 @@ export async function execute(
     model,
   };
 
-  if (parsed.errorMessage) {
+  if (gatewayDisconnected) {
+    executionResult.errorMessage =
+      "Hermes gateway disconnected mid-turn (exit 1 from the Hermes CLI, not a Paperclip timeout)." +
+      (parsed.sessionId ? ` Session ${parsed.sessionId} preserved for resume.` : "");
+  } else if (parsed.errorMessage) {
     executionResult.errorMessage = parsed.errorMessage;
   } else if (!result.timedOut && typeof result.exitCode === "number" && result.exitCode !== 0) {
     executionResult.errorMessage = `Hermes exited with code ${result.exitCode}`;
@@ -808,6 +885,10 @@ export async function execute(
     cost_usd: costUsd,
     cost_status: sessionUsage?.costStatus ?? null,
     api_calls: sessionUsage?.apiCalls ?? null,
+    // Streamed tool invocations. Survives a missing session row, which is the
+    // only thing that proves a failed run touched files (PHO-85).
+    tool_calls: toolCalls,
+    gateway_disconnected: gatewayDisconnected,
   };
 
   // Store session ID for next run
